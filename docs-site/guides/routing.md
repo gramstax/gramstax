@@ -48,6 +48,9 @@ A page that defines none of the known names is not an error. It is a page with
 | `routeChatMember` | `handleChatMember*` and `handleMyChatMember*` | n/a, it is a list | Carries `oldStatus`, `newStatus` and a precomputed filter |
 | `routeCustom` | `registerCustomRoute` calls | n/a, it is a list | Also reachable as `pages.customRoutes`, the same array |
 
+`all` is the page registry: the class map used to construct a page, not a dispatch
+table. The seven dispatch tables are the other seven rows.
+
 The four lists that drive the first three tables are fixed at boot, not derived
 from your code. They are the complete vocabulary the framework dispatches on:
 
@@ -94,7 +97,8 @@ duplicate callback intents are all fatal, and the message names the file:
 ## The seven ids
 
 `_pageRoutes` takes the constructed context and the name of the listener that
-fired, and works down this list. Every row runs at most once per update.
+fired, and works down this list. Ids 0 through 3 and id 6 return on the first
+match; ids 4 and 5 iterate.
 
 | Id | Type | Algorithm | Example |
 | :- | :--- | :-------- | :------ |
@@ -123,8 +127,9 @@ flowchart TD
 ```
 
 The first three ids are "find one page and one method". Ids 4 and 5 are not:
-they iterate, and **every** matching handler runs, so two pages that both define
-`handleFreeText` both see the message. Ids 0 and 6 return on the first match.
+they iterate, so two pages that both define `handleFreeText` both see the message.
+A handler whose `hookBeforeRoute()` returns `false` is skipped, and the loop
+continues to the next matching page. Ids 0 and 6 return on the first match.
 
 ### The separators
 

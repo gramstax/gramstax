@@ -177,7 +177,7 @@ outside the list is an error, and the message names what the tag does accept.
 -->
 ```
 
-Two consequences worth stating plainly:
+Two consequences follow:
 
 - **35 tags allow no attributes at all.** `b`, `del`, `em`, `i`, `ins`, `mark`,
   `s`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`, `u`, `br`, `footer`,

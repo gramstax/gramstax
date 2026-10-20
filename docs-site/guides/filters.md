@@ -18,7 +18,7 @@ reshape a value without also being a code-execution surface, which is the same
 guarantee [Template Blocks](/guides/template-blocks) makes about the block
 vocabulary.
 
-## Interpolation syntaxes
+## Interpolation and conditional syntaxes
 
 | Syntax | Escaping | Behaviour |
 | --- | --- | --- |

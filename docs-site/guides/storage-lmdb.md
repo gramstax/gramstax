@@ -260,7 +260,7 @@ export abstract class PageBase extends CtxCore {
 }
 ```
 
-That is the entire wiring. `createCtx` is gramstax's own hook for building the
+That is all the wiring. `createCtx` is gramstax's own hook for building the
 context of each update, the extra `db` field rides along in the params, and every
 page that extends `PageBase` inherits it. Nothing is registered, nothing is
 imported from a package-specific integration module, and [the page

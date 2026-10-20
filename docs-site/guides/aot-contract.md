@@ -6,19 +6,21 @@ icon: cpu
 
 # AOT contract (`gen/manifest.js`)
 
-Ahead-of-time template build: freezes `.html` templates into importable JS modules with zero runtime codegen, for runtimes without the `Function` constructor (Workers).
+Ahead-of-time (AOT) template build: freezes both `.html` templates and a page's
+class-inline `static template` into importable JS modules with zero runtime
+codegen, for runtimes without the `Function` constructor (Workers).
 
 ```bash
 bun packages/gramstax/scripts/build-manifest.ts <pagesDir> <outDir> --aot
-# AOT written to <outDir>/gen (3 pages, 1 templates, 3 routes)
+# AOT written to <outDir>/gen
 ```
 
 ## Output tree
 
 ```text
 .gramstax/
-  routes.json      # frozen route list (023)
-  manifest.js      # static-import manifest (023)
+  routes.json      # frozen route list
+  manifest.js      # static-import manifest
   gen/
     <key>.g.js     # one module per template key (`sub/note` → `sub_note.g.js`)
     manifest.js    # `{templates: Record<key, ITCompiledTemplate>}`
@@ -31,7 +33,7 @@ import {template as start} from "./start.g.js"
 export const templates = {"start": start}
 ```
 
-Per-key module shape (verified output, from `example/2-helloworld`):
+Per-key module shape, abridged to one base and one language:
 
 ```js
 import {__esc, FILTERS} from "gramstax"
@@ -39,21 +41,39 @@ function __fn0(data, __esc, FILTERS) {return {text: ""+("Hello "+(__esc(FILTERS.
 const fn0 = (data) => __fn0(data, __esc, FILTERS)
 function __fn2(data, __esc, FILTERS) {return [""+("Refresh")]}
 const fn2 = (data) => __fn2(data, __esc, FILTERS)
-export const template = {media: {"default": {}}, ..., message: {"default": {"default": fn0}}, keyboard: {"default": {"default": {"inline": fn2}}}, ...}
+export const template = {
+  media: {"default": {}},
+  poll: {"default": {}},
+  venue: {"default": {}},
+  dice: {"default": {}},
+  callbackAnswer: {"default": {}},
+  precheckoutError: {"default": {}},
+  shippingError: {"default": {}},
+  inlineButton: {"default": {}},
+  answerNote: {"default": {}},
+  webAppAnswer: {"default": {}},
+  gift: {"default": {}},
+  invoice: {"default": {}},
+  paidMedia: {"default": {}},
+  message: {"default": {"default": fn0}},
+  keyboard: {"default": {"default": {"inline": fn2}}},
+  description: {"default": {}}
+}
 ```
 
 A message leaf returns `{text, rich}` and a keyboard leaf returns an array of
 labels. `export const template` always carries all 16 `ICompiledTemplate` fields;
-a block the template does not use is an empty object, and a used one is indexed by
-base id and then by language. `pages` stays in userland source (023
-`manifest.js`).
+a block the template does not use is an empty per-base object, and a used one is
+indexed by base id and then by language. `pages` stays in userland source, in
+`manifest.js`.
 
-## Link-table mechanics (3 lines)
+## Link-table mechanics
 
 <Steps>
   <Step title="Collect">
     Build collects every `_compileToFunction` body while `__emitHook` is installed;
-    message/keyboard-style leaves freeze into the `__fN`/`fN` pairs above.
+    message/keyboard-style leaves freeze into the generated function pairs shown
+    above.
   </Step>
 
   <Step title="Link">
@@ -70,7 +90,7 @@ base id and then by language. `pages` stays in userland source (023
   </Step>
 </Steps>
 
-## Consuming (024)
+## Consuming the output
 
 ```ts
 import {templates} from "./.gramstax/gen/manifest.js"
@@ -91,22 +111,23 @@ for (const [key, template] of Object.entries(templates)) manager.registerCompile
   method.
 </Check>
 
-## v1 limits
+## Known limitations
 
 <AccordionGroup>
   <Accordion title="Script blocks are rejected at build">
-    The message reads ``AOT blocked for template "<key>" (<id>): body contains
-    `with(` - `with` is forbidden in ESM strict mode ...``, so move the logic into
-    the page class, as a method returning plain data, rather than into `{~~ ... ~~}`
-    or `<g-script>`. The two are equivalent: both compile to `with(data ...)`.
+    The build fails with a message beginning ``AOT blocked for template "<key>"
+    (<id>): body contains `with(` - `with` is forbidden in ESM strict mode``.
+    Move the logic into the page class as a method that returns plain data,
+    instead of writing it in `{~~ ... ~~}` or `<g-script>`. Both forms eventually
+    call `with(data)`, which ESM strict mode does not allow.
   </Accordion>
 
-  <Accordion title="Runtime-dynamic templates are impossible">
+  <Accordion title="Runtime-built templates cannot be emitted">
     AOT freezes bodies at build time, so templates assembled at runtime
-    (string-concatenated sources, per-request codegen) cannot be emitted. What can
-    be emitted is a page's class-inline `static template`, keyed by its route name,
-    and a static `.html` file under the pages directory. When both exist for one
-    key the `.html` file wins, mirroring boot precedence.
+    (string-concatenated sources, per-request codegen) cannot be emitted. The
+    emitter can freeze a page's class-inline `static template`, keyed by its route
+    name, and a static `.html` file under the pages directory. When both exist for
+    one key, the `.html` file wins, matching boot precedence.
   </Accordion>
 
   <Accordion title="How are filenames sanitized?">
@@ -115,11 +136,6 @@ for (const [key, template] of Object.entries(templates)) manager.registerCompile
     distinct.
   </Accordion>
 </AccordionGroup>
-
-## v2 roadmap
-
-- `with`-removal: compile script blocks to strict-safe closures instead of rejecting them.
-- True ref-emission for wrapper blocks: engine cooperation (e.g. an assembler taking explicit args) so media-style fields freeze like message/keyboard instead of rebuilding at import.
 
 ## Implementation map
 

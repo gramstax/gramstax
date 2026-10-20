@@ -26,7 +26,7 @@ The status server is off unless you give it a port. It is a top-level field in
 
 ```ts
 // gramstax.config.ts
-import type {GramstaxConfig} from `gramstax`
+import type {GramstaxConfig} from "gramstax"
 
 export default {
   token: process.env.BOT_TOKEN ?? ``,
@@ -135,10 +135,9 @@ counters `activeKeys` and `waiting`. `activeChats` rides along as a legacy alias
 covers what each of those numbers means and how to read them.
 
 Here is the same moment rendered both ways, so the mapping is visible rather than
-described:
+described. `GET /stats` returns this JSON:
 
-<CodeGroup>
-```json GET /stats
+```json
 {
   "uptimeSeconds": 4213,
   "counts": {
@@ -161,7 +160,9 @@ described:
   "latency": { "count": 18420, "avgMs": 43, "maxMs": 1912 }
 }
 ```
-```text GET /metrics
+`GET /metrics` returns this text:
+
+```text
 # HELP gramstax_updates_total Total updates processed
 # TYPE gramstax_updates_total counter
 gramstax_updates_total{listener="text"} 12000
@@ -185,7 +186,6 @@ gramstax_queue_max_size 5000
 gramstax_queue_waiting_enqueue 0
 gramstax_queue_waiting_dequeue 8
 ```
-</CodeGroup>
 
 Both come from the same snapshot object. `/metrics` is a serialization of exactly
 what `/stats` returns, plus the queue gauges.
@@ -194,6 +194,8 @@ what `/stats` returns, plus the queue gauges.
 
 Every name below is emitted by `metricsToPrometheus`, and they are the complete set.
 There are exactly **two labels** in the whole exposition: `listener` and `quantile`.
+Start with `gramstax_updates_total` for volume, `blocked` and `dropped` for losses,
+and `gramstax_update_duration_ms` for latency; the rest break those three down.
 
 | Metric | Type | Labels | Emitted when |
 | :----- | :--- | :----- | :------------ |
@@ -284,20 +286,22 @@ What each of the ten counters actually counts, and where it is incremented.
 | `matched` | Routing resolved to a handler |
 | `noMatch` | Routing found nothing for the listener |
 | `noHandler` | Routing matched a page that declares no handler for the update |
-| `blocked` | A contended session lock dropped the update, **or** the bot-level `hookBeforeRoute` returned `false`. A page-level denial returns `{state: "blocked"}` and increments no counter |
+| `blocked` | A contended session lock dropped the update, **or** the bot-level `hookBeforeRoute` returned `false`. A page-level denial on ids 0-3 and 6 returns `{state: "blocked"}` and increments no counter; inside a `handleFree*` loop it only skips that handler |
 | `timeouts` | Routing exceeded `updateTimeoutMs` and was raced to `UpdateTimeoutError` |
 | `skippedDuplicate` | `skipDuplicateUpdate` is on and the `update_id` was already handled |
 | `skippedValidation` | Text or caption longer than `maxTextLength`, which only applies when that limit is non-zero |
 | `dropped` | A polling update discarded during shutdown, plus the residual buffered updates when a drain times out |
 
-Three of these counters are silent until you configure the guard behind them, so a
+Two of these counters are silent until you configure the guard behind them, so a
 missing series is not always a healthy bot:
 
 | Counter | Guard | Default |
 | :------ | :---- | :------ |
-| `timeouts` | `updateTimeoutMs` | `30000`, so the watchdog race is live |
 | `skippedValidation` | `maxTextLength` | `0`, and the check only runs above `0`, so it can never fire as shipped |
 | `skippedDuplicate` | `skipDuplicateUpdate` | `false`, so the dedupe set is never populated |
+
+`timeouts` is different: `updateTimeoutMs` defaults to `30000`, so the watchdog
+race is live and a missing series is the healthy state.
 
 If you alert on `skippedValidation` or `skippedDuplicate` alone you are alerting on
 nothing until those two are turned on. [Configuration](/guides/configuration) has
@@ -318,7 +322,8 @@ update, and a bot that failed to boot will show `updatesFailed: 1` with
   A rate-limited update is invisible here. The inbound limiter runs as middleware
   before gramstax routing, so a dropped update never reaches `_onHandle`: it adds to
   none of these ten counters and fires none of the route hooks. If you need to see
-  it, count it in [`hookRateLimited`](/guides/rate-limiting).
+  limit crossings, [`hookRateLimited`](/guides/rate-limiting) fires once per key
+  per window, when the limit is first exceeded.
 </Note>
 
 ## Hooks as a second channel
@@ -348,9 +353,10 @@ export class BotCore extends Gramstax {
 emitted: `error`, `timeout` and `validation`. The type also declares `blocked` and
 `no-handler`, but nothing emits them; a blocked update and a page with no matching
 handler stay routing outcomes, reported through `hookAfterRoute` and `hookUpdate`
-rather than as an error event. `traceId` is the Telegram `update_id` as a string,
-except for the three failures raised outside routing, where it is the literal
-`startup`, `catch` or `polling`. That makes `traceId` the join key between a trace
+rather than as an error event. `traceId` is `u<update_id>` when the update has an
+id, or `c<n>` when it does not. Outside routing it is the literal `startup` or
+`polling`; a global bot error uses the update id string (or an empty string) and
+sets `listenerName` to `catch`. That makes `traceId` the join key between a trace
 and an error report, and `durationMs` the wall time from dispatch to failure, `0`
 when the failure predates routing.
 
@@ -366,7 +372,7 @@ Both halves are public, so a bot can push metrics without an HTTP server at all.
 instance behind the built-in endpoints is reachable on the bot.
 
 ```ts
-import {metricsToPrometheus, type MetricsStore} from `gramstax`
+import {metricsToPrometheus, type MetricsStore} from "gramstax"
 ```
 
 Serializing a snapshot is pure: it reads the store, it does not touch it, and it

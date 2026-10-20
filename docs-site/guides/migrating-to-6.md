@@ -78,19 +78,27 @@ is template introspection, not a rendered block. From `packages/gramstax/src/e2e
 
 ```ts
 // before
-gmsg(page: string, aGBaseId: string, data?: Record<string, any>, aLang = `default`): string {
-  return this.bot.templateManager.getGMessage(page, aGBaseId, aLang, data)
-}
-gkb(page: string, aGBaseId: string, aType: `inline` | `bottom` = `inline`, data?: Record<string, any>, aLang = `default`): string[] {
-  return this.bot.templateManager.getGKeyboard(page, aGBaseId, aLang, aType, data)
-}
+class E2eHelper {
+  gmsg(page: string, aGBaseId: string, data?: Record<string, any>, aLang = `default`): string {
+    return this.bot.templateManager.getGMessage(page, aGBaseId, aLang, data)
+  }
 
-// after
-gmsg(page: string, aGBaseId: string, data?: Record<string, any>, aLang = `default`): string {
-  return this.bot.templateManager.getGMessage(page, aGBaseId, aLang, data).text
+  gkb(page: string, aGBaseId: string, aType: `inline` | `bottom` = `inline`, data?: Record<string, any>, aLang = `default`): string[] {
+    return this.bot.templateManager.getGKeyboard(page, aGBaseId, aLang, aType, data)
+  }
 }
-gkb(page: string, aGBaseId: string, aType: `inline` | `bottom` = `inline`, data?: Record<string, any>, aLang = `default`): string[] {
-  return this.bot.templateManager.getGKeyboard(page, aGBaseId, aLang, aType, data).rows
+```
+
+```ts
+// after
+class E2eHelper {
+  gmsg(page: string, aGBaseId: string, data?: Record<string, any>, aLang = `default`): string {
+    return this.bot.templateManager.getGMessage(page, aGBaseId, aLang, data).text
+  }
+
+  gkb(page: string, aGBaseId: string, aType: `inline` | `bottom` = `inline`, data?: Record<string, any>, aLang = `default`): string[] {
+    return this.bot.templateManager.getGKeyboard(page, aGBaseId, aLang, aType, data).rows
+  }
 }
 ```
 

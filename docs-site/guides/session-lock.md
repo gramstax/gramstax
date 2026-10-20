@@ -34,12 +34,13 @@ on one process. Two things stop being true when you scale out:
 
 ## Redis only
 
-The lock is an atomic `SET NX PX` lease carrying a random token, released by a
-Lua compare-and-delete so a slow holder cannot delete the lease its successor
-now owns. It runs against the client underlying your session store, so there is
-no second connection to configure.
+The lock is an atomic `SET NX PX` lease carrying a random token. It is released
+by an atomic Lua *owned-release* script: the key is deleted only when the stored
+token still matches the holder's, so a slow holder cannot delete the lease its
+successor now owns. It runs against the client underlying your session store, so
+there is no second connection to configure.
 
-That is the entire requirement: `cacheSession` must be Redis-backed, and the
+The only requirement: `cacheSession` must be Redis-backed, and the
 check is `store instanceof KeyvRedis`. On the default `memory` store, and on any
 custom store, since neither is a `KeyvRedis`, there is nothing to take a lease
 on, so the lock is not merely disabled. It logs at boot and every update runs
@@ -120,7 +121,7 @@ entirely.
 | --- | --- | --- |
 | `skip` | The update is dropped and `blocked` increments | A duplicate is worse than a lost update: OTP codes, payment confirmation, stock mutation. The safe default |
 | `wait` | Retries every 10ms until `leaseMs` elapses, then drops | Contention is rare and the update cannot be lost. Adds latency exactly when the bot is already busy |
-| `serialize` | Queues behind the current holder on a per-key FIFO | The flow is order-dependent and a dropped step breaks it: wizards, checkouts, staged uploads. Nothing is lost; a slow user queues instead of disappearing |
+| `serialize` | Queues same-instance contenders on a local per-key FIFO, then tries the lease once | The flow is order-dependent and a dropped step breaks it: wizards, checkouts, staged uploads. A lease held by another instance still drops the update (`blocked`++); the queue orders, it does not wait |
 
 `serialize` chains contenders onto a local per-key queue before Redis is
 consulted, so ordering holds within an instance and the lease is what prevents

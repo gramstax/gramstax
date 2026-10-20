@@ -43,11 +43,12 @@ Block <hr> must be self-closing: use <hr /> instead
 Self-closing form is checked per tag, and the rule is not uniform. Nineteen page
 blocks are containers and are rejected when self-closed: `<g-base>` through
 `<g-div>`, plus `<g-web-app-answer>`. The Rich HTML void elements (`hr`, `img`,
-`input`, `br`, `tg-map`) are rejected when they are *not* self-closed. Nine page
-blocks are in neither list and accept either form: `g-price`, `g-venue`, `g-dice`,
-`g-callback-answer`, `g-precheckout-error`, `g-shipping-error`, `g-inline-button`,
-`g-answer-note` and `g-gift`. `<g-space>` and `<g-import>` are written
-self-closing by convention, which the validator does not enforce either way.
+`input`, `br`, `tg-map`) are rejected when they are *not* self-closed. Eleven
+page blocks are in neither list and accept either form: the nine `g-price`,
+`g-venue`, `g-dice`, `g-callback-answer`, `g-precheckout-error`,
+`g-shipping-error`, `g-inline-button`, `g-answer-note` and `g-gift`, plus
+`g-space` and `g-import`. The validator does not enforce either form for those
+last two, even though the examples write them self-closing.
 `TemplateEngine.validateTemplate` in
 `packages/gramstax/src/template/engine.ts` adds three attribute shapes: unknown,
 missing, or malformed. An unknown attribute is rejected and the message names
@@ -64,9 +65,9 @@ twice), with a prefix of `Unknown template filter "uppercase" in {{user.name|upp
 `<g-script>` and every `{~~ ... ~~}` scope compile to `with(data ...)`, which ESM
 forbids, so they work under `gramstax start` and hard-fail the build.
 `packages/gramstax/scripts/aot-emit.ts` reports a prefix beginning `AOT blocked
-for template "start" (base "kb"): body contains`. Move the logic into a page-class
-method and interpolate it with `{{}}`. See
-[the AOT contract](/guides/aot-contract).
+for template "start" (fn0): body contains`. The parenthetical is the generated
+body id, not a base id. Move the logic into a page-class method and interpolate
+it with `{{}}`. See [the AOT contract](/guides/aot-contract).
 
 ### Keyboard blocks that throw
 
@@ -235,8 +236,8 @@ Three endpoints answer on the status server: `GET /health` returns `{status: "ok
 Prometheus exposition text. On the status server `/health` is always open, while
 `/stats` and `/metrics` answer `401` without a matching
 `X-Telegram-Bot-Api-Secret-Token` header when a webhook `secretToken` is configured.
-The webhook server serves only `/health` and `/stats`, and checks the secret before
-routing, so with a secret set even `/health` needs the header there. Prometheus
-scraping therefore needs `statusServerPort`. The counters that answer "why did
+The webhook server serves `/`, `/health`, `/stats` and `/stats_queue`, and checks
+the secret before routing, so with a secret set even `/health` needs the header
+there. Prometheus scraping therefore needs `statusServerPort`. The counters that answer "why did
 nothing happen" are `noMatch`, `noHandler` and `dropped`; for per-update detail,
 `Gramstax` exposes `hookUpdate`, `hookUpdateError` and `hookTrace`.

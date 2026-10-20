@@ -21,20 +21,19 @@ icon: rocket
 
 ## Installation
 
-<CodeGroup>
+In your own bot:
 
-```bash Consume gramstax in your own bot
+```bash
 bun add gramstax
 ```
 
-```bash Work on gramstax itself
-# From the monorepo root
+Inside the monorepo:
+
+```bash
 git clone <repo-url>
 cd gramstax
 bun install
 ```
-
-</CodeGroup>
 
 <Note>
   `gramstax` depends on the Telegram client it is built on, so that package arrives
@@ -72,9 +71,9 @@ actually pass:
 
 | Difference | Why |
 | --- | --- |
-| `cacheSession`, `cacheKeyboard`, `templateManager` and `log` take **instances** (or a `Map`), not refs | Your code already holds the object. The CLI is the side that has to resolve a module path. |
+| `cacheSession`, `cacheKeyboard`, `templateManager` and `log` take **instances**, not refs; `cacheKeyboard` also accepts a `Map` | Your code already holds the object. The CLI is the side that has to resolve a module path. |
 | `manifest` is accepted | Constructor-only: the config loader rejects it as `unknown field`. It is what makes an fs-less boot possible. |
-| `token` and `deploy` are **required** | Neither has a default the way `deploy` does in a config file, and `token` never had one. |
+| `token` and `deploy` are **required** | The constructor requires both. `deploy` defaults to `polling` only in the config file; `token` has no default on either side. |
 
 You construct your own `Gramstax` subclass, not the base class, which is what the
 repository's e2e harness does:
@@ -85,8 +84,9 @@ import {TemplateManager} from "gramstax"
 import {BotCore} from "./src/core/bot"
 
 export const bot = new BotCore({
-  deploy: `polling`,
-  token: process.env.BOT_TOKEN ?? ``,
+  deploy: `test`,
+  token: `test`,
+  log: false,
   templateManager: new TemplateManager({
     path: [join(import.meta.dir, `src/pages`)]
   })
@@ -137,28 +137,27 @@ Create page classes under `src/pages` (auto-discovered by `PageManager`). Each m
 
 ```typescript
 // src/pages/start.ts
-import { Ctx } from "gramstax";
+import {Ctx} from "gramstax"
 
 export class StartPage extends Ctx {
   static template = `
     <g-base>
-      <g-keyboard type="inline">Menu, Help</g-keyboard>
       <g-message>Hello {{name}}!</g-message>
     </g-base>
-  `;
+  `
 
-  async handleText() {
-    await this.reply();
+  async handleCommandText() {
+    await this.renderText({data: {name: this.from?.first_name ?? `there`}})
   }
 }
 ```
 
 <Warning>
-  Export the class by name. `PageManager._getFile` reads `Object.values(mod)[0]`,
-  so a default-only export does load, but it is the only shape that works that
-  way: add a second export and you get whichever value the module records first.
-  The scaffold uses a named export for that reason. The throw `must have export
-  (not default) class page` fires when the module exports nothing at all.
+  Export the class by name. `PageManager._getFile` reads `Object.values(mod)[0]`.
+  A default-only export does load, but the moment a module has two exports the
+  framework cannot tell which one you meant. It loads the first value the module
+  exposes, silently. The throw `must have export (not default) class page` fires
+  only when the module exports nothing at all.
 </Warning>
 
 ### Webhook / serverless / test
@@ -167,33 +166,48 @@ export class StartPage extends Ctx {
   <Tab title="Webhook">
     ```typescript
     // gramstax.config.ts: the branch must be named after `deploy`
-    {
+    import type {GramstaxConfig} from "gramstax"
+
+    const config: GramstaxConfig = {
       deploy: `webhook`,
       optionsDeploy: {
         webhook: {url: `https://example.com/bot`, secretToken: process.env.BOT_WEBHOOK_SECRET}
       }
     }
+
+    export default config
     ```
   </Tab>
 
   <Tab title="Serverless">
     ```typescript
-    {
+    // gramstax.config.ts: the adapter is the key inside the serverless branch
+    import type {GramstaxConfig} from "gramstax"
+
+    const config: GramstaxConfig = {
       deploy: `serverless`,
       optionsDeploy: {
         serverless: {
-          adapter: `cloudflare-mod`, // or `aws-lambda-async`
-          url: `https://example.com/bot`,
-          secretToken: process.env.BOT_WEBHOOK_SECRET
+          "cloudflare-mod": {
+            url: `https://example.com/bot`,
+            secretToken: process.env.BOT_WEBHOOK_SECRET
+          }
         }
       }
     }
+
+    export default config
     ```
   </Tab>
 
   <Tab title="Test">
     ```typescript
-    {deploy: `test`} // E2E mode: MockTelegramServer stands in for the Bot API
+    import type {GramstaxConfig} from "gramstax"
+
+    // E2eHelper intercepts Bot API calls in-process; no token or network is used.
+    const config: GramstaxConfig = {deploy: `test`}
+
+    export default config
     ```
   </Tab>
 </Tabs>
@@ -211,16 +225,17 @@ bun test --filter "TemplateEngine"
 bun run ci:check:packages
 ```
 
-Send `/start` to your bot in Telegram; you should receive the rendered `<g-message>` with the inline keyboard.
+Send `/start` to your bot in Telegram. The command handler calls `renderText`,
+so you should receive the rendered `<g-message>`.
 
 ## Common Issues
 
 | Problem                                                 | Cause                                                                               | Solution                                                                                                 |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `File <path> must have export (not default) class page` | Page module exports nothing, or relies on a default export that is not its only export. | Use a named `export class StartPage`. `PageManager._getFile` reads `Object.values(mod)[0]` (`page/manager.ts:45-52`). |
+| `File <path> must have export (not default) class page` | Page module exports nothing. A multi-export module can load a different export instead of throwing. | Use a named `export class StartPage`. `PageManager._getFile` reads `Object.values(mod)[0]` (`page/manager.ts:45-52`). |
 | Keyboard bindings don't work                            | A `<g-base id="x">` is defined but `AGBaseId` isn't passed to the keyboard builder. | Pass the same `id` to `bottomKeyboardT`/`inlineKeyboardT` (`types/ctx.ts` warns about this).           |
 | Changes to templates not reflected                      | `enableWatch` is off or the file extension isn't `.html`/`.ts`/`.js`.               | Set `templateManager: {enableWatch: true}` (`TemplateManager._supportedExtensions`, `manager.ts:85`).    |
-| Redis session errors                                    | Wrong `cacheSession` URL.                                                           | Use `new CacheExternal("redis://host:port")` or omit for in-memory (`cache/external.ts:64`).             |
+| Redis session errors                                    | Wrong `cacheSession` store URL.                                                     | Use `cacheSession: {store: "redis://host:port"}` or omit the field for in-memory (`cache/external.ts:64`). |
 
 ## Next Steps
 

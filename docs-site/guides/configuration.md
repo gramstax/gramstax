@@ -47,7 +47,7 @@ Full branch tables are in [Deploy](/concepts/deploy) and
 | `autoRetry` | `boolean` | `true` | Mounts the auto-retry plugin, which absorbs Telegram rate limits by retrying failed requests. |
 | `autoRetryOptions` | object | _none_ | `maxRetryAttempts` (≥ 1) and `retryOnInternalServerErrors`. Unknown keys are rejected. |
 | `updateTimeoutMs` | `number` | `30000` | How long a single handler may run before the update is treated as timed out. It does not cancel the handler: the update is only marked. |
-| `skipDuplicateUpdate` | `boolean` | `false` | Drops an update whose `update_id` was already handled. This is the one to reach for on webhook retries, where delivery is at-least-once. |
+| `skipDuplicateUpdate` | `boolean` | `false` | Drops an update whose `update_id` was already handled. This is the one to reach for on webhook retries, where Telegram may deliver the same update more than once. |
 | `maxTextLength` | `number` | `0` | Caps incoming `message.text` / `message.caption`; longer updates are skipped. `0` disables the check. |
 | `rateLimit` | object | _none_ | Inbound limit. Both `windowMs` and `max` are required. See below. |
 
@@ -125,7 +125,7 @@ a template-backed render. Prefer a plain `ctx.reply` in this hook.
 | --- | --- | --- | --- |
 | `statusServerPort` | `number` | _none_ | An extra HTTP port serving `GET /health`, `GET /stats` and `GET /metrics` in **any** deploy mode. Unset, `/health` and `/stats` remain available on the webhook server; `/metrics` does not. |
 | `statusServerHostname` | `string` | `127.0.0.1` | Bind address for that server. |
-| `log` | boolean \| ref \| object | `true` | `true` for the default logger, `false` for silence, a module ref to a `LoggingHelper`, or `{pathFile?, force?, formatTime?}`. Unknown fields are rejected. |
+| `log` | boolean \| ref \| object | silent when omitted | `true` mounts the default logger, `false` stays silent, a module ref resolves to a `LoggingHelper`, or pass `{pathFile?, force?, formatTime?}`. Unknown fields are rejected. |
 
 ### `GET /metrics`
 
@@ -164,7 +164,7 @@ unless the request carries a matching `X-Telegram-Bot-Api-Secret-Token` header.
 
 | Field | Type | Default | What it does |
 | --- | --- | --- | --- |
-| `optionsPage` | `{shortCallbackQueryData?}` | `false` | Numeric callback ids instead of names. Shrinks callback payloads, at the cost of the callback data no longer being readable in the Telegram UI. |
+| `optionsPage` | `{shortCallbackQueryData?}` | flag off (`shortCallbackQueryData: false`) | Numeric callback ids instead of names. Shrinks callback payloads, at the cost of the callback data no longer being readable in the Telegram UI. |
 | `botConfig` | `BotConfig` | _none_  | Forwarded to the client (`apiRoot` and friends). Use it for a self-hosted Bot API server. |
 
 ## Constructor params
@@ -183,6 +183,8 @@ resolve a module path, and your own code already has the object.
 
 ## Validation is strict on purpose
 
-Every field above rejects unknown siblings rather than ignoring them. A misspelled
-key fails at boot with the supported keys named, instead of silently leaving you on
-the default and wondering why your cache is empty.
+Most fields reject unknown siblings rather than ignoring them. A misspelled key
+fails at boot with the supported keys named, instead of silently leaving you on the
+default and wondering why your cache is empty. Two fields are passed through
+instead: `throttle` is checked only to be an object, and `botConfig` is a grammY
+`BotConfig` forwarded as-is.

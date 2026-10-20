@@ -6,8 +6,8 @@ icon: cloud
 
 # Serverless deploy (Cloudflare Workers + AWS Lambda)
 
-Build → secret → deploy → verify for the `11-cloudflare-worker` example and the `lambda` target.
-Every command below was executed verbatim during implementation.
+Build → secret → deploy → verify for the `11-cloudflare-worker` example and the
+`lambda` target.
 
 ## 1. Build
 
@@ -36,10 +36,10 @@ compatibility_date = "2026-01-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-# BOT_TOKEN is a secret, never a var (a [vars] entry would shadow the real
-# secret at runtime. Verified live: placeholder var caused error 1101)
+# BOT_TOKEN is a secret, never a var: a [vars] entry can shadow the secret
+# binding and the worker then sees the placeholder instead of the token.
 BOT_DEPLOY = "serverless"
-# the adapter is the KEY, and url lives inside it (`serverless: {"cloudflare-mod": {url: "https://gramstax-cloudflare-example.damartripamungkas.workers.dev/webhook", secretToken: …}}`)
+# the adapter is the KEY, and url lives inside it (`serverless: {"cloudflare-mod": {url: "https://<your-worker>.workers.dev/webhook", secretToken: "..."}}`)
 
 [alias]
 "bun" = "./bun-stub.ts"
@@ -48,46 +48,41 @@ BOT_DEPLOY = "serverless"
 Name + URL come from `optionsDeploy.serverless['cloudflare-mod']` (`name` + `url`)
 in `gramstax.config.ts`; unconfigured they default to `gramstax-worker` +
 `https://<your-worker>.workers.dev/webhook`. `BOT_TOKEN` never appears as a `[vars]` entry:
-a vars entry would shadow the real secret at runtime (error 1101, proven by
-a live 500 on the first single-toml deploy); the token is set only via
-`wrangler secret put BOT_TOKEN --config <emitted toml>`. The legacy
-`[observability]` blocks (`enabled = false`, zero runtime effect) were dropped.
-The `cloudflare-mod` adapter is verified against grammy 1.46
-(`cloudflare-workers-mod` does not exist there).
+a var with the same name can shadow the secret binding, and the worker then sees
+the placeholder instead of the real token. Set the token only with
+`wrangler secret put BOT_TOKEN --config <emitted toml>`. The emitted toml carries
+no `[observability]` block. The adapter name is `cloudflare-mod`; grammY 1.46 has
+no `cloudflare-workers-mod` entry.
 
-## 3. Secret (delete-then-put gotcha)
+## 3. Secret rotation
 
-`wrangler secret put` merges: a stale secret survives a plain put. When
-rotating, delete first:
+`wrangler secret put` creates or replaces the named secret. To rotate, run it with
+the new value and revoke the old token in BotFather:
 
 ```bash
 cd example/11-cloudflare-worker
-wrangler secret delete BOT_TOKEN
 wrangler secret put BOT_TOKEN   # paste the NEW token only here, never in a file
 ```
 
 <Danger>
-  The old committed token must be revoked via BotFather before/after rotation: a
-  committed token is compromised by definition.
+  If a token was ever committed or shared, treat it as compromised and revoke it
+  in BotFather.
 </Danger>
 
 <Warning>
-  Never put `BOT_TOKEN` (or any secret name) in `[vars]`: not even as a
-  placeholder. A vars entry occupies the binding name: `secret put` then fails
-  with `already in use`, `secret list` shows nothing, and the worker throws error
-  1101 (the var value reaches the code, not the secret). Recovery: remove the
-  vars line, redeploy (`--keep-vars` defaults to false, so the stale var is wiped
-  and only configured vars are set), then `secret put` succeeds. The emitted toml
-  deliberately carries no `BOT_TOKEN` vars line for this reason.
+  Never put `BOT_TOKEN` (or any secret name) in `[vars]`, not even as a
+  placeholder. A var with the same name can shadow the secret binding, so the
+  worker sees the placeholder instead of the real token (Cloudflare error 1101).
+  The emitted toml deliberately carries no `BOT_TOKEN` vars line.
 </Warning>
 
 ## 3b. Webhook secret duality (`secretToken`)
 
 `optionsDeploy.serverless` is keyed by adapter: exactly one of `'cloudflare-mod'`
 or `'aws-lambda-async'`, each accepting only its own fields (see
-`docs-site/guides/gramstax-build.md`). `secretToken` is runtime-required but type-optional so
-zero-config `gramstax build` keeps working. Its VALUE always comes from an env expression
-(`secretToken: process.env.BOT_WEBHOOK_SECRET ?? ```), never a literal.
+`docs-site/guides/gramstax-build.md`). `secretToken` is runtime-required but type-optional, so a
+zero-config `gramstax build` keeps working. Its value always comes from an env
+expression, never a literal: `secretToken: process.env.BOT_WEBHOOK_SECRET ?? ""`.
 The config value sets the webhook + local `start`; the deployed edge reads the
 `BOT_WEBHOOK_SECRET` binding instead of the baked bundle: same value both sides:
 
@@ -113,14 +108,14 @@ dropped is reported per-slot at build time, with the reason, including under
     | `optionsPage`, `rateLimit`, `throttle` | plain objects, in-memory |
     | `cacheSession` | only the `{store, ttlMs, namespace}` form |
     | `cacheKeyboard` | only the array / plain-object form |
-    | `log` | only `true`/`false`, or options without `pathFile` and without `force: 'file'\|'all'` |
+    | `log` | `true`/`false`, or options without `pathFile` and without `force: 'file'\|'all'`; a path-ref is resolved as in the next section |
   </Accordion>
 
   <Accordion title="How is a path-ref slot resolved?">
     `cacheSession`, `cacheKeyboard` and `log` may each be a path-ref:
 
     ```ts
-    log: {override: {module: `./src/helpers/log.ts`, export: `LogHe`}}
+    log: {override: {module: "./src/helpers/log.ts", export: "LogHe"}}
     ```
 
     The emitter writes `import * as __ref0 from "../../src/helpers/log.ts"` at the
@@ -183,10 +178,10 @@ Bundling resolves and compiles every specifier ahead of the deployment package.
 It still needs `gramstax` resolvable from the emit dir: true in a real project,
 which walks up to its own `node_modules`, but a constraint if you emit elsewhere.
 
-For `cloudflare-mod`, the bundle stubs four edge-impossible graphs with fail-fast
+For `cloudflare-mod`, the bundle stubs five edge-impossible graphs with fail-fast
 errors: `bun` (serve), `@keyv/redis` (no TCP sessions), `chokidar` (no fs to
-watch), `@grammyjs/transformer-throttler` (bottleneck), `@grammyjs/files` node
-file helpers (no fs download; `hydrateFiles` mount itself works). Anything
+watch), `@grammyjs/transformer-throttler` (bottleneck), and `@grammyjs/files`
+node file helpers (no fs download; `hydrateFiles` mount itself works). Anything
 calling them throws a clear message naming the multi-file output as the
 alternative. The lambda bundle stubs only `bun`, since Lambda is real Node.
 
@@ -194,7 +189,7 @@ Pre-flight without credentials:
 
 ```bash
 wrangler deploy --dry-run --config <abs path>/.gramstax/server/wrangler.toml
-# Total Upload: ~19 KiB, exit 0, no writes
+# exits 0 and writes nothing
 ```
 
 ## 5. Verify
@@ -204,7 +199,7 @@ webhook, then routes):
 
 ```bash
 curl -X POST https://<name>.<sub>.workers.dev/webhook \
-  -H 'Content-Type: application/json' -d '{"update_id":1,...}'
+  -H 'Content-Type: application/json' -d '{"update_id":1}'
 ```
 
 Then, with the NEW token:
@@ -223,7 +218,7 @@ bunx wrangler dev --config <abs path>/.gramstax/server/wrangler.toml --port 1879
   --var BOT_DEPLOY:"serverless" \
   --var BOT_API_ROOT:http://127.0.0.1:18791   # local MockTelegramServer (the adapter key + url come from the baked optionsDeploy in the emitted entry)
 curl http://127.0.0.1:18790/                              # 200, no bot boot
-curl -X POST http://127.0.0.1:18790/webhook -d '{...}'    # 200, zero EvalError
+curl -X POST http://127.0.0.1:18790/webhook -d '{"update_id":1}'  # 200, no EvalError
 ```
 
 The mock only accepts loopback webhook URLs, so the dev `optionsDeploy.serverless`

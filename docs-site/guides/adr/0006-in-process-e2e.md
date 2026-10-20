@@ -57,7 +57,7 @@ A complementary **`MockTelegramServer`** (`src/mock/telegram-server.ts`) provide
 | Code        | `src/core/bot.ts:414`: `e2e?: E2eHelper` (typed only for `deploy:"test"`)                           |
 | Code        | `src/types/bot.ts`: `deploy: "test"` documented as E2E mode                                      |
 | Code        | `src/mock/telegram-server.ts`: `MockTelegramServer` HTTP mock                                       |
-| Docs        | `AGENTS.md`: "Test mode via `deploy: 'test'` + `MockTelegramServer`."                               |
+| Docs        | `AGENTS.md`: "Test mode via `deploy: 'test'`"; test mode attaches `E2eHelper`, not `MockTelegramServer`. |
 
 ## Related
 

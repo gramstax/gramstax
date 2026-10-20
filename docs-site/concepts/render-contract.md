@@ -27,8 +27,11 @@ this.renderText({data: {name: `Ada`}})
 // forced send, with the keyboard this page's `g-keyboard` block declares
 this.renderText({mode: `reply`, keyboard: this.inlineKeyboardT([this])})
 
-// fan-out: the same block, one send per recipient id
-this.renderText({data: {status: `done`}, broadcast: {ids: [123456]}})
+// fan-out: the same block, one send per recipient id and language
+this.renderText({
+  data: {status: `done`},
+  broadcast: {ids: [123456], languageCode: [`en`]}
+})
 ```
 
 ## The twelve route atoms
@@ -70,7 +73,7 @@ dropped, which is the bug class this design exists to remove.
 
 ## `?: never` is load-bearing, not cosmetic
 
-This is worth stating plainly because it is easy to get wrong. TypeScript's
+This is easy to get wrong. TypeScript's
 excess-property check treats a property as *known* when **any** member of the
 union declares it. Simply omitting an unread key from one member would let it
 through:
@@ -90,20 +93,21 @@ this.renderText({mode: `reply`, fallback: `reply`})   // error
 
 ## Plain JavaScript callers
 
-`never` disappears at runtime, so `Ctx._assertRenderRoute` enforces the same
-combinations before any API call for callers who are not typechecked. Same rule,
-both sides.
+`never` disappears at runtime, so `Ctx._assertRenderRoute` checks the same
+combinations before the API call in `renderText`, `renderMedia` and
+`renderMediaGroup`. The other `render*` methods rely on the type checker alone.
 
 ## One field per Bot API call
 
-Each call has exactly one options field, named for the Telegram parameter it maps
-to: `options`, `editOptions`, `fallbackOptions`, `captionOptions`, `media`,
-`mediaOptions`, `resendOptions`. There is no bag you have to satisfy for two
-Telegram methods at once.
+Each call has exactly one options bag for the Bot API method it maps to:
+`options`, `editOptions`, `fallbackOptions`, `captionOptions`, `mediaOptions`
+or `resendOptions`. There is no bag you have to satisfy for two Telegram methods
+at once. `rich` and `richOptions` describe formatting and sit beside that bag;
+`media` is the payload, not an options bag.
 
-The same care narrows `keyboard`: it is typed `IInBoKb` where the call is
-always an edit, because an edit can only carry an inline or bottom keyboard,
-and stays the wider type on media, where a delete-and-resend is a send.
+The same care narrows `keyboard`. A route that always edits types it as
+`IInlineKb`, because `editMessageText` rejects a bottom keyboard. Send-capable
+routes keep the wider `IInBoKb`.
 
 ## Media is a different shape
 

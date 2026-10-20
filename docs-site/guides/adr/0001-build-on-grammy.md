@@ -18,7 +18,7 @@ A Telegram bot framework needs to talk to the Telegram Bot API: sending messages
 
 ## Decision
 
-Build `gramstax` **on top of [`grammy`](https://grammy.dev)**. `Gramstax` extends grammY's `Bot` (`core/bot.ts` imports `Bot, webhookCallback`); `Ctx` reuses grammY's `Context`, `InlineKeyboard`, `Keyboard`, and `InputMediaBuilder` (`core/ctx.ts`); public types are aliases of grammY types (`types/ctx.ts`: `ICt = Context`, `IInlineKb = InlineKeyboard`, `IBottomKb = Keyboard`).
+Build `gramstax` **on top of [`grammy`](https://grammy.dev)**. `Gramstax` extends grammY's `Bot` (`core/bot.ts` imports `Bot, webhookCallback`); `Ctx` reuses grammY's `Context`, `InlineKeyboard`, `Keyboard`, and `InputMediaBuilder` (`core/ctx.ts`). `ICt` is an alias of `Context`; `IInlineKb` and `IBottomKb` extend grammY's keyboard types with page-aware `.text()` helpers (`types/ctx.ts`).
 
 ## Consequences
 
@@ -50,7 +50,7 @@ Build `gramstax` **on top of [`grammy`](https://grammy.dev)**. `Gramstax` extend
 | Dependency | `package.json`: `"grammy": "^1.46.0"` |
 | Code | `src/core/bot.ts:24`: `import {API_CONSTANTS, Bot, type BotConfig, type BotError, type Context, type Middleware, webhookCallback} from "grammy"` |
 | Code | `src/core/ctx.ts:18`: `import {Context, GrammyError, HttpError, InlineKeyboard, InputFile, InputMediaBuilder, Keyboard} from "grammy"` |
-| Config | `src/types/ctx.ts`: `ICt = Context`; `InlineKeyboard` / `Keyboard` / `InputMediaBuilder` are used directly from `grammy` with no local alias |
+| Config | `src/types/ctx.ts`: `ICt = Context`; `IInlineKb` / `IBottomKb` extend grammY's keyboard types; `InputMediaBuilder` is used directly from `grammy` |
 | Docs | `AGENTS.md`: "Built on top of the Telegram Bot API framework with page-based routing." |
 
 ## Related

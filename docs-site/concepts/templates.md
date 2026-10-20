@@ -7,22 +7,23 @@ icon: file-code
 # Templates
 
 A page owns one `static template` block. Message text, keyboards, media
-captions, poll options, invoices and error toasts all live there, compiled ahead
-of time by `TemplateEngine` and cached by `TemplateManager`.
+captions, poll options, invoices and error toasts all live there. The template
+is compiled once when it loads, then cached by `TemplateManager`.
 
 The point is not templating. It is that **the markup is not inside an API
 call**, so it can be compiled, validated, translated and reused by tests.
 
 ## Blocks
 
-Page blocks are prefixed `g-`. There are 30 of them, and each one maps to a
-Telegram capability:
+Page blocks are prefixed `g-`. There are 30: 21 content blocks that map to a
+Telegram capability, 7 logic blocks and 2 utility blocks. The table below is a
+selection.
 
 | Block | Purpose |
 | --- | --- |
 | `g-message` | The message body |
 | `g-keyboard` | The keyboard's labels. The destinations are chosen in the handler |
-| `g-media` | A photo, video, document, audio or voice |
+| `g-media` | A photo, video, animation, audio, document, voice, video note, sticker, location or contact |
 | `g-media-group` | Up to ten media items |
 | `g-poll` | A poll, with `g-question` and `g-option` children |
 | `g-invoice` | An invoice, with `g-price` children |
@@ -31,16 +32,15 @@ Telegram capability:
 | `g-web-app-answer` | The web-app query answer marker |
 | `g-ifelse` / `g-switch` / `g-case` | Conditionals |
 | `g-import` | Pull in another template file |
-| `g-script` | Inline execution, **rejected by AOT**, see below |
+| `g-script` | Inline execution, **rejected by ahead-of-time compilation**, see below |
 
 Every content block sits inside a `<g-base>`. The validator treats 19 blocks as
 containers and rejects a self-closing form for them, from `<g-base>` down to
-`<g-div>`, plus `<g-web-app-answer>`; nine blocks are exempt from that check
+`<g-div>`, including `<g-web-app-answer>`. Nine blocks are exempt from that check
 entirely (`g-price`, `g-venue`, `g-dice`, `g-callback-answer`,
-`g-precheckout-error`, `g-shipping-error`,
-`g-inline-button`, `g-answer-note`, `g-gift`), so either form is accepted for
-those. `<g-space>` and `<g-import>` are the two utility blocks and are written
-self-closing.
+`g-precheckout-error`, `g-shipping-error`, `g-inline-button`, `g-answer-note`,
+`g-gift`), so either form is accepted for those. `<g-space>` and `<g-import>` are
+the two utility blocks and are written self-closing.
 
 That is a summary. The full reference, with every block's attributes and its
 nesting rules, is [template blocks](/guides/template-blocks).
@@ -92,8 +92,8 @@ fallback order is preserved per language rather than derived from the first key.
 
 At render time the block is resolved by `TemplateManager.getGKeyboard`, which
 looks up the sender's `language_code` first and falls back to the `default`
-bucket: `one?.[ALang]?.[AType] ?? one?.default?.[AType]`. So a `default` entry is
-what a speaker of an unlisted language sees.
+language entry: `one?.[ALang]?.[AType] ?? one?.default?.[AType]`. So a `default`
+entry is what a speaker of an unlisted language sees.
 
 ### Reversing button order
 
@@ -140,8 +140,8 @@ including `tg-emoji`, `tg-map`, `tg-math`, `tg-time`, `tg-slideshow` and
 3. **Unknown attributes**: rejected, not ignored. `<table ngasal="x">` fails,
    with the allow-list named in the error.
 
-Rejection rather than tolerance is the whole point: a page that would fail at
-send-time fails at build-time instead.
+The rule is strict on purpose: a page that would fail when a message is sent
+fails when the template loads instead.
 
 ## Languages
 
@@ -159,7 +159,7 @@ absent: `getGMessage` reads `one?.[ALang] ?? one?.default`.
 ## Interpolation and filters
 
 `{{}}` is variable interpolation. Filters are chained left to right and compiled
-into calls at build time, zero parsing per render:
+into calls when the template is compiled, so there is no parsing per render:
 
 ```html
 <g-message>{{user.name|upper}}: {{count}} item{{count|plural:item:items}}</g-message>
@@ -167,7 +167,7 @@ into calls at build time, zero parsing per render:
 
 Available: `upper`, `lower`, `number:<places>`, `date:<YYYY-MM-DD>`,
 `plural:<singular>:<plural>`, `default:<value>`. Chaining works, and an unknown
-filter renders empty with a `console.warn` (once per scope pass, and the rest of
+filter renders empty with a `console.warn` (once per compile, and the rest of
 that chain is skipped) rather than throwing in production.
 
 ## Imports
@@ -175,12 +175,12 @@ that chain is skipped) rather than throwing in production.
 `<g-import>` pulls another file into the current template. Imports resolve at
 compile time, which is what lets AOT freeze a page into a standalone artifact.
 
-## Ahead-of-time compilation
+## Ahead-of-time (AOT) compilation
 
 `gramstax build` freezes `src/pages` into `.gramstax/`, compiling each page's
-blocks ahead of time. The practical consequences:
+blocks before the bot starts. The practical consequences:
 
-- No template compilation on a cold isolate.
+- No template compilation on a cold serverless start.
 - **Script blocks are rejected**: `g-script` and `{~~ … ~~}` both compile to
   `with(data …)`, which is illegal in ESM strict mode. Move the logic into the
   page class as a method returning plain data.
@@ -192,7 +192,8 @@ blocks ahead of time. The practical consequences:
     find the block without guessing.
   </Danger>
 
-- Runtime-assembled templates cannot be emitted; only static sources are.
+- Runtime-assembled templates cannot be emitted. Only static sources can: a
+  `.html` file or a page's class-inline `static template`.
 
 The error message for a blocked script is explicit about this. See
 [the AOT contract](/guides/aot-contract).

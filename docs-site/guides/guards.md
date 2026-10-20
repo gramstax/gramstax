@@ -23,8 +23,8 @@ runtime](/guides/routing); what a page looks like once it is reached is
   <Tab title="Page family">
 
 A `hookBeforeRoute()` on a base class that a whole folder of pages extends. The
-framework calls it on every matched route, so a new page cannot opt out by
-forgetting to repeat the check.
+framework calls it on every matched route. A subclass that overrides it replaces
+the inherited check rather than adding to it.
 
 ```ts
 // src/base/page-admin.ts
@@ -230,8 +230,8 @@ in for the other.
 ## Where each gate is consulted
 
 The page-level gate is not consulted in a single place. `_pageRoutes` has seven
-ids and the gate appears at five of them, and the consequence of a deny is not the
-same at each:
+ids but five call sites: ids 1, 2 and 3 share one run site. The consequence of a
+deny is not the same at each:
 
 | Id | Route family | On deny |
 | :- | :----------- | :------ |
@@ -243,8 +243,8 @@ same at each:
 | 5 | `handleFree` global | skips that handler and continues the loop |
 | 6 | custom routes | returns `{state: "blocked"}` immediately |
 
-The difference at ids 4 and 5 is the one to internalise. Those ids are loops over
-several pages, so a deny there means "this page declines, keep asking the rest".
+Ids 4 and 5 behave differently from the rest. Those ids are loops over several
+pages, so a deny there means "this page declines, keep asking the rest".
 A gated page that returns `false` from `handleFree` does not set the `blocked`
 state and does not stop the loop. If you need a hard stop, gate it at the bot
 level.
@@ -257,21 +257,23 @@ at all. A deny there means no page is constructed and no routing table is walked
 Denials are counted, and the two gates count differently.
 
 The bot-level gate increments `metrics.counts.blocked` directly on a deny. The
-page-level gate does not: it returns `{state: "blocked"}`, and the outcome counter
-table in `_handleCtx` only maps `matched`, `no-match` and `no-handler`, so a
-page-level block increments none of them.
+page-level gate does not. On ids 0 through 3 and id 6 it returns
+`{state: "blocked"}` and increments no outcome counter. Inside a `handleFree*`
+loop (ids 4 and 5) a denial only skips that handler; the dispatch continues and
+still ends as `matched` or `no-match`.
 
 | Deny | `counts.blocked` | A routing outcome counter | `hookAfterRoute` fires |
 | :---- | :--------------- | :----------------------- | :--------------------- |
 | bot-level `hookBeforeRoute` | +1 | no | **no**, `_handleCtx` returns before it |
-| page-level `hookBeforeRoute` | no | no | yes, with `state: "blocked"` |
-| session-lock contention, `skip` mode | +1 | no | no, the update never reaches routing |
+| page-level, ids 0-3 and 6 | no | no | yes, with `state: "blocked"` |
+| page-level inside `handleFree*`, ids 4 and 5 | no | `matched` or `no-match` | no for that page; the loop continues |
+| session-lock contention, any mode that ends without the lease | +1 | no | no, the update never reaches routing |
 
-So `gramstax_updates_blocked_total` on `/metrics` counts two things: bot-level
-denials, and updates dropped because a contended session lock was in `skip` mode.
-Page-level denials are visible only through `hookAfterRoute`, where `data.state`
-is `"blocked"`. Zero-valued counters are skipped from the Prometheus exposition,
-so a counter at zero is absent from the scrape rather than printed as `0`.
+So `gramstax_updates_blocked_total` counts bot-level denials and session-lock
+contention that ended without the lease. Page-level denials are visible through
+`hookAfterRoute` only on the early-return ids. Zero-valued counters are skipped
+from the Prometheus exposition, so a counter at zero is absent from the scrape
+rather than printed as `0`.
 
 If you want a page-level denial on the dashboard, record it yourself in
 `hookAfterRoute`:

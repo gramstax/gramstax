@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 292" width="860" height="292" role="img" aria-label="The handle method shapes that land in routeStatic and routeStaticIntent, plus the two single-shape tables routeStaticSession and routeDynamic">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 292" width="860" height="292" role="img" aria-label="The handle method shapes that land in routeStatic and routeStaticIntent, plus the single-shape tables routeStaticSession and routeDynamicSpesific">
   <title>The handle method shapes and the four route tables they land in</title>
 
   <rect x="0.5" y="0.5" width="859" height="291" rx="14" fill="#081319" stroke="#163340"/>
@@ -18,7 +18,7 @@
     <text x="44" y="104">routeStatic</text>
     <text x="247" y="104">routeStaticIntent</text>
     <text x="450" y="104">routeStaticSession</text>
-    <text x="653" y="104">routeDynamic</text>
+    <text x="653" y="104">routeDynamicSpesific</text>
   </g>
 
   <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" fill="#82acbe">
@@ -49,6 +49,6 @@
     <rect x="30" y="246" width="190" height="22" rx="6" fill="#0b1c23" stroke="#1b3c4b"/>
     <text x="44" y="261" fill="#82acbe">exact match</text>
     <rect x="233" y="246" width="190" height="22" rx="6" fill="#0b1c23" stroke="#1b3c4b"/>
-    <text x="247" y="261" fill="#82acbe">startsWith after the separator</text>
+    <text x="247" y="261" fill="#82acbe">exact lookup after the separator</text>
   </g>
 </svg>

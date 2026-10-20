@@ -21,5 +21,5 @@ are secret. The reasoning is the point.
 | [ADR-0007: Bun + tsup + Nx + API-Extractor toolchain](/guides/adr/0007-bun-tsup-nx-toolchain) |
 | [ADR-0008: No `@ts-ignore`, named exports only, minimal deps](/guides/adr/0008-lint-export-dep-conventions) |
 
-If a page here contradicts a decision below it, the lower number was written
-first and the disagreement is worth resolving rather than documenting.
+The lower number is older. If two records disagree, resolve the conflict instead
+of keeping both versions.

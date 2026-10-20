@@ -32,7 +32,8 @@ Everything else on this page is how one of those four is reached.
 ## Layer one: the update
 
 `Gramstax._handleCtx(ctx, listenerName, shouldCheckNotFound, traceId)` in
-`packages/gramstax/src/core/bot.ts` is the whole update lifecycle, in order:
+`packages/gramstax/src/core/bot.ts` is the core of the update lifecycle, with the
+counter increments included:
 
 ```ts
 try {
@@ -45,9 +46,11 @@ try {
 } catch (error) {
   if (error instanceof UpdateTimeoutError) {
     state = `timeout`
+    this.metrics.counts.timeouts += 1
     this._emitUpdateError({traceId, listenerName, state: `timeout`, error, durationMs, isEdit})
   } else {
     state = `error`
+    this.metrics.counts.updatesFailed += 1
     try {
       await this.hookErrorPage?.(ctx, {listenerName, error, isEdit})
     } catch (hookFailure) {
@@ -58,8 +61,8 @@ try {
 }
 ```
 
-Five behaviours are worth stating exactly, because each is a decision you would
-otherwise have to reverse-engineer.
+Five behaviours matter here. Each is a decision you would otherwise have to
+reverse-engineer.
 
 **`hookErrorPage` is guarded, and its failure is logged rather than propagated.**
 The `catch` around it is not decoration. A throw from `hookErrorPage` would
@@ -70,8 +73,10 @@ runs, and if that throws too it is logged and the update ends.
 
 **`hookNotFoundPage` is conditional.** It fires on `no-match` only when
 `shouldCheckNotFound` is true, which is an `ICustomRouteEntry` field defaulting
-to `true`. Chat-member routes set it to `false`, because a status transition is
-not a user command and an unknown one should stay silent.
+to `true`. Chat-member routes and the other non-command built-in listeners
+(channel posts, edits, inline queries, polls, payments, join requests and
+business messages) set it to `false`; only text and callback-query updates
+default to `true`.
 
 **An explicit `false` from `hookBeforeRoute` returns immediately.** It increments
 `blocked` and returns from `_handleCtx`, so `hookAfterRoute`, `metrics.recordUpdate`
@@ -90,9 +95,10 @@ because the handler may still be running and may still send.
 every routing outcome except `error` and `timeout`. `hookUpdateError` fires for
 those two and for `validation`, the pre-routing rejection when text exceeds
 `limits.maxTextLength`. It also fires outside routing, with the synthetic trace
-ids `startup`, `catch` and `polling`, so a consumer should read `event.traceId`
-before assuming an update was involved. `hookTrace` is guarded and fired for
-every routed update.
+ids `startup` and `polling`; a global bot error uses the update id string (or an
+empty string) and sets `listenerName` to `catch`. A consumer should read
+`event.traceId` before assuming an update was involved. `hookTrace` is guarded
+and fired for every routed update.
 
 ### Wiring the two page hooks
 
@@ -236,6 +242,7 @@ rethrows the original error untouched on both branches.
 | Site | On `fallback-text` | On `retryable` |
 | :--- | :---------------- | :------------- |
 | `renderText`, `renderPoll`, the six `render*Answer` methods, `renderGift`, `renderDice` | notify, `log.warn`, rethrow | notify, `log.error`, rethrow |
+| `renderInvoice`, `renderPaidMedia`, `renderVenue` | notify, `log.warn`, rethrow | notify, `log.error`, rethrow |
 | `renderMedia`, `renderMediaGroup` | notify, `log.warn`, **return `replyFallbackText()`** | notify, `log.error`, rethrow |
 | Broadcast send loops (`ids`) | notify, best-effort fallback text to that recipient, count failed | notify, push to `retryable[]`, continue the loop |
 | `renderBroadcastDelete` | notify, `log.warn`, count failed (there is nothing to deliver) | notify, push to `retryable[]`, continue the loop |
@@ -245,7 +252,8 @@ The `fallback-text` branch exists for media because a photo that fails to send
 has a text equivalent. It does not exist for text, answers or polls because
 there is no degraded version of a callback toast or a poll. Broadcast loops do
 not rethrow at all, because the fan-out is per recipient and one recipient
-cannot fail the other 9,999.
+cannot fail the other 9,999. `renderEditCaption` and `renderEditKeyboard` use
+the edit-fallback path instead and are not part of this table.
 
 ## The edit fallback
 

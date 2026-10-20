@@ -6,14 +6,14 @@ icon: compass
 
 # gramstax
 
-A modern Telegram bot framework built around page-based routing and a powerful
-template system.
+A Telegram bot framework built around page-based routing and a template system.
 
 Two ideas carry most of the design.
 
 **Pages are the routing unit.** A file under `src/pages` *is* a route: the
-filename decides how an update reaches it. There is no router to register, so
-adding a page cannot break an unrelated one.
+filename decides how an update reaches it. There is no router to register, and
+adding a page cannot change how an unrelated page routes at runtime. A duplicate
+page name or intent is still caught at boot and stops the whole app.
 
 **Rendering is declared, not imperative.** A template says what a message
 should contain, and the render call names a route; the framework works out which
@@ -82,13 +82,13 @@ equal `deploy`.
     a reason (see [Deploy](/concepts/deploy)).
   </Tab>
   <Tab title="webhook">
-    You expose an HTTP endpoint and Telegram posts to it. Requires `url` and
-    `secretToken`; the secret is verified per request, so an endpoint without one
-    is a public endpoint driving your bot.
+    You expose an HTTP endpoint and Telegram posts to it. It requires `url` and
+    `secretToken`. The bot refuses to start without the secret, and every request
+    is checked against it; a mismatch returns 401.
   </Tab>
   <Tab title="serverless">
     Cloudflare Modules or AWS Lambda async. The only mode that auto-loads the
-    frozen `.gramstax/` artifact, because a serverless isolate has no filesystem
+    frozen `.gramstax/` artifact, because a serverless function has no filesystem
     to scan.
   </Tab>
   <Tab title="raw">
@@ -99,8 +99,8 @@ equal `deploy`.
 
 ## API reference
 
-Every exported symbol, generated from the TypeScript declarations and kept in
-step by CI: 1,495 pages grouped by class and type.
+The public API is documented in a generated reference: 1,495 pages across the
+three published packages. CI regenerates it from the TypeScript declarations.
 
 <Card title="Browse the reference" icon="code" href="/reference/gramstax">
   `Ctx`, `Gramstax`, `TemplateEngine`, every `render*()` method, and the 12 route
@@ -113,8 +113,9 @@ The block vocabulary is a constraint. `<g-script>` is rejected by ahead-of-time
 compilation, because it compiles to `with(data …)` and ESM forbids that; logic
 belongs in the page class, returning plain data.
 
-In exchange you get pages that fail at build rather than at send, markup a
-non-programmer can translate, and assertions a test can make against real output.
+In exchange, template mistakes surface before a user triggers them: at build
+time for AOT, at load time otherwise. The markup is readable by a translator, and
+a test can assert against the real output.
 [Why this design](/introduction) sets out who it suits and who it does not.
 
 ## Where to go next

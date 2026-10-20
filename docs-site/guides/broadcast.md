@@ -11,10 +11,9 @@ on a render call, with its own params object, its own result object, and its own
 error rules, and it is worth learning as a unit because the three shapes (send,
 revise, delete) look alike and behave differently.
 
-The design bias is visible in every field name. Pacing, checkpoints, a re-drive
-list, bounded concurrency: the defaults assume a restart halfway through is
-normal and re-sending to somebody who already got the message is the failure
-that matters.
+Pacing, checkpoints, a re-drive list and bounded concurrency exist because a
+restart halfway through is normal, and re-sending to someone who already got the
+message is the failure that matters.
 
 <Note>
   This page is about fan-out. A single-chat send is the render contract, and the
@@ -45,7 +44,7 @@ is no `ids` on a revise route and no `targets` on a send route.
 | revise stored messages | `renderMedia({type, broadcast: {targets}})` |
 | delete stored messages | `renderBroadcastDelete({targets})` |
 
-Two asymmetries to internalise.
+Two differences matter.
 
 **A media fan-out has no `type`.** The single-chat media route needs `type` to
 pick the Bot API method, but on the fan-out route the kind is read from the
@@ -137,11 +136,11 @@ required, seven optional.
 ### Pacing
 
 Telegram's free-tier allowance is what drives the default. Every broadcast loop
-sleeps **1200 ms after every 30 recipients** regardless of configuration, and
-fires `onProgress` at each of those boundaries. `chunkSize` adds a second,
-shorter boundary: sleep `chunkDelayMs` after every N recipients instead of
-waiting for the 30, and the last chunk never sleeps because there is nothing
-after it.
+sleeps **1200 ms after every 30 recipients**, regardless of configuration, and
+fires `onProgress` at each of those boundaries. `chunkSize` adds a second, shorter
+boundary: sleep `chunkDelayMs` after every N recipients. When both boundaries land
+on the same recipient, the 30-recipient boundary wins. The 30-boundary also sleeps
+after the final batch; the chunk boundary does not sleep after the last chunk.
 
 ```ts
 broadcast: {
@@ -200,9 +199,9 @@ It produces no `retryable` entry, because retrying a 403 does not help.
 
 **An empty block is a failure, not a skip.** On the text route, a recipient whose
 resolved block is missing or renders to an empty string increments `failedCount`
-and stops there: no API call, no `retryable` entry. That is what a
-`languageCode` entry pointing at a language the template never declared looks
-like.
+and stops there: no API call, no `retryable` entry. An undeclared language is not
+this case: it falls back to the `default` block and is sent in the default
+language. Only an empty render, or an empty `languageCode`, counts as failed.
 
 **`throwError` throws after the run, not during it.** With `throwError: true`, a
 completed run whose `failedCount > 0` throws `{...res, err: firstError}`, where
@@ -227,7 +226,7 @@ await this.renderMedia({type: `photo`, data: {price: `99`}, broadcast: {targets:
 | :--------- | :---------- |
 | `photo`, `video`, `audio`, `document`, `animation` | edited in place via `editMessageMedia` |
 | `voice`, `video_note`, `sticker`, `location`, `contact` | old message deleted, a new one sent |
-| any group-capable kind with a pipe-delimited `src` | old message deleted, `sendMediaGroup` sends the set |
+| `photo`, `video`, `audio` or `document` with two or more files in a pipe-delimited `src` | old message deleted, `sendMediaGroup` sends the set; this branch wins over the in-place edit above |
 
 So `fallback` on a revise covers two different failures that look identical: a
 failed `editMessageMedia`, and a delete plus re-send that then failed. The

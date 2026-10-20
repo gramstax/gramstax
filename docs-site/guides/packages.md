@@ -7,10 +7,9 @@ icon: package
 # The @gramstax packages
 
 The monorepo publishes four npm packages that interlock. The core one,
-`gramstax`, describes itself as "A modern Telegram bot framework built around
-page-based routing and a powerful template system." Two supporting packages sit
-beside it and depend on nothing in it, and one CLI scaffolds a project that can
-use all three.
+`gramstax`, owns page routing, the template engine, rendering, sessions and the
+CLI. Two supporting packages sit beside it and depend on nothing in it, and one
+CLI scaffolds a project that can use all three.
 
 | Package | What it does | Install | Monorepo path |
 | :--- | :--- | :--- | :--- |

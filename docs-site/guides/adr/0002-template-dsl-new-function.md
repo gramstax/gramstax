@@ -20,7 +20,7 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 
 ## Decision
 
-`TemplateEngine` parses the `<g-*>` DSL and Telegram Rich HTML into **render functions created with `new Function("data", "__esc", "FILTERS", body)`** (`src/template/engine.ts:3037` and `:3040`). Compilation happens **once** at load (or on hot-reload) and the result is cached by `TemplateManager._map` as `ICompiledTemplate` (`message`/`keyboard`/`media`/`description` keyed by base id + language). Scopes/interpolation (`{{var}}`, switch, map, script, div) are resolved into the generated function body.
+`TemplateEngine` parses the `<g-*>` DSL and Telegram Rich HTML into **render functions created with `new Function("data", "__esc", "FILTERS", body)`** (`src/template/engine.ts:3037` and `:3040`). Compilation happens **once** at load (or on hot-reload) and the result is cached by `TemplateManager._map` as `ICompiledTemplate`, with one field per block keyed by base id and language. Scopes/interpolation (`{{var}}`, switch, map, script, div) are resolved into the generated function body.
 
 <Warning>
   The compiled output is dynamic code, so a runtime that forbids `new Function`
@@ -34,7 +34,7 @@ These templates must render fast (per-update) and support arbitrary data scopes,
 
 - Per-update rendering is a plain function call: no repeated parsing.
 - Templates can embed dynamic expressions via scope blocks.
-- Layered validation catches obvious authoring bugs before compile: required attributes, value formats and unknown attributes for Telegram tags, plus required-attribute and value-format passes for PAGE blocks.
+- Layered validation catches obvious authoring bugs before compile: required attributes, value formats and unknown attributes for Telegram tags, plus the same three passes for PAGE blocks.
 
 ### Trade-offs
 

@@ -36,7 +36,7 @@ Standardize on the **Bun + tsup + Nx + API-Extractor** stack:
 ### Benefits
 
 - One `bun` command surface for test/lint/build across the monorepo.
-- Dual ESM/CJS + d.ts means the library is consumable by both modern and legacy bundlers.
+- Dual ESM/CJS + d.ts means both current and legacy bundlers can consume the library.
 - Nx gives caching and proper build ordering (`^build`) and drives `nx release`.
 - API reference is generated, not hand-maintained.
 

@@ -8,8 +8,9 @@ icon: zap
 
 This page gets you from nothing to a bot answering messages. It assumes Bun is
 installed and you have a Telegram bot token from
-[@BotFather](https://t.me/BotFather). The CLI resolves TypeScript paths, so Bun is
-required rather than optional.
+[@BotFather](https://t.me/BotFather). `gramstax start` resolves TypeScript paths
+directly, so this path runs under Bun. The scaffolder also supports
+`--runtime node` for projects that build and test on Node.
 
 <Steps>
   <Step title="Scaffold the project">
@@ -21,16 +22,13 @@ required rather than optional.
     The generator writes a complete project: `gramstax.config.ts`, a `Gramstax`
     subclass at `src/core/bot.ts`, nine pages under `src/pages`, base classes in
     `src/base`, a guard in `src/guards`, an LMDB layer in `src/db`, a worker job
-    in `src/workers`, `.env.example`, and nine e2e tests under `e2e/`.
+    in `src/workers`, `.env` (copied from the template's `.env.example`), and
+    nine e2e tests under `e2e/`.
   </Step>
 
   <Step title="Give it a token">
-    Copy `.env.example` to `.env` and set `BOT_TOKEN` to the token BotFather gave
-    you.
-
-    ```bash
-    cp .env.example .env
-    ```
+    Open the generated `.env` and set `BOT_TOKEN` to the token BotFather gave you.
+    The generator already renamed the template's `.env.example` to `.env`.
   </Step>
 
   <Step title="Read the page you got">
@@ -82,10 +80,10 @@ required rather than optional.
     **There is no `bot.command("start", …)` registration.** The file path *is* the
     route. See [page routing](/concepts/page-routing).
 
-    **The class is a named export.** `PageManager` takes the first value a module
-    exports, so a page exports exactly one class. The `helper` and `gdefault`
-    members are the scaffold's convention, not framework API; the template blocks
-    they render are what the framework reads.
+    **The class is a named export.** `PageManager` reads the first value the
+    module exposes, so a page exports exactly one class. The `helper` and
+    `gdefault` members are the scaffold's convention, not framework API; the
+    template blocks they render are what the framework reads.
   </Step>
 
   <Step title="Run it">
@@ -94,8 +92,9 @@ required rather than optional.
     ```
 
     <Warning>
-      Bun is required. The CLI resolves TypeScript paths and the `~` alias, which
-      plain Node cannot (running it under `node` fails at import).
+      Bun is required for `gramstax start`. The CLI resolves TypeScript paths and
+      the `~` alias, which plain Node cannot do here. A `--runtime node` project
+      still builds and runs its tests on Node, but `start` itself uses Bun.
     </Warning>
   </Step>
 

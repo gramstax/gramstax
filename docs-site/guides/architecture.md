@@ -89,15 +89,17 @@ Handler methods follow a naming convention: all optional, all `async`. The name 
 assembled in a fixed order (`handle` · `Session`/`Free` · `Command` · `Caption` ·
 `Args` · kind), and the `Args` piece is independent of the command piece:
 `handleText` and `handleCommandText` match exactly, while `handleArgsText` (args
-**without** a command) and `handleCommandArgsText` (`/cmd <args>`) match by
-`startsWith`. Caption variants exist for photo, video, audio, document,
-animation and voice.
+**without** a command) and `handleCommandArgsText` (`/cmd <args>`) split the
+payload on the separator and look up the head exactly. Caption variants exist for
+photo, video, audio, document, animation and voice.
 
-You never call a send method. `render*()` is the entire outbound surface: 32
-methods that pick the underlying call for you from the route you pass
-(`replyWithPhoto`, `editMessageText`, and so on). Broadcast is a route option
-(`broadcast`), not a method. Broadcast and edit are selected by the route,
-never named directly.
+`render*()` is the main outbound surface: 32 methods that pick the underlying
+call for you from the route you pass (`replyWithPhoto`, `editMessageText`, and so
+on). Broadcast fan-out is a route option (`broadcast`); deleting a previous
+broadcast message has its own method, `renderBroadcastDelete`. Editing is also
+route-selected, with dedicated methods for the pieces that change without the
+text (`renderEditKeyboard`, `renderEditCaption`). `ctx.reply()` remains as a
+plain-text escape hatch for contexts that have no page template.
 
 Keyboard builders: `bottomKeyboardT`, `inlineKeyboardT`, and `buildData` for
 route configuration. See [the render contract](/concepts/render-contract) for the
@@ -112,7 +114,7 @@ full atom list.
 | **Depends On** | Nothing external (pure string→function compilation via `new Function()`). |
 | **Depended On By** | `TemplateManager`. |
 
-Compiles blocks with `_compileToFunction` using `new Function("data", "__esc", "FILTERS", body)` (`engine.ts:3037`, `:3040`). Processes base/message/keyboard/media/description/import/map/script/switch/div/space blocks and resolves scopes/interpolation (`_processScope*`, `_processG*Blocks`). Validation is layered: three layers for Telegram tags (required attributes, value formats, unknown attributes) and two for PAGE blocks (required attributes, value formats); see [Template Blocks](/guides/template-blocks).
+Compiles blocks with `_compileToFunction` using `new Function("data", "__esc", "FILTERS", body)` (`engine.ts:3037`, `:3040`). Processes base/message/keyboard/media/description/import/map/script/switch/div/space blocks and resolves scopes/interpolation (`_processScope*`, `_processG*Blocks`). Validation is layered: three layers for Telegram tags (required attributes, value formats, unknown attributes) and three for PAGE blocks (required attributes, value formats, unknown attributes); see [Template Blocks](/guides/template-blocks).
 
 ### TemplateManager
 
@@ -127,8 +129,9 @@ Compiles blocks with `_compileToFunction` using `new Function("data", "__esc", "
 all. `enableWatch` drives the `chokidar` watcher. The public read surface is the
 `getG*` family: `getGMessage`, `getGKeyboard`, `getGMedia`, `getGDescription`,
 `getGPoll`, `getGVenue`, `getGDice`, `getGInvoice`, `getGCallbackAnswer`,
-`getGWebAppAnswer`, and friends, each taking `(key, AGBaseId, ALang, data)`. The bare `getMessage` name
-does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for these.
+`getGWebAppAnswer`, and friends. Most take `(key, AGBaseId, ALang, data)`;
+`getGKeyboard` also takes a keyboard type. The bare `getMessage` name does not
+exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for these.
 
 ### PageManager
 
@@ -145,7 +148,7 @@ does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for thes
   A default export is not rejected here: `_getFile` takes `Object.values(mod)[0]`
   and never filters `default` out, so a default-only module loads. It is still
   the wrong shape to write, because the moment a second export appears the
-  loaded value is whichever one the module namespace sorts first. Use one named
+  loaded value is whichever one the module exposes first, silently. Use one named
   `export class` per page.
 </Warning>
 
@@ -189,28 +192,32 @@ does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for thes
 
 <Steps>
   <Step title="Startup">
-    `new Gramstax(params)` (`bot.ts:534`) selects a deploy mode and calls
-    `bot.init()`. `TemplateManager` loads + compiles all page templates once and
-    starts the `chokidar` watcher if `enableWatch`.
+    `new Gramstax(params)` (`bot.ts:534`) selects a deploy mode and starts that
+    path. The path calls `bot.init()` before the first update. `TemplateManager`
+    loads and compiles page templates, and starts the `chokidar` watcher if
+    `enableWatch`.
   </Step>
 
   <Step title="Incoming update">
-    The client hands the update to `Gramstax`. `PageManager` resolves the target
-    `Ctx` subclass by route/intent. When `queue.enabled` is set, `UpdateQueue` +
+    The client hands the update to `Gramstax`. `Gramstax` looks up the route
+    tables built from `PageManager`'s discovery, then constructs the matching
+    `Ctx` subclass. When `queue.enabled` is set, `UpdateQueue` +
     `UpdateDispatcher` buffer the update and drain it on a worker pool (both
     `polling` and `webhook`); otherwise the update is handled inline.
   </Step>
 
   <Step title="Handler">
-    The matched `handle*` method on the page runs. It calls
-    `reply`/`edit`/`broadcast`, which pull the compiled `<g-base>`
-    message/keyboard/media from `TemplateManager` (keyed by `AGBaseId` +
-    language), interpolate `{{data}}`, and send through the client.
+    The matched `handle*` method on the page runs. It calls a `render*()` method,
+    which pulls the compiled `<g-base>` message/keyboard/media from
+    `TemplateManager` (keyed by `AGBaseId` + language), interpolates `{{data}}`,
+    and sends through the client.
   </Step>
 
   <Step title="State">
-    `Ctx.session` reads/writes user state through `CacheExternal` (keyv → memory
-    or Redis). Keyboard layouts are cached per language in `cacheKeyboard`.
+    `getSession()` / `setSession()` / `clearSession()` read and write user state
+    through `CacheExternal` (keyv → memory or Redis). `this.temp.session` is the
+    per-dispatch copy. Keyboard layouts are cached per language in
+    `cacheKeyboard`.
   </Step>
 
   <Step title="Hot reload">
@@ -251,7 +258,7 @@ Key architectural choices and their rationale:
 5. **Hot-reload templates with `chokidar`**: see [ADR-0005](/guides/adr/0005-hot-reload-chokidar.md).
 6. **In-process E2E testing (`deploy:"test"`)**: see [ADR-0006](/guides/adr/0006-in-process-e2e.md).
 7. **Bun + tsup + Nx + API-Extractor toolchain**: see [ADR-0007](/guides/adr/0007-bun-tsup-nx-toolchain.md).
-8. **No `@ts-ignore`, named exports only, minimal deps**: see [ADR-0008](/guides/adr/0008-lint-export-dep-conventions.md).
+8. **No `@ts-ignore`, named exports for the public API, minimal deps**: see [ADR-0008](/guides/adr/0008-lint-export-dep-conventions.md).
 
 ## Related Documentation
 

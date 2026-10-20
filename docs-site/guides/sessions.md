@@ -72,10 +72,9 @@ fallback. And `moreRoot` lands beside `method` and `params`, not inside `params`
 so anything put there is on the session record itself.
 
 `method` is not a handler name. `Ctx.methodSession(prefix, name)` returns
-`` `${prefix}-${name || this.data.name}` ``, where the prefix is the position of
-that route in the session route list and the name is the page's own `data.name`.
-The full set is one numbered pair per handler, and the first seven are the ones
-you will meet first:
+`` `${prefix}-${name || this.data.name}` ``, where the prefix is a number generated
+from the session route list and the name is the page's own `data.name`. The full
+set is one numbered pair per handler; these are the first seven you will meet:
 
 | `methodSession…` | Prefix | Armed by |
 | :-------------- | :----- | :------- |
@@ -189,7 +188,7 @@ Session routing is id 1, ahead of the exact-match tables at ids 2 and 3. It
 looks the method up in `routeStaticSession`, bucketed per listener, and only
 then constructs the page.
 
-That ordering is the whole point of arming a session. `handleText`,
+That ordering is why you arm a session. `handleText`,
 `handleCommandText` and `handleCallbackQueryData` on other pages would otherwise
 swallow the very message the user is being asked for. Because id 1 runs first and
 returns as soon as it matches, the flow gets the update and nothing else sees it.

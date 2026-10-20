@@ -66,22 +66,24 @@ Silence is the absence of a hook, not a feature of it. Override
 
 ## The rate-limited hook
 
-An optional class override. It receives a fully constructed page context, so the
-`render*` helpers are available, and it is async.
+An optional class override. It receives the app scope, but it is not bound to a
+page. `ctx.data` is `undefined`, so `renderText()` and `renderMedia()` throw;
+use `ctx.reply()` for plain text.
 
 ```ts
 // src/core/bot.ts
+import {Gramstax, type Ctx} from "gramstax"
+
 export class BotCore extends Gramstax {
   override async hookRateLimited(ctx: Ctx) {
-    await ctx.renderText()
+    await ctx.reply(`Slow down.`)
   }
 }
 ```
 
 <Warning>
-  The context is not bound to a page. It carries the full scope and every
-  `render*` helper, but there is no template behind it, so a template-backed render
-  has nothing to render from. Reply with plain text and keep the override small.
+  Keep the override small and do not call a template-backed render here. There
+  is no page behind this context, so there is no template to resolve.
 </Warning>
 
 The hook is fired without `await` from the middleware's `onLimitExceeded` callback,
@@ -90,8 +92,7 @@ rejection rather than through the bot's error handling.
 
 ### What a limited update never touches
 
-This is the operational part, and it is worth stating plainly: **a rate-limited
-update is invisible to the counters.** The limiter is mounted as middleware during
+The operational point: **a rate-limited update is invisible to the counters.** The limiter is mounted as middleware during
 construction, ahead of gramstax's own routing middleware, so a dropped update never
 reaches `_onHandle`. It does not increment `updatesTotal`, it does not increment
 `blocked`, and it does not land in `gramstax_updates_*` at all. None of
@@ -99,26 +100,31 @@ reaches `_onHandle`. It does not increment `updatesTotal`, it does not increment
 
 <Warning>
   `/metrics` will show a perfectly healthy bot answering all of its updates while
-  thousands are being discarded. If rate-limit drops matter to you, count them in
-  `hookRateLimited`. The built-in counters cannot tell you.
+  updates are being discarded. The hook fires once per key per window, at the
+  moment the limit is crossed; later drops in the same window are silent. A
+  counter in `hookRateLimited` therefore counts limit-exceedance events, not every
+  dropped update.
 </Warning>
 
 ## `hookKeyGenerator(ctx)`
 
 An optional class override that produces the per-update key. It must be
 **synchronous**, because the middleware reads the key before the update is
-dispatched. Returning `undefined` falls back to the default.
+dispatched. The hook replaces the default; it does not fall back to it.
 
 | Override returns | The limiter groups by |
 | :--------------- | :-------------------- |
 | a string | that string |
-| `undefined` | `ctx.from.id` as a string, the shipped default |
+| `undefined` | no key: the update is not limited |
 
-The default is per sender. That is the right unit for "stop this user flooding
-you", and the wrong unit for "stop this group flooding you", which is a two-line
-override:
+Return a string for every update. Only when the hook is absent does the limiter
+use the sender id. The default is per sender, which is the right unit for "stop
+this user flooding you" and the wrong unit for "stop this group flooding you".
+That is a two-line override:
 
 ```ts
+import {Gramstax, type Ctx} from "gramstax"
+
 export class BotCore extends Gramstax {
   override hookKeyGenerator(ctx: Ctx) {
     // One shared bucket for every message in a chat, sender ignored.
@@ -131,9 +137,13 @@ A single global bucket is one string away, and it is what you want when the scar
 resource is your own API quota rather than one user's patience:
 
 ```ts
+import {Gramstax} from "gramstax"
+
+export class BotCore extends Gramstax {
   override hookKeyGenerator() {
     return `global`
   }
+}
 ```
 
 <Tip>
@@ -201,7 +211,7 @@ is rate limited by Telegram is a worse outcome than one that will not start.
     id, which is exactly the unit that is misbehaving.
 
     ```ts
-    rateLimit: {windowMs: 1000, max: 5}
+    const rateLimit = {windowMs: 1000, max: 5}
     ```
   </Tab>
   <Tab title="A group is flooding you">
@@ -209,12 +219,16 @@ is rate limited by Telegram is a worse outcome than one that will not start.
     of one member being able to exhaust it.
 
     ```ts
-    rateLimit: {windowMs: 10_000, max: 50}
+    const rateLimit = {windowMs: 10_000, max: 50}
     ```
 
     ```ts
-    override hookKeyGenerator(ctx: Ctx) {
-      return ctx.chat?.id?.toString()
+    import {Gramstax, type Ctx} from "gramstax"
+
+    export class BotCore extends Gramstax {
+      override hookKeyGenerator(ctx: Ctx) {
+        return ctx.chat?.id?.toString()
+      }
     }
     ```
   </Tab>
@@ -246,8 +260,9 @@ other. Knowing which one fired is most of the debugging.
 
 The lock is about **correctness** across instances and the queue is about
 **saturation** within one. Rate limiting is the only one of the three whose drops
-are completely unrecorded, which is the strongest argument for overriding
-`hookRateLimited` with a counter of your own.
+are unrecorded. `hookRateLimited` fires when the limit is crossed, not on every
+later drop in the same window, so a counter there measures exceedance events
+rather than every discarded update.
 
 <Note>
   Rate limiting happens before routing, so a limited update never reaches the

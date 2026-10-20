@@ -9,13 +9,13 @@ icon: list
 A gramstax bot processes one update at a time by default. That default is a
 decision, not a limitation, and the opt-in changes it: a bounded queue in front of
 the handlers plus a pool of concurrent drain loops. What it does not change is
-ordering within a conversation. That is the gate's job, and it is the reason the
-queue is safe to enable at all.
+ordering within a conversation. That is the job of the per-chat concurrency gate,
+explained below, and it is the reason the queue is safe to enable.
 
 <Warning>
   `enabled` defaults to `false`. Absent or `false`, `deploy: "polling"` drains
-  strictly sequentially, exactly as it did before the queue existed. Nothing about
-  throughput changes until you say `enabled: true`.
+  strictly sequentially. Throughput does not change until you say
+  `enabled: true`.
 </Warning>
 
 [Concurrency and the update queue](/concepts/concurrency) is the design view: why the
@@ -30,7 +30,7 @@ instance, so a polling queue and a webhook queue never contend with one another.
 
 ```ts
 // gramstax.config.ts, deploy: "polling"
-import type {GramstaxConfig} from `gramstax`
+import type {GramstaxConfig} from "gramstax"
 
 export default {
   token: process.env.BOT_TOKEN ?? ``,
@@ -128,7 +128,7 @@ A failure names the file and the dotted path, so a typo in a config file fails a
 The queue itself is deliberately small. It allocates every slot up front, keeps a
 head and a tail cursor that wrap modulo `maxSize`, and exposes four operations:
 `enqueue` (blocks when full), `tryEnqueue` (never blocks), `dequeue` (blocks when
-empty) and `close`. That is the entire surface.
+empty) and `close`. That is the whole API.
 
 The dispatcher is where the reliability lives. Its whole loop is wrapped in
 `try/catch`, because a throw that escaped would end that worker for good and the
@@ -174,14 +174,15 @@ because Telegram's delivery semantics are different.
   <Tab title="Webhook">
     `blockWhenFull: true`, the default. The request waits in `enqueue` for a free
     slot, bounded by `enqueueTimeoutMs`. If the timeout elapses the handler is
-    released and answers **HTTP 429**, which Telegram reads as a retry signal and
-    redelivers. Nothing is lost.
+    released and answers **HTTP 429**. Telegram retries a non-2xx webhook response
+    with backoff, but only for a bounded number of attempts, so the update can
+    still be lost.
 
     With `blockWhenFull: false` the request does not wait at all. A full queue
     answers **HTTP 429** immediately, and a `Webhook queue full` warning is logged.
 
     ```ts
-    queue: {enabled: true, blockWhenFull: false}
+    const queue = {enabled: true, blockWhenFull: false}
     ```
   </Tab>
   <Tab title="Polling">
@@ -190,7 +191,9 @@ because Telegram's delivery semantics are different.
     would lose it for good. Telegram cannot be asked for it again.
 
     A saturated polling queue therefore **always blocks the fetcher**. Delivery is
-    at-least-once at the enqueue boundary and lossless once the update is queued.
+    at-most-once once Telegram has handed the update over: a crash after the fetch
+    but before the handler runs loses it. The queue makes enqueue backpressured,
+    not durable.
   </Tab>
 </Tabs>
 
@@ -268,7 +271,7 @@ On `deploy: "webhook"` two paths expose this. `GET /stats` carries the whole
 snapshot plus a `queue` object; `GET /stats_queue` carries only the queue and gate
 state, with a `timestamp`, which makes it the easier one to poll.
 
-```json GET /stats_queue
+```json
 {
   "enabled": true,
   "path": "/stats_queue",
@@ -304,30 +307,28 @@ state, with a `timestamp`, which makes it the easier one to poll.
 | `length` near 0, `waitingDequeue` high | none | Healthy. Every worker is parked waiting for work, which is what an idle pool looks like |
 | `waiting` high, `activeKeys` high | `perChatConcurrency` | One chat is hot. Raise the value only if the handlers for that chat tolerate reordering |
 | `length` rising with `dropped` moving | `drainTimeoutMs` | The queue was saturated at shutdown. Raise the budget, or the pool is undersized |
-| 429s from Telegram on webhook | `length`, `blockWhenFull` | The `enqueueTimeoutMs` budget expired. Telegram will redeliver, so nothing was lost |
+| 429s from Telegram on webhook | `length`, `blockWhenFull` | The `enqueueTimeoutMs` budget expired. Telegram retries with backoff for a bounded number of attempts, so some updates can still be lost |
 
 ## The benchmark
 
-The repository ships `packages/gramstax/bench/bench.ts`, and the figures quoted
-for the queue come from running it on a **development host** against a target of
-600 users/s. They are one measurement of one machine with a mock Telegram API, not a
-guarantee for your bot.
+The repository ships `packages/gramstax/bench/bench.ts`, but no result table is
+committed: the numbers depend on the host and on the handlers. Run it against your
+own bot before quoting a figure:
 
-| Configuration | Throughput | p95 |
-| :------------ | :--------- | :-- |
-| Sequential drain | 377 users/s | 1828 ms |
-| Queue, `workerCount: 8` | 601 users/s | 124 ms |
+```bash
+RATE=600 bun packages/gramstax/bench/bench.ts
+```
 
-What transfers is the shape, not the numbers. Below saturation the queue is
-neutral; past it, sequential draining means one slow handler sits in front of every
-update behind it and that delay compounds, while the pool moves the wait out of the
-critical path.
+The default rate is 50 updates per second, so a 600/s target needs the
+environment override shown above. What transfers between runs is the shape: below saturation the queue
+is neutral. Past it, sequential draining means one slow handler sits in front of
+every update behind it and that delay compounds, while the pool moves the wait out
+of the critical path.
 
 <Warning>
-  Those handlers do nothing. The bench page renders a single templated message, so
-  the p95 gap is the cost of serialization alone and nothing else. Your handlers
-  will dominate both numbers. Run the bench against your own bot before quoting a
-  figure to anyone.
+  The benchmark handlers do almost nothing: the page renders a single templated
+  message. The p95 gap therefore measures the cost of serialization, not your real
+  handlers. Run the bench against your own bot before quoting a figure to anyone.
 </Warning>
 
 The harness runs the path a real deployment takes: k6 as the only user generator,
@@ -337,11 +338,12 @@ shares an event loop with the code being measured. It prints offered load, handl
 load, p95 and failures for the queue off and on, then the ratio.
 
 <Info>
-  Polling delivery is at-least-once at the enqueue boundary, because the client
-  advances its offset when the update is buffered rather than when the handler
-  finishes. A crash between those two points loses the update rather than
-  replaying it. [`skipDuplicateUpdate`](/guides/configuration) is the setting that
-  covers the reverse risk on any deployment where a duplicate is worse than a drop.
+  Polling is at-most-once once Telegram has handed an update over: the client
+  advances its offset at the next `getUpdates`, and the queue buffer is in-process,
+  so a crash after the fetch but before the handler runs loses the update. Telegram
+  can redeliver an update whose offset was not acknowledged yet;
+  [`skipDuplicateUpdate`](/guides/configuration) covers that reverse risk when a
+  duplicate is worse than a drop.
 </Info>
 
 ## When not to enable it

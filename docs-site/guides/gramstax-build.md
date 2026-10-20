@@ -6,7 +6,7 @@ icon: package
 
 # `gramstax build`
 
-For all deploys: one `gramstax build` freezes a project's `pages/` into a single all-in-one `.gramstax/` consumed per the table below. Only `serverless` deploys auto-load it; every other deploy keeps fs boot unless the `manifest` param is passed explicitly.
+For all deploys: one `gramstax build` freezes a project's `src/pages` into a single all-in-one `.gramstax/` consumed per the table below. Only `serverless` deploys auto-load it; every other deploy keeps filesystem boot unless the `manifest` param is passed explicitly.
 
 | Deploy | Consumes `.gramstax/` how |
 | ------ | ------------------------- |
@@ -19,8 +19,8 @@ For all deploys: one `gramstax build` freezes a project's `pages/` into a single
 
 <Note>
   Auto-load applies to `serverless` deploys exclusively (matches
-  `Bot._loadBuildManifest` early-return for non-serverless). Every other deploy
-  keeps the filesystem boot unless you pass the `manifest` param explicitly.
+  `Gramstax._loadBuildManifest` early-return for non-serverless). Every other
+  deploy keeps the filesystem boot unless you pass the `manifest` param explicitly.
 </Note>
 
 <Note>
@@ -49,6 +49,7 @@ Optional `gramstax.config.ts` in the project root (default export). Missing file
 import type {GramstaxConfig} from "gramstax"
 
 const config: GramstaxConfig = {
+  deploy: `serverless`,
   optionsDeploy: {
     serverless: {
       'cloudflare-mod': {
@@ -72,10 +73,11 @@ ignored.
 | `'cloudflare-mod'`   | `url`, `secretToken` (required) + `name`, `compatibilityDate`, `compatibilityFlags`, `toml`                  |
 | `'aws-lambda-async'` | `url`, `secretToken` (required): nothing else, today                                                         |
 
-`secretToken` is runtime-required but type-optional (zero-config build keeps
-working); its value comes from an env expression, never a literal. Duality (
-config value sets the webhook, edge reads the `BOT_WEBHOOK_SECRET`
-binding) is specified once in `docs-site/guides/serverless-deploy.md`.
+`secretToken` is runtime-required but type-optional, so a zero-config build still
+works. Its value comes from an env expression, never a literal. For the serverless
+duality, where the config value sets the webhook and the deployed edge reads the
+`BOT_WEBHOOK_SECRET` binding, see
+[Serverless deploy](/guides/serverless-deploy).
 
 <Warning>
   Never write `secretToken` as a literal. It is never baked into a bundle and
@@ -119,10 +121,10 @@ gramstax build plan
 pagesDir: src/pages
 outDir: .gramstax
 targets: cloudflare-mod
-deploy: polling (default)
+deploy: serverless (config)
 optionsDeploy.serverless.cloudflare-mod: cloudflare-mod (config)
 optionsDeploy.serverless.name: gramstax-worker (default)
-optionsDeploy.serverless.url: https://<your-worker>.workers.dev/webhook (default)
+optionsDeploy.serverless.url: https://example.com/webhook (config)
 dry-run: no files written
 ```
 
@@ -175,20 +177,20 @@ Wrangler `alias` entry resolves and transpiles TS source natively.
 `routes.json` entries (`IRouteManifestEntry` in `packages/gramstax/src/types/manifest.ts`):
 
 ```json
-[{`file`: `start.ts`, `name`: `StartPage`, `routeName`: `start`}]
+[{"file": "start.ts", "name": "StartPage", "routeName": "start"}]
 ```
 
 - `file`: posix path relative to `src/pages`.
 - `name`: page class name (what `manifest.js` static-imports).
 - `routeName`: walk-derived route (`shop/index.ts` → `shop`); computed once by `PageManager.getFileManySync`, never reimplemented.
 
-`manifest.js` shape (same as the 021 generator output, minus types):
+`manifest.js` shape (the single-file generator's output, minus type annotations):
 
 ```js
-import {StartPage} from `../src/pages/start`
+import {StartPage} from "../src/pages/start"
 export const manifest = {
-  pages: [{path: `start.ts`, routeName: `start`, page: StartPage}],
-  templates: [{key: `card`, template: `<g-base>...`}],
+  pages: [{path: "start.ts", routeName: "start", page: StartPage}],
+  templates: [{key: "card", template: "<g-base><g-message>Hi.</g-message></g-base>"}]
 }
 export default manifest
 ```
@@ -200,9 +202,17 @@ export default manifest
 Opt-in via the `manifest` param (`IGramstaxParams.manifest?: IAppManifest`):
 
 ```ts
-import manifest from `./.gramstax/manifest.js`
-import routes from `./.gramstax/routes.json`
-const bot = new Gramstax({token, deploy: `polling`, templateManager, manifest: {...manifest, routes}})
+import manifest from "./.gramstax/manifest.js"
+import routes from "./.gramstax/routes.json"
+import {Gramstax, TemplateManager} from "gramstax"
+
+const templateManager = new TemplateManager({path: []})
+const bot = new Gramstax({
+  token: process.env.BOT_TOKEN ?? ``,
+  deploy: `polling`,
+  templateManager,
+  manifest: {...manifest, routes}
+})
 ```
 
 Automatic for serverless: `new Gramstax({deploy: "serverless", optionsDeploy: {serverless: {"cloudflare-mod": {url: "https://<your-worker>.workers.dev/webhook", secretToken: process.env.BOT_WEBHOOK_SECRET!}}}})` with no
@@ -213,8 +223,8 @@ absent. Every other deploy keeps fs boot by default. Emitted server entries
 on this fallback.
 
 - `manifest.routes` present → pages register from the frozen route list, joined to `manifest.pages` classes by `routeName`. No directory is read. An orphan route throws naming its `file` (regenerate the manifest).
-- `manifest.routes` absent → exact 021 behavior (register `manifest.pages` directly).
-- No `manifest` + non-serverless deploy → default fs boot. Nothing about existing boot paths changed.
+- `manifest.routes` absent → the original behaviour: register `manifest.pages` directly.
+- No `manifest` and a non-serverless deploy → the default filesystem boot.
 
 ## Parity guarantee
 
@@ -228,11 +238,6 @@ on this fallback.
 ## Raw projects
 
 `deploy: "raw"` projects have no pages. `gramstax build --raw` exits 0, prints the skip message, writes nothing. Without `--raw`, a missing `src/pages` stays an error.
-
-## Relationship to other plans
-
-- **022 (AOT)**: consumes the `manifest.js` convention (static imports + embedded template strings) defined here; 023 emits source-level manifest only.
-- **024 (adapters)**: server/lambda/worker entries consume `.gramstax/` (`routes.json` for routing data, `manifest.js` for classes).
 
 ## Implementation map
 

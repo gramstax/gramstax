@@ -31,7 +31,7 @@ Templates (the `<g-*>` DSL) are the primary thing a bot author edits during deve
 ### Benefits
 
 - Edit a template → see the change live, matching web-dev hot-reload expectations.
-- `chokidar` gives robust cross-platform watching (no manual `fs.watch` quirks).
+- `chokidar` gives consistent cross-platform watching without the `fs.watch` quirks.
 
 ### Trade-offs
 

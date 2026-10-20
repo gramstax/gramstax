@@ -92,9 +92,9 @@ packages/gramstax/
 
 | Aspect     | Convention                                                                                                                                                         | Enforced By                            |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------- |
-| Formatting | 2-space indent, **no semicolons**, `arrowParens: always`, `trailingComma: none`, `printWidth: 300` (TS), `200` (JSON).                                          | `biome.json`                           |
-| Linting    | Biome's recommended rules. Unused imports are errors; `no-explicit-any` is not enabled.                                                                            | `biome lint`                           |
-| Imports    | ESM, `node:` prefix for builtins, `import type` for types, `~/*` alias → `src/*`, relative for same-folder. Named exports only: **no default exports**.           | `tsconfig.json` paths, `AGENTS.md`     |
+| Formatting | 2-space indent, **no semicolons**, `arrowParens: always`, `trailingComma: none`, `lineWidth: 300` (TS), `200` (JSON).                                             | `biome.json`                           |
+| Linting    | Biome's recommended rules. Unused imports are errors; `noExplicitAny` is a warning. `useTemplate` and `useImportType` are errors.                                  | `biome lint`                           |
+| Imports    | ESM, `node:` prefix for builtins, `import type` for types, `~/*` alias → `src/*`, relative for same-folder. Named exports in package source; build and config files use default exports. | `tsconfig.json` paths, `AGENTS.md`     |
 | Types      | `strict: true`, `noUncheckedIndexedAccess: true`. Public boundaries get explicit types; `any` allowed but discouraged.                                             | root `tsconfig.json`                   |
 
 <Note>
@@ -109,7 +109,7 @@ bun run lint:packages          # root: biome lint ./packages
 bun run lint:fix               # auto-fix
 
 # Type-check everything (the CI gate)
-bun run ci:check:packages      # tsc --noEmit && biome lint ./packages
+bun run ci:check:packages      # tsc --noEmit for each package, then biome lint ./packages
 ```
 
 ## Testing
@@ -181,9 +181,9 @@ changes nothing.
 
 | Stage             | Trigger                                            | What It Does                                                                                                                                                                                                                     |
 | ----------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Release           | `push` to `main` (`.github/workflows/release.yml`) | a `test` matrix job typechecks and tests each of the four packages; the `release` job then runs `lint:packages` + `build:packages`, decides whether a version is needed, runs `bun run dry-run`, upgrades npm for OIDC, and runs `bun run release` (Nx release, conventional-commits versioning, git tag `v{version}`, GitHub release). A manual `workflow_dispatch` with `publish_only` re-publishes the disk version without versioning. |
-| Docs              | `push` to `main` (`.github/workflows/docs.yml`)   | Audits the prose against the source (`node scripts/docs/audit-docs.mjs`) and the template blocks in the code examples (`node scripts/docs/audit-templates.mjs`) before anything is generated, regenerates the API reference with the root `bun run build:docs`, validates it with `mintlify validate` and `mintlify broken-links --check-anchors`, checks accessibility with `mintlify a11y`, and then commits the regenerated corpus. Validation runs before the commit, so a failed run pushes nothing. |
-| Revert on failure | `if: failure()`                                    | Deletes only the tag and GitHub release this run created, after proving the tag points at a commit made after the run started. It never rewrites history and never resets `main`; an already-published npm version is immutable and left for manual follow-up. |
+| Release           | `push` to `main` (`.github/workflows/release.yml`) | Typechecks and tests each of the four packages, then lints and builds them. If the push contains a versionable commit (`feat:`, `fix:` or a `!` breaking change), CI runs `bun run release`, which tags `v{version}` and publishes. You only need the commit prefix; CI does the rest. A manual `workflow_dispatch` with `publish_only` republishes the version already on disk without bumping it. |
+| Docs              | `push` to `main` (`.github/workflows/docs.yml`)   | Audits the prose against the source (`node scripts/docs/audit-docs.mjs`) and the template blocks in the code examples (`node scripts/docs/audit-templates.mjs`), regenerates the API reference with `bun run build:docs`, validates it with `mintlify validate`, `mintlify broken-links --check-anchors` and `mintlify a11y`, then commits the regenerated corpus. Validation runs before the commit, so a failed run pushes nothing. |
+| Revert on failure | `if: failure()`                                    | If a release run fails after tagging, CI deletes only the tag and GitHub release that run created, after checking that the tag points at a commit made after the run started. It does not rewrite history or reset `main`. An npm version that was already published is immutable; bump and publish a new one. |
 
 `nx.json` defines `release.projects: ["packages/*"]`, semver bumps from conventional commits, and a GitHub changelog. Release runs `nx release publish` per package.
 

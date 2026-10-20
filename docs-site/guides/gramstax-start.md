@@ -30,7 +30,7 @@ Requires Bun: `bun --bun gramstax start`. Plain node breaks TS paths plus the
 mirroring the `PageManager._getFile` first-export rule.
 
 ```ts
-import {Gramstax} from `gramstax`
+import {Gramstax} from "gramstax"
 
 export class BotCore extends Gramstax {
 }
@@ -56,19 +56,19 @@ verbatim:
 Token is not valid or empty
 ```
 
-Load accepts `token` as any string including `""` (so env-less
-`gramstax build` keeps working when `BOT_TOKEN` is unset);
-only `start` enforces non-empty. Same pass-through rule for
-`optionsDeploy.webhook.secretToken` and `optionsDeploy.serverless.secretToken`
-(env expression, never a literal; serverless duality (config value sets the
-webhook, edge reads the `BOT_WEBHOOK_SECRET` binding), see
-`docs-site/guides/serverless-deploy.md`).
+Load accepts `token` as any string including `""`, so an env-less
+`gramstax build` keeps working when `BOT_TOKEN` is unset; only `start` enforces
+a non-empty value. The webhook and serverless secret fields follow the same
+pass-through rule: use an env expression, never a literal. For serverless, the
+config value sets the webhook and local start, while the deployed worker reads
+the `BOT_WEBHOOK_SECRET` binding. See
+[Serverless deploy](/guides/serverless-deploy).
 
 <Warning>
-  Never commit real token/secret values; keep them in `.env` (see
-  `.env.example`). The framework cannot distinguish a literal from an
-  env-derived value, so no warning is possible: that caution is the whole
-  guardrail.
+  Never commit real token/secret values; keep them in `.env`. The scaffold
+  creates that file from the template's `.env.example`. The framework cannot
+  distinguish a literal from an env-derived value, so no warning is possible:
+  that caution is the whole guardrail.
 </Warning>
 
 ## Path-ref form
@@ -142,29 +142,27 @@ violations throw `Invalid gramstax config at <file>: ...` naming the field.
 | Field                   | Type                              | Default   | Rule                                    |
 | ----------------------- | --------------------------------- | --------- | --------------------------------------- |
 | `token`                 | `string`                          | _none_    | Any string incl. `""` at load; non-empty required for start |
-| `deploy`                | `"polling" \| "webhook" \| "serverless" \| "raw" \| "test"` | `polling` | Bare literal; `--deploy` wins           |
-| `optionsDeploy`         | `{polling?: {maxRetries?, queue?}, webhook?: {url?, secretToken?, queue?}, serverless?: {'cloudflare-mod'?: {url?, secretToken?, name?, compatibilityDate?, compatibilityFlags?, toml?}, 'aws-lambda-async'?: {url?, secretToken?}}, raw?: {}, test?: {}}` | _none_    | `webhook` needs `url` + `secretToken`; `serverless` is keyed by adapter (exactly one key) and needs a real `url` + `secretToken` (runtime-required, type-optional); see `docs-site/guides/serverless-deploy.md`; `polling` takes `{maxRetries?, queue?}` or `{}`; `raw`/`test` take `{}` or nothing |
-| `mediaRoots`            | `string[] \| null`                | _none_    | Non-empty entries; empty jail off       |
+| `deploy`                | `string`                          | `polling` | One of `polling`, `webhook`, `serverless`, `raw` or `test`; `--deploy` wins |
+| `optionsDeploy`         | `{polling?: {maxRetries?, dropPendingUpdates?, queue?}, webhook?: {url?, secretToken?, queue?}, serverless?: {'cloudflare-mod'?: {url?, secretToken?, name?, compatibilityDate?, compatibilityFlags?, toml?}, 'aws-lambda-async'?: {url?, secretToken?}}, raw?: {}, test?: {}}` | _none_    | `webhook` needs `url` + `secretToken`; `serverless` is keyed by adapter (exactly one key) and needs a real `url` + `secretToken` (runtime-required, type-optional); see `docs-site/guides/serverless-deploy.md`; `polling` also takes `dropPendingUpdates?`; `raw`/`test` take `{}` or nothing |
+| `mediaRoots`            | `string[] \| null`                | `null` (off) | Non-empty entries; empty jail off    |
 | `botConfig`             | `object`                          | _none_    | Passed through                          |
-| `autoRetry`             | `boolean`                         | _none_    | Passed through                          |
-| `autoRetryOptions`      | `object`                          | _none_    | `maxRetryAttempts` positive             |
-| `rateLimit`             | `{windowMs, max}`                 | _none_    | Both positive numbers                   |
-| `throttle`              | `object`                          | _none_    | Passed through                          |
-| `updateTimeoutMs`       | `number`                          | _none_    | Non-negative                            |
-| `skipDuplicateUpdate`   | `boolean`                         | _none_    | Passed through                          |
-| `maxTextLength`         | `number`                          | _none_    | Non-negative                            |
+| `autoRetry`             | `boolean`                         | `true`    | `false` disables automatic retries      |
+| `autoRetryOptions`      | `object`                          | `{}`      | `maxRetryAttempts` positive             |
+| `rateLimit`             | `{windowMs, max}`                 | off       | Both positive numbers                   |
+| `throttle`              | `object`                          | off       | Passed through                          |
+| `updateTimeoutMs`       | `number`                          | `30000`   | Non-negative                            |
+| `skipDuplicateUpdate`   | `boolean`                         | `false`   | `true` drops repeated updates           |
+| `maxTextLength`         | `number`                          | `0`       | Non-negative; `0` means no limit        |
 | `statusServerPort`      | `number`                          | _none_    | `0`-`65535`                              |
-| `statusServerHostname`  | `string`                          | _none_    | Non-empty                               |
-| `optionsPage`           | `{shortCallbackQueryData?}`       | _none_    | Boolean when present                    |
+| `statusServerHostname`  | `string`                          | `127.0.0.1` | Non-empty                             |
+| `optionsPage`           | `{shortCallbackQueryData?}`       | flag off  | Boolean when present                    |
 
 <Note>
-  This table's scope is `polling` plus `webhook`. `serverless` and `test` behave
-  exactly as the constructor does today: no special-casing. `optionsDeploy`
-  branches (`serverless`/`webhook`/`polling`/`raw`/`test`),
-  polling/webhook/test/raw sections, and real lambda fields are unchanged; see
-  `docs-site/guides/gramstax-build.md` and
-  `docs-site/guides/serverless-deploy.md`. Paths follow the `src/pages` +
-  `.gramstax/` convention (no path knobs).
+  These scalar fields apply in every deploy mode. The five instance and ref
+  slots are described in the `instanceof` table above. `serverless` and `test`
+  add no different scalar rules; their deploy-specific options are covered in
+  [Serverless deploy](/guides/serverless-deploy) and
+  [gramstax build](/guides/gramstax-build).
 </Note>
 
 ### The update queue (`queue?` on `polling` and `webhook`)
@@ -172,7 +170,7 @@ violations throw `Invalid gramstax config at <file>: ...` naming the field.
 Both branches accept the same `queue` object, and both configure the same
 class (`UpdateQueue`), each mode keeping its own instance, so the two never
 contend. Fields: `{enabled?, maxQueueSize?, workerCount?, perChatConcurrency?,
-blockWhenFull?, enqueueTimeoutMs?, waiterTimeoutMs?}`.
+blockWhenFull?, enqueueTimeoutMs?, waiterTimeoutMs?, drainTimeoutMs?}`.
 
 | Field | Default | Effect |
 | --- | --- | --- |
@@ -180,7 +178,7 @@ blockWhenFull?, enqueueTimeoutMs?, waiterTimeoutMs?}`.
 | `maxQueueSize` | `5000` | Bounded queue capacity. |
 | `workerCount` | `8` | Concurrent in-process async drain loops (not OS threads). |
 | `perChatConcurrency` | `1` | `1` preserves ordering per chat; `0` disables the per-chat gate. |
-| `blockWhenFull` | `true` | `true` = the producer waits; `false` = webhook replies HTTP 429, polling drops the update. |
+| `blockWhenFull` | `true` | `true` = the producer waits. `false` applies to webhook, which replies HTTP 429. Polling has no drop path and always waits. |
 | `enqueueTimeoutMs` | `10000` | How long a blocking producer waits for a free slot before failing (429 / dropped). |
 | `waiterTimeoutMs` | `30000` | How long a worker waits for a per-chat slot before bypassing the gate. |
 | `drainTimeoutMs` | `10000` | How long `stop()` waits for in-flight handlers before giving up on the drain. |
@@ -188,19 +186,24 @@ blockWhenFull?, enqueueTimeoutMs?, waiterTimeoutMs?}`.
 Reading live state: `getWebhookQueueStats()` and `getPollingQueueStats()` each
 return `null` while their queue is disabled.
 
-Measured with `packages/gramstax/bench/bench.ts` (k6 drives a `MockTelegramServer` running in its own process, which forwards each update to the bot): below saturation the queue is neutral, and past it the queue holds p95 flat while the sequential drain collapses. At a 600 users/s target on the dev host, sequential fell to 377 users/s at p95 1828 ms, while the queue sustained 601 users/s at p95 124 ms. The shared ceiling was ~600 handled users/s in both modes.
+`packages/gramstax/bench/bench.ts` compares the two modes. k6 drives a
+`MockTelegramServer` in its own process, and the mock forwards each update to the
+bot. The queue is neutral below saturation; the difference appears when the
+arrival rate exceeds what one handler at a time can drain. Run the benchmark on
+your own host rather than trusting a number from another machine, because the
+repository does not commit a result table.
 
 ## `--watch`
 
-Watches `src` (ignored until first change) and reboots on edit: stops the old
-instance, then boots again with cache-busted imports. Boot errors during a
-restart print and keep watching.
+Watches `src` (ignored until the first change) and restarts on edit: it stops
+the old instance, re-imports the bot module and constructs a fresh instance.
+Boot errors during a restart print and keep watching.
 
 ## Troubleshooting: `no Gramstax subclass export` for a correct `BotCore`
 
 Symptom: `gramstax start` throws `no Gramstax subclass export found in
 <bot-file>` even though `src/core/bot.ts` clearly exports
-`class BotCore extends Gramstax`, and the error now also names the CLI's own
+`class BotCore extends Gramstax`, and the error also names the CLI's own
 gramstax entry. Cause: TWO `gramstax` copies: the bot file loaded one copy
 (e.g. a repo-root `tsconfig` `paths` entry redirecting `gramstax` to
 `packages/gramstax/src/index.ts`) while the CLI runs from another (the built

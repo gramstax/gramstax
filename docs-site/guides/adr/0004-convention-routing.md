@@ -24,13 +24,13 @@ Route updates **by convention**, not by manual `bot.on` registration:
 - **Route key**: a page's `name` is derived from the file/class; `Ctx.buildData` can override `intentText` / `intentCommandText`. The callback intent is derived from `name` and is not an input field.
 - **Handler methods**: each page declares optional `async handle*` methods on its `Ctx` subclass: `handleText`, `handleArgsText`, `handleCommandText`, `handleCommandArgsText`, `handleCallbackQueryData`, `handleArgsCallbackQueryData`, `handleFreeText`, the `handleSession*` and `handle*Caption*` variants, etc. (`src/core/ctx.ts`).
 - **Worker bots**: bots that only make raw API calls use `deploy: "raw"`, which
-  skips page discovery entirely. An earlier `templateManager: {} as any`
-  exception for this case has been removed and now throws.
+  skips page discovery entirely. The earlier `templateManager: {} as any`
+  exception was removed; using it throws.
 
 <Note>
-  Routing is implicit: harder to trace than explicit `bot.on` calls, and
-  name/intent collisions are resolved by convention rather than by a typed route
-  table.
+  Routing is implicit and therefore harder to trace than explicit `bot.on` calls.
+  A duplicate name or intent is not resolved by convention: boot fails and names
+  both pages.
 </Note>
 
 ## Consequences
@@ -44,7 +44,7 @@ Route updates **by convention**, not by manual `bot.on` registration:
 ### Trade-offs
 
 - Routing is implicit: harder to trace than explicit `bot.on` calls.
-- Name/intent collisions are resolved by convention, not a typed route table.
+- A name/intent collision stops boot with both files named; there is no typed route table to inspect first.
 
 ### Alternatives Considered
 

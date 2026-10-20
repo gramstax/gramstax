@@ -6,9 +6,9 @@ icon: puzzle
 
 # Extending gramstax
 
-Five seams exist for going past the defaults. They are independent: take the one
-you need. Each section gives its shape, a compiling example, and when to leave
-it alone.
+There are five extension points for going past the defaults. Each one is
+independent, so use only the one you need. Each section gives its shape, a
+compiling example, and when to leave it alone.
 
 ## `buildData`: page routing metadata
 
@@ -171,12 +171,13 @@ throwing hook is swallowed. It **observes**: a `retryable` failure still rethrow
 to your caller, so do not retry inline inside it.
 
 <Note>
-  Sibling sinks: `hookUpdateError` receives terminal dead updates, `hookTrace`
-  fires at the end of every dispatch that got past the bot-level
-  `hookBeforeRoute`. Retry-queue ← `hookSendError`, exception
-  tracker ← `hookUpdateError`, dashboard ← `hookTrace`. Do not add this hook to
-  count errors you already see thrown from your own `render*()` calls; it earns
-  its place inside a broadcast fan-out, where no single caller owns the failure.
+  Other hooks cover different sinks. `hookUpdateError` receives updates that
+  ended in an error, and `hookTrace` fires at the end of every dispatch that
+  passed the bot-level `hookBeforeRoute`. Use `hookSendError` for send failures,
+  `hookUpdateError` for terminal update errors and `hookTrace` for tracing. Do
+  not use this hook just to count errors already thrown by your own `render*()`
+  calls; it is most useful inside a broadcast fan-out, where no single caller
+  owns the failure.
 </Note>
 
 ## `IPageManifestEntry`: booting without a filesystem

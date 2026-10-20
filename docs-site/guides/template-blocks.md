@@ -423,8 +423,10 @@ bodies with `new Function`, while `gramstax build` emits plain ESM modules.
 See [the AOT contract](/guides/aot-contract) for that half.
 
 <Note>
-  Under `gramstax start --watch`, chokidar re-runs this for the changed template
-  file only, so a hot reload recompiles one page rather than the tree.
+  With `templateManager: {enableWatch: true}`, the TemplateManager watcher
+  recompiles only the changed template file. `gramstax start --watch` is a
+  different mechanism: it restarts the whole bot when anything under `src`
+  changes.
 </Note>
 
 ## Related

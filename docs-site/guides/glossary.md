@@ -32,7 +32,7 @@ Terms are defined as they are used in this project. General programming terms ar
 | **MockTelegramServer**       | Standalone HTTP mock of the Telegram Bot API for offline integration testing. `deploy: "test"` mounts `E2eHelper`, not this.                                                                                                | `src/mock/telegram-server.ts`                      |
 | **Intent**                   | The routing key derived from a page's `name`, overridable via `buildData` `intentText`/`intentCommandText`. `intentCallbackQueryData` is derived from `name` and is not an input field.                                           | `src/types/ctx.ts`                           |
 | **Scope**                    | Interpolation syntax inside templates (`{{var}}`, switch, map, script, div) resolved at compile time by `TemplateEngine`.                                                     | `src/template/engine.ts` (`_processScope*`)        |
-| **Worker bot**               | A bot that only makes raw Bot API calls, with no page templates. Use `deploy: "raw"`, a bare `Bot` instance, no pages, no routing, no auto-start. The older `templateManager: {} as any` exception was removed and now throws. | `AGENTS.md` (Raw mode)                              |
+| **Worker bot**               | A bot that only makes raw Bot API calls, with no page templates. Use `deploy: "raw"`, a bare `Bot` instance, no pages, no routing, no auto-start. The older `templateManager: {} as any` exception was removed; using it throws. | `AGENTS.md` (Raw mode)                              |
 
 ## Acronyms
 

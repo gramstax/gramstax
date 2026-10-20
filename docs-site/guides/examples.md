@@ -10,7 +10,7 @@ Eleven complete Telegram bots live under [`example/`](https://github.com/gramsta
 
 They are numbered in an order, but the order is a teaching sequence, not a dependency chain. Every example boots on its own and shares nothing with its neighbours except the ideas it is built on. Read them in order if you are learning the framework, and skip to the one you need if you are not.
 
-One warning up front. `1-complex` is numbered first but it is not the first thing to read. It is the kitchen sink: every template block, every media type, i18n, a worker thread, and a 27 test e2e suite (28 files with `setup.ts`), all wired together. It is the right place to go once you know how a single page works, and the wrong place to start.
+One warning up front. `1-complex` is numbered first but it is not the first thing to read. It is the kitchen sink: a broad tour of template blocks, every media type, i18n, a worker thread, and a 27 test e2e suite (28 files with `setup.ts`), all wired together. It is the right place to go once you know how a single page works, and the wrong place to start.
 
 Where to start, depending on what you already know:
 
@@ -25,7 +25,7 @@ Where to start, depending on what you already know:
 
 | # | project | what it demonstrates | gramstax features it exercises |
 | - | :------ | :------------------- | :---------------------------- |
-| 1 | `1-complex` | Reference bot: every template construct in one place | `<g-import>`, `<g-map>`, `<g-switch>`, `lang="id"` i18n, `CacheExternal`, all media renderers, `hookBeforeRoute`, `hookAfterStart`, `@gramstax/worker-thread` |
+| 1 | `1-complex` | Reference bot: a broad tour of template constructs | `<g-import>`, `<g-map>`, `<g-switch>`, `lang="id"` i18n, `CacheExternal`, all media renderers, `hookBeforeRoute`, `hookAfterStart`, `@gramstax/worker-thread` |
 | 2 | `2-helloworld` | The minimal TypeScript bot, plus a webhook bench harness | Config-driven boot, the shared page skeleton, `inlineKeyboardT`, `MockTelegramServer` |
 | 3 | `3-helloworld-js` | The same bot in plain JavaScript | Proves Gramstax needs no TypeScript; same config, same pages, ESM `.js` imports |
 | 4 | `4-echo` | One echo page for every input type, plus four small support pages | `<g-media>` per Telegram type, `handleFreeText` and the `handleFree*` family, media group rendering |
@@ -41,7 +41,7 @@ Where to start, depending on what you already know:
 
 ### 1. `1-complex`: the kitchen sink
 
-**Demonstrates.** Everything at once: block templates (`<g-import>`, `<g-map>`, `<g-switch>`), a language picker persisted in `CacheExternal` and re-applied by a guard on every update, an async generator streaming a response, media and media-group replies, a deliberately thrown error page, and a background counter running in a worker thread.
+**Demonstrates.** A lot at once: block templates (`<g-import>`, `<g-map>`, `<g-switch>`), a language picker persisted in `CacheExternal` and re-applied by a guard on every update, an async generator streaming a response, media and media-group replies, a deliberately thrown error page, and a background counter running in a worker thread.
 
 **Read.**
 - `example/1-complex/src/core/bot.ts`: the whole extension surface. `CacheExternal`, `createCtx`, `hookBeforeRoute`, `hookAfterStart`.

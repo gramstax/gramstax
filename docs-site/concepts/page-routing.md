@@ -23,11 +23,13 @@ A file under `src/pages` *is* its route:
 Depth is not a convention you have to remember. It is the directory nesting.
 `src/pages/admin/ban.ts` works at any depth because the scanner walks the tree.
 
-One rule: a root-level `src/pages/index.ts` has no parent route and is rejected
-rather than silently swallowing the whole tree.
+Two rules protect the tree. A root-level `src/pages/index.ts` has no parent
+route and is rejected rather than silently swallowing the whole tree. A flat file
+and a same-named directory index that resolve to the same route also throw, with
+a message naming both files.
 
 <Note>
-  This is deliberate. A stray root `index.ts` is the natural place to put shared
+  This is on purpose. A stray root `index.ts` is the natural place to put shared
   code, and the failure mode of allowing it (every route resolving to the same
   page) is invisible until someone deploys.
 </Note>
@@ -41,18 +43,18 @@ rather than silently swallowing the whole tree.
 
 ## The page class
 
-The scanner takes the **first value the module exports** as the page class, and
-it does not filter out a default export, so a module whose only export is a
-default still loads. The moment a second export appears, the loaded value is
-whichever one the namespace sorts first, which is why every page declares
-exactly one named export. A module that exports nothing at all is a page that
-does not exist, and you find out at boot, not at runtime in production.
+The scanner takes the **first value the module exposes** as the page class. It
+does not filter out a default export, so a module whose only export is a default
+still loads. Once a module has two exports, the framework cannot tell which one
+you meant: it loads the first value the module exposes, silently. That is why
+every page declares exactly one named export. A module that exports nothing at
+all is a page that does not exist, and you find out at boot, not in production.
 
 ```ts
 import {PageBase} from "../../src/base/page"
 
 export class Hi extends PageBase {
-  static template = `<g-message>Hi.</g-message>`
+  static template = `<g-base><g-message>Hi.</g-message></g-base>`
 }
 ```
 
@@ -82,31 +84,33 @@ the method lands in.
 | `handleFree*()` | the same shapes, outside a session | `routeDynamicSpesific` |
 
 `routeDynamicSpesific` is where the `handleFree*` shapes land. `routeDynamic` is
-the other table, and it holds the global `handleFree()` fallback.
+the other table, and it holds the global `handleFree()` fallback. The source
+spells the first table `routeDynamicSpesific` with an `s` in the middle; keep
+that spelling when you look it up.
 
 The `Args` in the name and the `/cmd` in the input are **independent**. That is
 the part most get wrong: `handleArgsText` is *not* `/cmd <args>`. Args without a
 command is `handleArgsText`; `/cmd <args>` is `handleCommandArgsText`.
 
 <Note>
-  The `Args*` variants do not use `startsWith`. The payload is split on the
-  separator first and the head is looked up exactly in the intent table, with
-  `lang:`-prefixed fallbacks for text. So `handleArgsText` still catches
-  `start counter` because the head is `start`, not because the intent is a
-  prefix of the payload. The no-`Args` variants are exact-match too, on the raw
-  payload.
+  The `Args*` variants do not use `startsWith`. The payload is split first, on a
+  space for text and captions or on a colon for callback data, and the segment
+  before it is looked up exactly in `routeStaticIntent`, with `lang:`-prefixed
+  fallbacks for text. So `handleArgsText` catches `start counter` because the
+  head is `start`, not because the intent is a prefix of the payload. The
+  no-`Args` variants are exact-match too, on the raw payload.
 </Note>
 
-<Frame caption="The name decides the table. `Args` moves a handler into `routeStaticIntent`, `Session` into `routeStaticSession`, and `Free` into `routeDynamic`.">
+<Frame caption="The name decides the table. `Args` moves a handler into `routeStaticIntent`, `Session` into `routeStaticSession`, and `Free` into `routeDynamicSpesific`. The bare `handleFree()` fallback goes to `routeDynamic`.">
   <img
     src="/images/handler-tables.svg"
-    alt="Four columns, one per route table. routeStatic holds the handleText, handleCommandText, handleCallbackQueryData, handleCaption and handleCommandCaption shapes and resolves them by exact match. routeStaticIntent holds the Args variants of the same shapes and resolves them by an exact lookup of the segment before the separator. routeStaticSession holds the handleSession shapes, and routeDynamic the handleFree shapes."
+    alt="Four columns. routeStatic holds the handleText, handleCommandText, handleCallbackQueryData, handleCaption and handleCommandCaption shapes and resolves them by exact match. routeStaticIntent holds the Args variants and resolves them by an exact lookup of the segment before the separator. routeStaticSession holds the handleSession shapes. routeDynamicSpesific holds the handleFree shapes. The global handleFree() fallback in routeDynamic is not shown."
   />
 </Frame>
 
 The `handle*` / `handleSession*` / `handleFree*` split is not decoration. A
 session step and a free-form message reach the page by different paths, and the
-framework refuses to guess which one you meant.
+framework cannot tell which one you meant.
 
 `handleCallbackQueryData` is where `this.callbackQueryData` becomes available,
 which is also why `renderText` behaves differently on that path. See
@@ -114,19 +118,22 @@ which is also why `renderText` behaves differently on that path. See
 
 ## Naming a method is registering it
 
-This is the part worth internalising. There is no central table of pages and no
-central table of handlers. Adding a page cannot break an unrelated page, because
-the only thing it touches is its own file.
+The practical consequence is simple. There is no central registry to edit.
+Adding a page cannot change an unrelated route at runtime, because the only file
+it touches is its own. A duplicate route name or intent still fails the whole
+boot.
 
-The cost is that you cannot enumerate handlers at runtime to build a menu. But
-in exchange, deleting a page is `rm`, and no stale registration survives to fire
-against a user.
+There is no generated menu, but you can inspect the routing tables at runtime
+through `bot.pages.routeStatic` and `bot.pages.all`. Deleting a page is `rm`, and
+no stale registration survives to fire against a user.
 
 ## Guards
 
-A guard is project code, not framework API, which is worth knowing before you go
-looking for `GuardBase` in the package. The scaffold writes a small `Ctx` subclass
-to `src/base/guard.ts` and the guard itself to `src/guards/user.ts`:
+A guard is project code, not framework API. Do not look for `GuardBase` in the
+package. The scaffold writes a small context subclass to `src/base/guard.ts` and
+the guard itself to `src/guards/user.ts`.
+The real guard redirects to a not-found page and catches its own errors; this
+excerpt keeps only the shape:
 
 ```ts
 export class UserGuard extends GuardBase {

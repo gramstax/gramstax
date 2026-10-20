@@ -36,7 +36,8 @@ gramstax's answer is to decide once, in the type system and in the build.
 
 **A page's route is its path.** No router exists. `src/pages/admin/ban.ts` is the
 `admin/ban` route because that is what the file is called. Naming a `handle*`
-method is what registers it. Adding a page cannot break an unrelated one.
+method is what registers it. Adding a page cannot change an unrelated route at
+runtime, though a duplicate name or intent still stops the app at boot.
 See [page routing](/concepts/page-routing).
 
 <Frame caption="Four files, four route names. The scanner walks the tree and takes the name from the path; nothing is registered by hand.">
@@ -47,9 +48,9 @@ See [page routing](/concepts/page-routing).
 </Frame>
 
 **Markup lives in a block, not in a string.** Message text, keyboards, media
-captions, poll options, invoices and error toasts live in one `static template`,
-compiled ahead of time. `lang="id"` beside a block gives you a second language
-with no branch in the handler. See [templates](/concepts/templates).
+captions, poll options, invoices and error toasts live in one `static template`.
+The template is compiled once when it loads, then cached. `lang="id"` beside a
+block gives you a second language with no branch in the handler. See [templates](/concepts/templates).
 
 **Render params are a union over delivery routes.** Each `render*()` method
 accepts only the keys its winning route reads; the rest are `?: never`, so
@@ -81,12 +82,13 @@ The block vocabulary is a constraint. `<g-script>` is rejected by ahead-of-time
 compilation, because it compiles to `with(data …)` and ESM forbids that. Logic
 belongs in the page class, returning plain data.
 
-In exchange you get pages that fail at build rather than at send, templates that
-a test can assert against, and markup a non-programmer can translate. That trade
-suits a product surface. It does not suit a script.
+In exchange, template mistakes surface before a user triggers them: at build time
+for AOT, at load time otherwise. Tests can assert against the compiled output, and
+a translator can read the markup. That trade suits a product surface. It does not
+suit a script.
 
 ## Where to start
 
 [Quickstart](/quickstart) gets a bot answering messages in five minutes. The
-[API reference](/reference/gramstax) covers every exported symbol and is
-generated from the TypeScript declarations.
+[API reference](/reference/gramstax) covers the public API and is generated from
+the TypeScript declarations.

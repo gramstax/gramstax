@@ -27,9 +27,9 @@ const config: GramstaxConfig = {
 
 **At most one branch may be non-empty, and it must equal `deploy`.**
 
-This is enforced, not documented-and-hoped-for. Setting `deploy: "webhook"` while
-`serverless` holds the settings throws at boot, so the config cannot claim one
-mode and silently run another. `webhook` requires both `url` and `secretToken`.
+The loader enforces this at boot. Setting `deploy: "webhook"` while `serverless`
+holds the settings throws, so the config cannot claim one mode and silently run
+another. `webhook` requires both `url` and `secretToken`.
 
 The old `webhook:<url>` colon grammar is gone and throws.
 
@@ -39,17 +39,17 @@ The old `webhook:<url>` colon grammar is gone and throws.
 
 Long polling, and the default. Nothing to expose, nothing to terminate.
 
-The queue is opt-in. Without it, updates drain sequentially exactly as they
-always did. With `optionsDeploy.polling.queue` enabled you get bounded
-concurrency (at a 600 users/s target the sequential drain fell to 377 users/s at
-p95 1828 ms, while the queue sustained 601 users/s at p95 124 ms). Turning it on
-is not a default change; you opt into it when you have measured a reason.
+The queue is opt-in. Without it, updates drain sequentially. With
+`optionsDeploy.polling.queue` enabled you get bounded concurrency, and the
+per-chat gate still keeps one chat's updates in order. Turning it on is not a
+default change; measure your own traffic first. The bundled benchmark at
+`packages/gramstax/bench/bench.ts` compares both modes.
 
 ### `webhook`
 
-You expose an HTTP endpoint; Telegram posts to it. Requires `url` and
-`secretToken`. The secret is verified per request, so an endpoint without it is
-a public endpoint that will drive your bot.
+You expose an HTTP endpoint; Telegram posts to it. It requires `url` and
+`secretToken`. The bot refuses to boot without the secret, and every request is
+checked against it; a mismatch returns 401.
 
 ### `serverless`
 
@@ -64,8 +64,8 @@ and `secretToken`.
 
 This is the **only** mode that auto-loads `.gramstax/`, the output of
 `gramstax build`. Polling, webhook and test boot from the filesystem, because
-they have a filesystem. A serverless isolate does not, so the frozen artifact is
-what gets loaded.
+they have a filesystem. A serverless function does not, so the frozen artifact
+is what gets loaded.
 
 Manifest boot goes further and needs no directory at all: pass `manifest:
 IAppManifest` to skip scanning. See [serverless deploy](/guides/serverless-deploy).
@@ -84,7 +84,7 @@ because nothing ever starts.
 
 This is the supported way to use gramstax as a dependency without adopting its
 model. The legacy `templateManager: {} as any` escape hatch was removed; using it
-outside raw mode now throws.
+outside raw mode throws.
 
 ### `test`
 
@@ -113,11 +113,13 @@ TypeScript paths.
 
 ## Observability
 
-An in-process `MetricsStore` counts every outcome (`matched`, `noMatch`,
-`noHandler`, `blocked`, `timeouts`, `skippedDuplicate`, `skippedValidation`,
-`dropped`) as JSON at `GET /stats` and Prometheus exposition text at
-`GET /metrics`.
+An in-process `MetricsStore` keeps ten counters: `updatesTotal`,
+`updatesFailed`, `matched`, `noMatch`, `noHandler`, `blocked`, `timeouts`,
+`skippedDuplicate`, `skippedValidation` and `dropped`. The webhook server and
+the optional status server expose the snapshot as JSON at `GET /stats`.
+Prometheus text at `GET /metrics` is available when `statusServerPort` is set.
 
-`blocked` is the one to watch: it counts updates a session lock refused because
-another instance held the lease. On a single instance it should be zero; if it
-is not, two instances are serializing the same user.
+`blocked` counts two things: a session-lock refusal because another instance held
+the lease, and a `hookBeforeRoute` gate that returned `false`. On a single
+instance, a non-zero value usually means your access gate fired, not that two
+instances are racing.

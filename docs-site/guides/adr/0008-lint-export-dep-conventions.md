@@ -1,6 +1,6 @@
 ---
 title: "ADR-0008: No @ts-ignore, Named Exports Only, Minimal Deps"
-description: The conventions every downstream bot inherits, no type suppression, named exports only, bun tests, and a deliberately small dependency set.
+description: The conventions downstream bots inherit: no type suppression, named exports for the package API, bun tests, and a small dependency set.
 icon: scale
 ---
 
@@ -21,7 +21,7 @@ A framework library sets the conventions every downstream bot inherits. Permitti
 Encode these conventions (from `AGENTS.md` "Anti-Patterns" and the lint config):
 
 1. **No `@ts-ignore` / `@ts-expect-error` in source**: type errors must be *fixed*, not suppressed. This is a review rule rather than a lint rule (`biome.json` configures no check for it); `tsc` only reports an `@ts-expect-error` directive that suppresses nothing.
-2. **Named exports only**: every public symbol is a named export; no `export default`. The barrel `src/index.ts` re-exports by name. Page loading takes `Object.values(mod)[0]`, so a default-only export does load, but a second export makes the first value arbitrary; the convention is one named class per page (`manager.ts:45-52`).
+2. **Named exports only for the package's public API**: every public symbol is a named export; the barrel `src/index.ts` re-exports by name. Page loading takes `Object.values(mod)[0]`, so a default-only export does load, but a second export makes the first value arbitrary; the convention is one named class per page (`manager.ts:45-52`). Build config files and a bot's generated `gramstax.config.ts` are deliberate default-export exceptions.
 3. **Minimal dependencies**: prefer `grammy`, `keyv`, `logging-pretty`; avoid adding new packages.
 4. **`vitest`/`jest` banned**: use `bun:test` exclusively.
 5. **`any` allowed but discouraged** in source; type suppression is acceptable *only in tests* (`as any`).

@@ -126,7 +126,7 @@ mock when you need a socket:
 ```ts
 const server = new MockTelegramServer({port: 0})
 const apiRoot = await server.start()
-// …
+// point the bot's botConfig.apiRoot at apiRoot, then run the test
 await server.stop()
 ```
 
@@ -143,7 +143,7 @@ passing against a stub that answers anything.
 
 It also does not model Telegram's own behaviour: rate limits, flood waits,
 message TTLs. A test that passes here can still hit a rate limit in production,
-which is why [metrics](/guides/configuration) exist for the things a test cannot
+which is why [metrics](/guides/observability) exist for the things a test cannot
 see.
 
 ## Keep the mirror honest

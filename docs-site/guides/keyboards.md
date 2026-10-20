@@ -87,26 +87,26 @@ const kb2 = this.bottomKeyboard(
   </Tab>
 </Tabs>
 
-There are four builders and two are shorthands:
+There are four builder methods. The two `T` builders are shorthands that place
+buttons for you; the two raw builders take a callback. `bottomKeyboardT` has two
+overloads, one for a layout string and one for a destination array.
 
-| Builder | Callback | Params |
-| :------ | :------- | :----- |
-| `inlineKeyboardT(destinations, layout, AGBaseId, data)` | none, it supplies its own | none, it forwards `AGBaseId` and `data` |
-| `bottomKeyboardT(layout, AGBaseId, data)` | none | none |
-| `bottomKeyboardT(destinations, layout, AGBaseId, data)` | none | none |
-| `inlineKeyboard(callback, params)` | `(k, l) => keyboard` | `IInlineKbParams` |
-| `bottomKeyboard(callback, params)` | `(k, l) => keyboard` | `IBottomKbParams` |
+| Builder | Callback | Parameters |
+| :------ | :------- | :--------- |
+| `inlineKeyboardT(destinations, layout = "1", AGBaseId?, data?)` | none | destination array, optional layout, base id and data |
+| `bottomKeyboardT(layout, AGBaseId?, data?)` | none | layout string, optional base id and data |
+| `bottomKeyboardT(destinations, layout = "1", AGBaseId?, data?)` | none | destination array, optional layout, base id and data |
+| `inlineKeyboard(callback, params?)` | `(k, l) => keyboard` | `IInlineKbParams` |
+| `bottomKeyboard(callback, params?)` | `(k, l) => keyboard` | `IBottomKbParams` |
 
-The `T` builders are the ones you want most of the time. `inlineKeyboardT` is
-declared as returning `IInlineKb` through `inlineKeyboard`, and
-`bottomKeyboardT` as returning `IBottomKb`. The raw builders exist for the case the
-shorthand cannot express: buttons whose callbacks are computed rather than
-positional, such as a pagination row where the same label points at a different
-page number on each render.
+`inlineKeyboardT` returns `IInlineKb`; `bottomKeyboardT` returns `IBottomKb`. The
+raw builders exist for cases the shorthand cannot express: buttons whose callbacks
+are computed rather than positional, such as a pagination row where the same label
+points at a different page number on each render.
 
-`bottomKeyboardT` has two overloads, and the first argument decides which one you
-get. An array means the destination-list form; a string or nothing means the
-layout form. `this.bottomKeyboardT(`2`)` and
+The first argument to `bottomKeyboardT` decides which overload you get. An array
+means the destination-list form; a string or nothing means the layout form.
+`this.bottomKeyboardT(`2`)` and
 `this.bottomKeyboardT([StartPage], `2`)` are different calls that both typecheck.
 
 ## Destinations, not strings
@@ -188,9 +188,10 @@ than after the second.
   do.
 </Note>
 
-`bottomKeyboard` also calls `.resized()` on the keyboard it returns, and it does
-so on both the cached and the uncached path, so a reply keyboard you build through
-Gramstax is already marked for resize. You never have to remember that call.
+`bottomKeyboard` marks the keyboard for resize on both paths, but the calls are
+not identical: the cached path calls `.resized(true)` (persistent), while the
+uncached path calls `.resized()`. Either way, a reply keyboard you build through
+Gramstax is already marked for resize.
 
 ## Which base supplies the labels
 
@@ -286,8 +287,12 @@ send" affordance that stays after the message scrolls away.
 method that never touches message text:
 
 ```ts
-async handleArgsCallbackQueryData() {
-  await this.renderEditKeyboard({keyboard: null, AGBaseId: `photo-card`})
+import {PageBase} from "~/base/page"
+
+export class PhotoPage extends PageBase {
+  async handleArgsCallbackQueryData() {
+    await this.renderEditKeyboard({keyboard: null, AGBaseId: `photo-card`})
+  }
 }
 ```
 

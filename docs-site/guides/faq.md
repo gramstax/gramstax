@@ -13,10 +13,11 @@ Each points at the guide or decision record it comes from, limitations included.
 
 ### Why pages instead of a router?
 
-Because a page's route is its path. There is no router, so no registry can fall
-out of sync with the tree: adding a page cannot break an unrelated one, and
-deleting one is `rm`. The cost is that you cannot enumerate handlers at runtime.
-See [ADR-0004](/guides/adr/0004-convention-routing).
+Because a page's route is its path. There is no router to register, so adding a
+page cannot change an unrelated route at runtime, and deleting one is `rm`. A
+duplicate page name or intent still fails the whole boot. There is no generated
+menu, but the routing tables are public through `bot.pages.routeStatic` and
+`bot.pages.all`. See [ADR-0004](/guides/adr/0004-convention-routing).
 
 ### Why a template DSL instead of plain strings?
 
@@ -29,10 +30,11 @@ vocabulary: you cannot hand Telegram markup strings to the API directly. See
 
 ### Can I use it without TypeScript?
 
-Yes. The render contract is enforced twice: the types catch an impossible
-combination at compile time, and `Ctx._assertRenderRoute` throws the same error at
-runtime for callers who are not typechecked. `example/3-helloworld-js` is a
-complete bot in plain JavaScript. See [render contract](/concepts/render-contract).
+Yes. The types catch an impossible combination at compile time. For
+`renderText`, `renderMedia` and `renderMediaGroup`, `Ctx._assertRenderRoute` also
+throws the same error at runtime, which covers callers who are not typechecked.
+`example/3-helloworld-js` is a complete bot in plain JavaScript. See
+[render contract](/concepts/render-contract).
 
 ## Design choices
 
@@ -71,10 +73,11 @@ from `this.temp.session`, and clear it on `/start`. See
 
 Partly, and the update queue is opt-in because it should be. Without
 `optionsDeploy.polling.queue` or `optionsDeploy.webhook.queue`, updates drain
-sequentially. With it, at a 600 users/s target on the development host the
-sequential drain fell to 377 users/s at p95 1828 ms while the queue sustained
-601 users/s at p95 124 ms. Those are one machine's numbers, not a capacity
-guarantee. See [concurrency](/concepts/concurrency).
+sequentially. With it, handlers run in a bounded pool, and the per-chat gate keeps
+one conversation's updates in order. The repository ships a benchmark at
+`packages/gramstax/bench/bench.ts` but does not commit a result table, because the
+numbers depend on the host and the handlers. Run it on your own bot. See
+[concurrency](/concepts/concurrency).
 
 Across instances, a Redis-backed `sessionLock` holds an atomic lease for the
 whole update dispatch, so two instances do not handle the same user's update at
@@ -101,7 +104,7 @@ paid media, venues, dice, gifts, descriptions, answers and imports, plus 54
 Telegram Rich HTML tags validated against Bot API 10.3. The vocabulary is in
 [templates](/concepts/templates).
 
-The gap worth knowing: the test mock implements the Bot API methods gramstax
+The gap: the test mock implements the Bot API methods gramstax
 actually calls, not the whole API, and it does not model Telegram's own
 behaviour such as rate limits or flood waits, so a passing test can still hit a
 rate limit in production. See [E2E testing](/guides/e2e-testing).
@@ -130,13 +133,12 @@ test. See [ADR-0006](/guides/adr/0006-in-process-e2e).
 
 Judge the evidence rather than take a claim. The package is published and at
 6.0.2, it carries 118 unit test files under `packages/gramstax/test` plus a
-per-example e2e suite, and every exported symbol has a generated API reference
-page. Against that: it is young, with a small user base, and the conventions are
-strict (no default exports, no `@ts-ignore`, `bun:test` only). The lint rules
-and the type checker enforce most of them; the rest are rules of thumb the
-toolchain does not police. `bunx create-gramstax` generates 9 page templates
-plus an e2e suite
-mirroring the page tree, the fastest way to judge the shape. See
+per-example e2e suite, and the public API has a generated reference. Against
+that: it is young, and the conventions are strict (named exports in package
+source, no `@ts-ignore`, `bun:test` only). The lint rules and the type checker
+enforce most of them; the rest are rules of thumb the toolchain does not police.
+`bunx create-gramstax` generates 9 page templates plus an e2e suite mirroring the
+page tree, the fastest way to judge the shape. See
 [ADR-0008](/guides/adr/0008-lint-export-dep-conventions).
 
 ### Can I use it with a bot I already have?

@@ -27,9 +27,10 @@ handler.
 
 ## The six methods
 
-Every one takes `{data?, AGBaseId?, options?}` on top of its required key. There
-is no `mode`, no `keyboard` and no `fallback`: an answer is not a message, so
-there is nothing to edit and nowhere to fall back to.
+Most take `{data?, AGBaseId?, options?}` on top of their required key;
+`renderInlineAnswer` also takes `buttonStartParameter`. There is no `mode`, no
+`keyboard` and no `fallback`: an answer is not a message, so there is nothing to
+edit and nowhere to fall back to.
 
 | Method | Block | Telegram call | Required | Optional |
 | :----- | :---- | :------------ | :------- | :------- |
@@ -100,9 +101,8 @@ variant, so the same page serves both without a branch in the handler.
 
 ## What each block actually carries
 
-The blocks are not interchangeable, and two of them carry nothing at all beyond
-proof that the template exists. That is deliberate, and it is the part worth
-knowing before you design the page.
+The blocks are not interchangeable. Two of them carry nothing beyond proof that
+the template exists, which matters when you design the page.
 
 | Method | The block supplies | The call carries |
 | :----- | :----------------- | :--------------- |

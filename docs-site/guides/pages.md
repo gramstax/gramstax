@@ -57,7 +57,7 @@ static data = this.buildData({name: `lang`, intentText: {en: `hello`, default: `
 
 | Field | Type | What it changes |
 | :---- | :--- | :-------------- |
-| `name` | `string` | The page name, which is also the default for all three intents |
+| `name` | `string \| null` | The page name, which is also the default for all three intents |
 | `callbackQueryData` | `(...args: string[]) => Array<string \| undefined>` | The definition side: how positional args are encoded into the callback string |
 | `intentText` | `string` or `Record<string, string>` | The text that reaches `handleText` and `handleArgsText` |
 | `intentCommandText` | `string` or `Record<string, string>` | The command that reaches `handleCommandText` and `handleCommandArgsText` |
