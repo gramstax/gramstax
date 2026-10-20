@@ -1094,6 +1094,22 @@ Block: g-venue Extracts and parses `<g-venue>` blocks from a template string.
 </td></tr>
 <tr><td>
 
+[\_processGWebAppAnswerBlocks(template)](./gramstax.templateengine._processgwebappanswerblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-web-app-answer Extracts `<g-web-app-answer>` marker blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
 [\_processMediaGroupItems(groupContent)](./gramstax.templateengine._processmediagroupitems.md)
 
 
@@ -1704,6 +1720,22 @@ Compiles venue blocks from a template into executable functions.
 </td></tr>
 <tr><td>
 
+[compileBlockGWebAppAnswer(template, baseBlocks)](./gramstax.templateengine.compileblockgwebappanswer.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles web-app answer blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
 [processGImportBlocks(template, resolver, depth, importCache)](./gramstax.templateengine.processgimportblocks.md)
 
 
@@ -2179,6 +2211,22 @@ Validates attributes on `<g-switch>` blocks.
 </td><td>
 
 Validates attributes and presence rules on `<g-venue>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGWebAppAnswerAttributes(template)](./gramstax.templateengine.validateblockgwebappanswerattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes on `<g-web-app-answer>` blocks.
 
 
 </td></tr>

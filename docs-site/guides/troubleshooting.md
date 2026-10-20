@@ -40,14 +40,14 @@ Block <g-message> is not allowed inside <g-keyboard>
 Block <hr> must be self-closing: use <hr /> instead
 ```
 
-Self-closing form is checked per tag, and the rule is not uniform. Eighteen page
-blocks, `<g-base>` through `<g-div>`, are containers and are rejected when
-self-closed. The Rich HTML void elements (`hr`, `img`, `input`, `br`, `tg-map`)
-are rejected when they are *not* self-closed. Nine page blocks are in neither list
-and accept either form: `g-price`, `g-venue`, `g-dice`, `g-callback-answer`,
-`g-precheckout-error`, `g-shipping-error`, `g-inline-button`, `g-answer-note` and
-`g-gift`. `<g-space>` and `<g-import>` are written self-closing by convention,
-which the validator does not enforce either way.
+Self-closing form is checked per tag, and the rule is not uniform. Nineteen page
+blocks are containers and are rejected when self-closed: `<g-base>` through
+`<g-div>`, plus `<g-web-app-answer>`. The Rich HTML void elements (`hr`, `img`,
+`input`, `br`, `tg-map`) are rejected when they are *not* self-closed. Nine page
+blocks are in neither list and accept either form: `g-price`, `g-venue`, `g-dice`,
+`g-callback-answer`, `g-precheckout-error`, `g-shipping-error`, `g-inline-button`,
+`g-answer-note` and `g-gift`. `<g-space>` and `<g-import>` are written
+self-closing by convention, which the validator does not enforce either way.
 `TemplateEngine.validateTemplate` in
 `packages/gramstax/src/template/engine.ts` adds three attribute shapes: unknown,
 missing, or malformed. An unknown attribute is rejected and the message names

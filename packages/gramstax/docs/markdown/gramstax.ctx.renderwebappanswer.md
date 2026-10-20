@@ -6,7 +6,7 @@
 
 Answers a web app query via the Bot API with a caller-built result.
 
-Template block: `<g-answer-note>` (read via `getGAnswerNote`<!-- -->).
+Template block: `<g-web-app-answer>` (read via `getGWebAppAnswer`<!-- -->); `<g-answer-note>` remains a legacy alias for this method.
 
 **Signature:**
 
@@ -58,7 +58,7 @@ The sent web app message object.
 
 ## Remarks
 
-Unlike the other answers this carries an explicit query id (there is no context-aware alias — web app queries arrive without an answerable update), mirroring `renderGift`<!-- -->'s explicit target. The result content is built by the caller from `data` (multilang payloads); the `<g-answer-note>` block is resolved as fail-fast validation that the template exists, per the same fail-fast validation.
+Unlike the other answers this carries an explicit query id (there is no context-aware alias — web app queries arrive without an answerable update), mirroring `renderGift`<!-- -->'s explicit target. The result content is built by the caller from `data` (multilang payloads); the `<g-web-app-answer>` block is resolved as fail-fast validation that the template exists.
 
 Observe-only send-error coverage (mirrors `renderGift`<!-- -->): failures are classified via `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!-- -->, `fallback-text` → `log.warn`<!-- -->). After notify+log the original error is ALWAYS rethrown untouched.
 

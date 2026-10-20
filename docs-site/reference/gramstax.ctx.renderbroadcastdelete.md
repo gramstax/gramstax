@@ -68,7 +68,7 @@ Per-recipient failures are classified via `Ctx.classifySendError`: `retryable` e
 
 
 ```typescript
-async handleExpireVip() {
+async handleCommandText() {
   const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)
   await this.renderBroadcastDelete({targets: sent})
 }

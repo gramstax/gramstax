@@ -11,7 +11,7 @@ Discriminator identifying which `getG*` block a result was rendered from.
 **Signature:**
 
 ```typescript
-type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `gift` | `invoice` | `paidMedia` | `description`;
+type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`;
 ```
 
 ## Remarks

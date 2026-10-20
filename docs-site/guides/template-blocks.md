@@ -1,6 +1,6 @@
 ---
 title: Template Blocks
-description: The 29 PAGE blocks, grouped by what they do, with the attributes, nesting rules and structural checks each one is subject to.
+description: The 30 PAGE blocks, grouped by what they do, with the attributes, nesting rules and structural checks each one is subject to.
 icon: blocks
 ---
 
@@ -9,7 +9,7 @@ icon: blocks
 A page's `static template` is the only place its markup lives. Inside it, a
 `<g-*>` block is the unit a `render*()` call reads: you do not name a tag when
 you call `renderText`, you name a `<g-base>` and let the block decide what gets
-sent. There are **29** PAGE blocks and the vocabulary is closed, enforced by
+sent. There are **30** PAGE blocks and the vocabulary is closed, enforced by
 `TemplateEngine.ALLOWED_BLOCKS_PAGE`. Anything that is not in that set and not
 one of the Telegram tags is rejected at compile time.
 
@@ -17,17 +17,17 @@ For the keyboard builders (`LabelGKeyboard`, `BlockGKeyboard`) and per-block
 languages, see [Templates](/concepts/templates). For how a key on the render
 params reaches these blocks, see [the render contract](/concepts/render-contract).
 
-## The 29 blocks
+## The 30 blocks
 
 | Group | Blocks | Count |
 | --- | --- | --- |
 | Structure and sharing | `g-base`, `g-import/`, `g-space/` | 3 |
 | Logic | `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div` | 7 |
 | Content | `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-price`, `g-paid-media`, `g-venue`, `g-dice`, `g-description`, `g-gift` | 14 |
-| Answers | `g-callback-answer`, `g-precheckout-error`, `g-shipping-error`, `g-inline-button`, `g-answer-note` | 5 |
-| | **Total** | **29** |
+| Answers | `g-callback-answer`, `g-precheckout-error`, `g-shipping-error`, `g-inline-button`, `g-answer-note`, `g-web-app-answer` | 6 |
+| | **Total** | **30** |
 
-The source splits them 20 content / 7 logic / 2 utility. The grouping above is
+The source splits them 21 content / 7 logic / 2 utility. The grouping above is
 by role in a render call, which is how you actually reach for them.
 
 ## Structure and sharing
@@ -216,7 +216,8 @@ with the rest of the page's markup.
 | `g-precheckout-error` | `renderPreCheckout` | `answerPreCheckoutQuery` |
 | `g-shipping-error` | `renderShipping` | `answerShippingQuery` |
 | `g-inline-button` | `renderInlineAnswer` | `answerInlineQuery` |
-| `g-answer-note` | `renderGuestAnswer`, `renderWebAppAnswer` | validation only |
+| `g-answer-note` | `renderGuestAnswer` | validation only |
+| `g-web-app-answer` | `renderWebAppAnswer` | validation only |
 
 ```html
 <g-callback-answer>Saved</g-callback-answer>
@@ -224,20 +225,28 @@ with the rest of the page's markup.
 <g-precheckout-error>Card declined</g-precheckout-error>
 <g-shipping-error>We cannot ship there</g-shipping-error>
 <g-answer-note>Note appended to the inline result</g-answer-note>
+<g-web-app-answer>Web app note</g-web-app-answer>
 ```
 
-`g-callback-answer`, `g-precheckout-error`, `g-shipping-error` and
-`g-answer-note` take `lang` only and must contain plain text with no HTML;
-`g-callback-answer` is capped at 200 characters. `g-inline-button` takes `lang`,
-`text` and `start-parameter`; `text` is required and non-empty, and a static
-`start-parameter` must match the deep-link format `[A-Za-z0-9_-]` at most 64
-characters. A `{{}}` value skips that check and nothing re-checks it afterwards:
-the compiled value goes straight to `start_parameter`, so Telegram is the next
-validator.
+`g-callback-answer`, `g-precheckout-error`, `g-shipping-error`,
+`g-answer-note` and `g-web-app-answer` take `lang` only and must contain plain
+text with no HTML; `g-callback-answer` is capped at 200 characters.
+`g-inline-button` takes `lang`, `text` and `start-parameter`; `text` is
+required and non-empty, and a static `start-parameter` must match the deep-link
+format `[A-Za-z0-9_-]` at most 64 characters. A `{{}}` value skips that check
+and nothing re-checks it afterwards: the compiled value goes straight to
+`start_parameter`, so Telegram is the next validator.
+
+<Note>
+  `g-answer-note` stays valid for `renderWebAppAnswer` as a legacy alias: the
+  web-app answer prefers `<g-web-app-answer>` in the requested base and falls
+  back to `<g-answer-note>` in that base, then repeats the same two-step lookup
+  on the `default` base. A template with neither block throws.
+</Note>
 
 ## Attribute reference
 
-Twenty-seven of the 29 blocks have an attribute allowlist, checked by the
+Twenty-eight of the 30 blocks have an attribute allowlist, checked by the
 matching `validateBlockG*Attributes` method. An attribute outside the list is an
 error naming the block, not a field quietly ignored.
 
@@ -263,6 +272,7 @@ error naming the block, not a field quietly ignored.
 | `g-shipping-error` | `lang` |
 | `g-inline-button` | `lang`, `text`, `start-parameter` |
 | `g-answer-note` | `lang` |
+| `g-web-app-answer` | `lang` |
 | `g-script` | none |
 | `g-ifelse` | none |
 | `g-switch` | `value` |
@@ -337,9 +347,9 @@ than from a rule of their own:
 - **`g-case` and `g-default` inherit the content children of wherever `g-switch`
   sits** (`inheritsContentFromParent`), so a block allowed in any of `g-switch`'s
   seven parents is also allowed inside a case body.
-- **Six blocks carry no positioning rule at all** and are accepted anywhere:
+- **Seven blocks carry no positioning rule at all** and are accepted anywhere:
   `g-callback-answer`, `g-precheckout-error`, `g-shipping-error`,
-  `g-inline-button`, `g-answer-note`, `g-gift`.
+  `g-inline-button`, `g-answer-note`, `g-web-app-answer`, `g-gift`.
 
 Content must also sit inside a `<g-base>`; a template whose content is outside
 every base is `Missing <g-base> block: template content must be wrapped in
@@ -355,7 +365,7 @@ suggests:
 
 | Rule | Tags |
 | --- | --- |
-| Must not self-close | 18 PAGE blocks: `g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-paid-media`, `g-description`, `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div` |
+| Must not self-close | 19 PAGE blocks: `g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-paid-media`, `g-description`, `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`, `g-web-app-answer` |
 | Must self-close | the five reachable void tags: `br`, `hr`, `img`, `input`, `tg-map` |
 
 The self-closing set also lists `space` and `import`, but the check compares the
@@ -396,10 +406,10 @@ and for a `.html` file under `src/pages`:
   </Step>
 
   <Step title="Compile each block family">
-    Fifteen `compileBlockG*` statics, one per `ICompiledTemplate` field:
+    Sixteen `compileBlockG*` statics, one per `ICompiledTemplate` field:
     `media`, `poll`, `venue`, `dice`, `callbackAnswer`, `precheckoutError`,
-    `shippingError`, `inlineButton`, `answerNote`, `gift`, `invoice`,
-    `paidMedia`, `message`, `keyboard`, `description`.
+    `shippingError`, `inlineButton`, `answerNote`, `webAppAnswer`, `gift`,
+    `invoice`, `paidMedia`, `message`, `keyboard`, `description`.
   </Step>
 
   <Step title="Store the `ICompiledTemplate`">

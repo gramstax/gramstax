@@ -71,7 +71,7 @@ could hold in their head. It now realigns with the `handle*` / `setSession*` nam
 ## `getG*()` returns an object
 
 The `getG*` getters on `TemplateManager` returned a mix of `string`, `string[]`
-and block objects. All fifteen rendered-block getters now return
+and block objects. All sixteen rendered-block getters now return
 `{kind, ...payload}`, backed by the exported `G*Result` types plus `GBlockKind`
 in `packages/gramstax/src/types/template.ts`. `getGBaseAtLine` is unchanged: it
 is template introspection, not a rendered block. From `packages/gramstax/src/e2e/helper.ts`:

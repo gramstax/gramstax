@@ -1,0 +1,90 @@
+---
+title: "TemplateEngine.compileBlockGWebAppAnswer()"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGWebAppAnswer](./gramstax.templateengine.compileblockgwebappanswer.md)
+
+## TemplateEngine.compileBlockGWebAppAnswer() method
+
+Compiles web-app answer blocks from a template into executable functions.
+
+**Signature:**
+
+```typescript
+static compileBlockGWebAppAnswer(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITemplateData) => string;
+        };
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The template string containing `<g-web-app-answer>` blocks
+
+
+</td></tr>
+<tr><td>
+
+baseBlocks
+
+
+</td><td>
+
+ReturnType&lt;typeof TemplateEngine.\_processGBaseBlocks&gt;
+
+
+</td><td>
+
+_(Optional)_ Optional pre-processed base blocks
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; \[AGBaseId: string\]: &#123; \[ALang: string\]: (data?: ITemplateData) =&gt; string; &#125;; &#125;
+
+Functions indexed by base ID and language
+
+## Remarks
+
+Each leaf resolves the marker text for the given render data. The text is never sent; `renderWebAppAnswer` uses the block as fail-fast validation.
+
+## Example
+
+
+```typescript
+const compiled = TemplateEngine.compileBlockGWebAppAnswer(`<g-base><g-web-app-answer>Note {{kind}}</g-web-app-answer></g-base>`);
+// Result: compiled.default.default({kind: `vip`}) === 'Note vip'
+```
+

@@ -19,6 +19,7 @@ type ICompiledTemplate = {
     shippingError: ReturnType<typeof TemplateEngine.compileBlockGShippingError>;
     inlineButton: ReturnType<typeof TemplateEngine.compileBlockGInlineButton>;
     answerNote: ReturnType<typeof TemplateEngine.compileBlockGAnswerNote>;
+    webAppAnswer: ReturnType<typeof TemplateEngine.compileBlockGWebAppAnswer>;
     gift: ReturnType<typeof TemplateEngine.compileBlockGGift>;
     invoice: ReturnType<typeof TemplateEngine.compileBlockGInvoice>;
     paidMedia: ReturnType<typeof TemplateEngine.compileBlockGPaidMedia>;

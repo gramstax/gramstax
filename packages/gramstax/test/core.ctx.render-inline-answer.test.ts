@@ -19,7 +19,7 @@ const messageUpdate = {message: {message_id: 1, date: 1, chat: {id: 1, type: `pr
 
 const article = {type: `article`, id: `r1`, title: `T`, input_message_content: {message_text: `hi`}}
 
-function createCtx(api: Record<string, unknown>, update: unknown, text = `hello`, onSendError: unknown = null, button: unknown = {text}) {
+function createCtx(api: Record<string, unknown>, update: unknown, text = `hello`, onSendError: unknown = null, button: unknown = {text}, templateOverrides: Record<string, unknown> = {}) {
   const ct = {
     api,
     me: {id: 9, is_bot: true, first_name: `Bot`} as any,
@@ -29,7 +29,7 @@ function createCtx(api: Record<string, unknown>, update: unknown, text = `hello`
     ct,
     cacheSession: {} as unknown as ICtxParams[`cacheSession`],
     cacheKeyboard: new Map(),
-    templateManager: {getGInlineButton: () => button, getGAnswerNote: () => text, getGKeyboard: () => []} as unknown as ICtxParams[`templateManager`],
+    templateManager: {getGInlineButton: () => button, getGAnswerNote: () => text, getGWebAppAnswer: () => text, getGKeyboard: () => [], ...templateOverrides} as unknown as ICtxParams[`templateManager`],
     onSendError: onSendError as unknown as ICtxParams[`onSendError`],
     temp: {isAnswer: false, session: {}, data: {}}
   })
@@ -108,6 +108,23 @@ describe(`Ctx.renderGuestAnswer`, () => {
     expect(result).toEqual(article)
   })
 
+  it(`keeps the guest path on the answer-note getter`, async () => {
+    const api = makeApi()
+    const calls: string[] = []
+    const ctx = createCtx(api, guestUpdate, `unused`, null, {text: `button`}, {
+      getGWebAppAnswer: () => {
+        calls.push(`webAppAnswer`)
+        return {kind: `webAppAnswer`, text: `new`}
+      },
+      getGAnswerNote: () => {
+        calls.push(`answerNote`)
+        return {kind: `answerNote`, text: `old`}
+      }
+    })
+    await ctx.renderGuestAnswer({result: article as any, AGBaseId: `guest-card`})
+    expect(calls).toEqual([`answerNote`])
+  })
+
   it(`rethrows after notify on send failure`, async () => {
     const err = new GrammyError(`Bad Request: query is too old`, {error_code: 400, description: `Bad Request: query is too old`, parameters: {}} as never, `answerGuestQuery`, {})
     const api = makeApi()
@@ -132,6 +149,23 @@ describe(`Ctx.renderWebAppAnswer`, () => {
     const [id, result] = (api.answerWebAppQuery.mock.calls as any[])[0] as [string, unknown]
     expect(id).toBe(`wq1`)
     expect(result).toEqual(article)
+  })
+
+  it(`reads the dedicated web-app block, not the guest block`, async () => {
+    const api = makeApi()
+    const calls: string[] = []
+    const ctx = createCtx(api, messageUpdate, `unused`, null, {text: `button`}, {
+      getGWebAppAnswer: () => {
+        calls.push(`webAppAnswer`)
+        return {kind: `webAppAnswer`, text: `new`}
+      },
+      getGAnswerNote: () => {
+        calls.push(`answerNote`)
+        return {kind: `answerNote`, text: `old`}
+      }
+    })
+    await ctx.renderWebAppAnswer({webAppQueryId: `wq1`, result: article as any, AGBaseId: `webapp-card`})
+    expect(calls).toEqual([`webAppAnswer`])
   })
 
   it(`rethrows after notify on send failure`, async () => {

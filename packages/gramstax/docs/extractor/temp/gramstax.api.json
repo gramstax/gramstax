@@ -14682,7 +14682,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderBroadcastDelete:member(1)",
-              "docComment": "/**\n * Deletes already-sent messages for many recipients in bulk.\n *\n * Template block: none — operates on message ids, reads no template block.\n *\n * @remarks\n *\n * Expiry-cleanup counterpart of the revise fan-out (`renderMedia` with `broadcast.targets`): same checkpoint-first resume (`startFrom`), bounded-concurrency stride lanes (`concurrency`, capped at `10`), pacing (`30`-message free-limit sleep plus optional `chunkSize`/`chunkDelayMs` sleeps with `onProgress`), and retryable separation (`retryable[]` with absolute `index` + `chatId` + `messageId` + `error`, completion order).\n *\n * Per-recipient failures are classified via `Ctx.classifySendError`: `retryable` errors are recorded and the loop continues; `fallback-text` errors only notify (`notifySendError`) and count as failed. A failed delete has no text fallback by design — there is no replacement content to deliver, so no `sendMessage` is attempted on either path.\n *\n * @param params - Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `reviseOptions` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`) (or null for defaults; `fallback` is not part of the type — deletes have no resend to fall back to).\n *\n * @returns Counts plus `retryable[]` for a re-drive pass.\n *\n * @example\n * ```typescript\n * async handleExpireVip() {\n *   const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)\n *   await this.renderBroadcastDelete({targets: sent})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Deletes already-sent messages for many recipients in bulk.\n *\n * Template block: none — operates on message ids, reads no template block.\n *\n * @remarks\n *\n * Expiry-cleanup counterpart of the revise fan-out (`renderMedia` with `broadcast.targets`): same checkpoint-first resume (`startFrom`), bounded-concurrency stride lanes (`concurrency`, capped at `10`), pacing (`30`-message free-limit sleep plus optional `chunkSize`/`chunkDelayMs` sleeps with `onProgress`), and retryable separation (`retryable[]` with absolute `index` + `chatId` + `messageId` + `error`, completion order).\n *\n * Per-recipient failures are classified via `Ctx.classifySendError`: `retryable` errors are recorded and the loop continues; `fallback-text` errors only notify (`notifySendError`) and count as failed. A failed delete has no text fallback by design — there is no replacement content to deliver, so no `sendMessage` is attempted on either path.\n *\n * @param params - Delete-fanout params: `targets` stored `{chatId, messageId}` rows to delete, in stable order (checkpoint index = array index) (required); `reviseOptions` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `chunkSize`, `chunkDelayMs`) (or null for defaults; `fallback` is not part of the type — deletes have no resend to fall back to).\n *\n * @returns Counts plus `retryable[]` for a re-drive pass.\n *\n * @example\n * ```typescript\n * async handleCommandText() {\n *   const sent = await this.db.sentRepo.listByCode(`vip-drop-7`)\n *   await this.renderBroadcastDelete({targets: sent})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -15621,7 +15621,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderMedia:member(1)",
-              "docComment": "/**\n * Sends or edits a media message with dynamic type selection.\n *\n * Template block: `<g-media>` (read via `getGMedia`).\n *\n * @remarks\n *\n * Single method for every media send/edit path, folding the former `renderAutoMedia`, `renderEditMedia`, the per-kind reply base, and the broadcast-media / broadcast-edit fan-outs. `mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits. This is the base method for all media methods. Use specific methods like {@link (Ctx:class).renderPhoto} or {@link (Ctx:class).renderVideo} for simpler usage.\n *\n * Edit-mode semantics for media types that cannot be edited (`voice`, `video_note`, `sticker`, `location`, `contact`) delete the original message and send a new one. Multi-src media groups cannot replace a single message, so supported pipe-delimited media groups also delete the original message and send a new media group.\n *\n * Fail-fast validation (`Ctx.assertMediaPreconditions`, plus `Ctx.assertLocation`/`Ctx.assertContact` in their branches) runs BEFORE any API call — programmer errors always throw, never fall back. Send failures follow `Ctx.classifySendError`: `retryable` rethrows the original error untouched; `fallback-text` best-effort replies with `resolveFallbackText()` (nested failures ignored) and returns it.\n *\n * If the edit itself fails, the fallback behavior is controlled by `fallback` (default `delete-reply`: deletes the original message and re-sends the same media — the result looks like an in-place edit). The fallback re-send drops `media`/ `mediaOptions` (edit options do not map to reply options) and logs a `log.warn` when non-empty options are dropped; the re-send itself follows `Ctx.classifySendError` via the reply branch (`retryable` rethrows the original error untouched, `fallback-text` replies with fallback text).\n *\n * When `broadcast` is present, multi-recipient fan-out replaces the single-chat path (see {@link IBroadcastSendParams} / {@link IBroadcastReviseParams}): `broadcast.ids` runs the send loop and `broadcast.targets` runs the revise loop. The send loop reads the media kind from the template `<g-media>` block, so its route type rejects `type` (and `mode`, `fallback`, and the `options*` fields — it never edits); the revise loop requires `type` and rejects `mode`, `options`, and `fallback` (its per-recipient fallback lives in `broadcast.reviseOptions.fallback`).\n *\n * A bottom (reply) keyboard is rejected before any API call when the route edits in place — `editMessageMedia` accepts inline keyboards only, so the throw names `mode: 'reply'` as the fix. The delete-then-resend kinds are plain sends and keep accepting either keyboard type.\n *\n * @param params - Media params, resolved as one of four routes — see {@link IRenderMediaParams} for the exact field set of each route: route 1 single chat (`auto`/`edit`); route 2 single chat forced reply (`mode: 'reply'`); route 3 broadcast send (`broadcast.ids`, kind from the block); route 4 broadcast revise (`broadcast.targets`, `type` required).\n *\n * @typeParam T - The media type to send or edit to.\n *\n * @returns The sent or edited message object, or the {@link IBroadcastSendResult}/ {@link IBroadcastEditResult} counts on the broadcast paths.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Automatic reply/edit with content from this.template\n *   await this.renderMedia({type: \"photo\"})\n *\n *   // Force a new reply even from a callback query\n *   await this.renderMedia({type: \"photo\", mode: \"reply\"})\n *\n *   // Broadcast: fan out to many users (kind read from the <g-media> block)\n *   await this.renderMedia({broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})\n *\n *   // Broadcast revise: edit already-sent messages to a new media payload\n *   await this.renderMedia({type: \"photo\", data: {price: \"99\"}, broadcast: {targets: sent}})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends or edits a media message with dynamic type selection.\n *\n * Template block: `<g-media>` (read via `getGMedia`).\n *\n * @remarks\n *\n * One method covers every media send/edit path; the per-kind wrappers (`renderPhoto`, `renderVideo`, and so on) sit on top. `mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits. This is the base method for all media methods. Use specific methods like {@link (Ctx:class).renderPhoto} or {@link (Ctx:class).renderVideo} for simpler usage.\n *\n * Edit-mode semantics for media types that cannot be edited (`voice`, `video_note`, `sticker`, `location`, `contact`) delete the original message and send a new one. Multi-src media groups cannot replace a single message, so supported pipe-delimited media groups also delete the original message and send a new media group.\n *\n * Fail-fast validation (`Ctx.assertMediaPreconditions`, plus `Ctx.assertLocation`/`Ctx.assertContact` in their branches) runs BEFORE any API call — programmer errors always throw, never fall back. Send failures follow `Ctx.classifySendError`: `retryable` rethrows the original error untouched; `fallback-text` best-effort replies with `resolveFallbackText()` (nested failures ignored) and returns it.\n *\n * If the edit itself fails, the fallback behavior is controlled by `fallback` (default `delete-reply`: deletes the original message and re-sends the same media — the result looks like an in-place edit). The fallback re-send drops `media`/ `mediaOptions` (edit options do not map to reply options) and logs a `log.warn` when non-empty options are dropped; the re-send itself follows `Ctx.classifySendError` via the reply branch (`retryable` rethrows the original error untouched, `fallback-text` replies with fallback text).\n *\n * When `broadcast` is present, multi-recipient fan-out replaces the single-chat path (see {@link IBroadcastSendParams} / {@link IBroadcastReviseParams}): `broadcast.ids` runs the send loop and `broadcast.targets` runs the revise loop. The send loop reads the media kind from the template `<g-media>` block, so its route type rejects `type` (and `mode`, `fallback`, and the `options*` fields — it never edits); the revise loop requires `type` and rejects `mode`, `options`, and `fallback` (its per-recipient fallback lives in `broadcast.reviseOptions.fallback`).\n *\n * A bottom (reply) keyboard is rejected before any API call when the route edits in place — `editMessageMedia` accepts inline keyboards only, so the throw names `mode: 'reply'` as the fix. The delete-then-resend kinds are plain sends and keep accepting either keyboard type.\n *\n * @param params - Media params, resolved as one of four routes — see {@link IRenderMediaParams} for the exact field set of each route: route 1 single chat (`auto`/`edit`); route 2 single chat forced reply (`mode: 'reply'`); route 3 broadcast send (`broadcast.ids`, kind from the block); route 4 broadcast revise (`broadcast.targets`, `type` required).\n *\n * @typeParam T - The media type to send or edit to.\n *\n * @returns The sent or edited message object, or the {@link IBroadcastSendResult}/ {@link IBroadcastEditResult} counts on the broadcast paths.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Automatic reply/edit with content from this.template\n *   await this.renderMedia({type: \"photo\"})\n *\n *   // Force a new reply even from a callback query\n *   await this.renderMedia({type: \"photo\", mode: \"reply\"})\n *\n *   // Broadcast: fan out to many users (kind read from the <g-media> block)\n *   await this.renderMedia({broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})\n *\n *   // Broadcast revise: edit already-sent messages to a new media payload\n *   await this.renderMedia({type: \"photo\", data: {price: \"99\"}, broadcast: {targets: sent}})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16343,7 +16343,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderText:member(1)",
-              "docComment": "/**\n * Sends or edits a text message using the page template.\n *\n * Template block: `<g-message>` (read via `getGMessage`).\n *\n * @remarks\n *\n * Single method for every text send/edit path, folding the former `render`, `renderEdit`, `renderRich`, `renderAuto`, `renderAutoRich`, `renderEditRich`, and `renderBroadcast`. `mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits.\n *\n * Rich content is chosen at COMPILE time: when the `<g-message>` block contains Telegram Rich HTML tags, the message is sent or edited through `replyWithRichMessage`/`editMessageText` with an `InputRichMessage` payload (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}) instead of plain HTML text. Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * If editing fails (e.g. message too old), the fallback behavior is controlled by `fallback` (default `delete-reply`: deletes the original message and sends a new reply — the result looks like an in-place edit).\n *\n * Observe-only send-error coverage (mirrors `renderMedia`): reply failures are classified via `Ctx.classifySendError`, reported to `notifySendError`, and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`). Unlike the media paths there is no degraded fallback content for text, so after notify+log the original error is ALWAYS rethrown untouched.\n *\n * When `chunkSize` is present (not `undefined`/`null`) the fully-rendered block is sent as sequential reply chunks instead (see the `chunkSize` field of {@link IRenderTextParams}): the keyboard lands ONLY on the last chunk. The chunked route is a REPLY route — a multi-message split cannot be edited in place — so the params type accepts only `mode: 'reply'` (or no `mode`) alongside `chunkSize`; passing `mode: 'auto'`/`'edit'` with a `chunkSize` is a compile error (and throws for plain-JS callers) because that `mode` would never be read.\n *\n * When `broadcast` is present, the block is SENT to every `broadcast.ids` entry instead (see {@link IBroadcastSendParams}): rich templates through `api.sendRichMessage`, plain templates through `api.sendMessage` with `parse_mode: HTML`. The broadcast route is send-only, so its params type rejects `mode`, `fallback`, and `chunkSize` outright (pacing uses `broadcast.chunkSize`).\n *\n * A bottom (reply) keyboard is rejected on an edit route before any API call — `editMessageText` accepts inline keyboards only, so the throw names `mode: 'reply'` as the fix.\n *\n * @param params - Optional render params (defaults to `{}`), resolved as one of four routes — see {@link IRenderTextParams} for the exact field set of each route: route 1 single message (`auto`/`edit`); route 2 forced reply (`mode: 'reply'`); route 3 chunked reply (`chunkSize`, reply-only); route 4 broadcast send (`broadcast`, send-only).\n *\n * @returns The sent or edited message object, the array of sent message objects when `chunkSize` selects the chunked reply path, or the {@link IBroadcastSendResult} counts when `broadcast` is present.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Automatic reply/edit with content from this.template\n *   await this.renderText()\n *\n *   // With keyboard builder and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderText({keyboard: kb, data: {name: \"John\"}})\n *\n *   // Force a new reply even from a callback query, with a custom base\n *   await this.renderText({keyboard: kb, data: {name: \"John\"}, AGBaseId: \"id-hello-world\", mode: \"reply\"})\n *\n *   // Long message: send in chunks of 4096 characters (keyboard on the last chunk only)\n *   await this.renderText({keyboard: kb, AGBaseId: \"id-hello-world\", chunkSize: 4096})\n *\n *   // Broadcast: send the block to many users (rich templates send rich)\n *   await this.renderText({data: {name: \"John\"}, broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Sends or edits a text message using the page template.\n *\n * Template block: `<g-message>` (read via `getGMessage`).\n *\n * @remarks\n *\n * One method covers every text send/edit path. `mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits. Broadcast fan-out is a route option (`broadcast`), not a separate method.\n *\n * Rich content is chosen at COMPILE time: when the `<g-message>` block contains Telegram Rich HTML tags, the message is sent or edited through `replyWithRichMessage`/`editMessageText` with an `InputRichMessage` payload (Telegram Bot API {@link TemplateEngine.BOT_API_VERSION}) instead of plain HTML text. Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns\n *\n * If editing fails (e.g. message too old), the fallback behavior is controlled by `fallback` (default `delete-reply`: deletes the original message and sends a new reply — the result looks like an in-place edit).\n *\n * Observe-only send-error coverage (mirrors `renderMedia`): reply failures are classified via `Ctx.classifySendError`, reported to `notifySendError`, and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`). Unlike the media paths there is no degraded fallback content for text, so after notify+log the original error is ALWAYS rethrown untouched.\n *\n * When `chunkSize` is present (not `undefined`/`null`) the fully-rendered block is sent as sequential reply chunks instead (see the `chunkSize` field of {@link IRenderTextParams}): the keyboard lands ONLY on the last chunk. The chunked route is a REPLY route — a multi-message split cannot be edited in place — so the params type accepts only `mode: 'reply'` (or no `mode`) alongside `chunkSize`; passing `mode: 'auto'`/`'edit'` with a `chunkSize` is a compile error (and throws for plain-JS callers) because that `mode` would never be read.\n *\n * When `broadcast` is present, the block is SENT to every `broadcast.ids` entry instead (see {@link IBroadcastSendParams}): rich templates through `api.sendRichMessage`, plain templates through `api.sendMessage` with `parse_mode: HTML`. The broadcast route is send-only, so its params type rejects `mode`, `fallback`, and `chunkSize` outright (pacing uses `broadcast.chunkSize`).\n *\n * A bottom (reply) keyboard is rejected on an edit route before any API call — `editMessageText` accepts inline keyboards only, so the throw names `mode: 'reply'` as the fix.\n *\n * @param params - Optional render params (defaults to `{}`), resolved as one of four routes — see {@link IRenderTextParams} for the exact field set of each route: route 1 single message (`auto`/`edit`); route 2 forced reply (`mode: 'reply'`); route 3 chunked reply (`chunkSize`, reply-only); route 4 broadcast send (`broadcast`, send-only).\n *\n * @returns The sent or edited message object, the array of sent message objects when `chunkSize` selects the chunked reply path, or the {@link IBroadcastSendResult} counts when `broadcast` is present.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   // Automatic reply/edit with content from this.template\n *   await this.renderText()\n *\n *   // With keyboard builder and data\n *   const kb = this.inlineKeyboard((k) => k.text(\"OK\", \"ok\"))\n *   await this.renderText({keyboard: kb, data: {name: \"John\"}})\n *\n *   // Force a new reply even from a callback query, with a custom base\n *   await this.renderText({keyboard: kb, data: {name: \"John\"}, AGBaseId: \"id-hello-world\", mode: \"reply\"})\n *\n *   // Long message: send in chunks of 4096 characters (keyboard on the last chunk only)\n *   await this.renderText({keyboard: kb, AGBaseId: \"id-hello-world\", chunkSize: 4096})\n *\n *   // Broadcast: send the block to many users (rich templates send rich)\n *   await this.renderText({data: {name: \"John\"}, broadcast: {ids: [123456, 789012], languageCode: [`en`, `id`]}})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -16841,7 +16841,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!Ctx#renderWebAppAnswer:member(1)",
-              "docComment": "/**\n * Answers a web app query via the Bot API with a caller-built result.\n *\n * Template block: `<g-answer-note>` (read via `getGAnswerNote`).\n *\n * @remarks\n *\n * Unlike the other answers this carries an explicit query id (there is no context-aware alias — web app queries arrive without an answerable update), mirroring `renderGift`'s explicit target. The result content is built by the caller from `data` (multilang payloads); the `<g-answer-note>` block is resolved as fail-fast validation that the template exists, per the same fail-fast validation.\n *\n * Observe-only send-error coverage (mirrors `renderGift`): failures are classified via `Ctx.classifySendError`, reported to `notifySendError`, and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`). After notify+log the original error is ALWAYS rethrown untouched.\n *\n * @param params - Answer params: `webAppQueryId` unique identifier for the query to answer (required); `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position, resolved for validation (or null to use default); `options` optional abort signal (or null to omit).\n *\n * @returns The sent web app message object.\n *\n * @example\n * ```typescript\n * async handleWebAppData() {\n *   await this.renderWebAppAnswer({webAppQueryId: queryId, result: article, AGBaseId: `webapp-card`})\n * }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Answers a web app query via the Bot API with a caller-built result.\n *\n * Template block: `<g-web-app-answer>` (read via `getGWebAppAnswer`); `<g-answer-note>` remains a legacy alias for this method.\n *\n * @remarks\n *\n * Unlike the other answers this carries an explicit query id (there is no context-aware alias — web app queries arrive without an answerable update), mirroring `renderGift`'s explicit target. The result content is built by the caller from `data` (multilang payloads); the `<g-web-app-answer>` block is resolved as fail-fast validation that the template exists.\n *\n * Observe-only send-error coverage (mirrors `renderGift`): failures are classified via `Ctx.classifySendError`, reported to `notifySendError`, and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`). After notify+log the original error is ALWAYS rethrown untouched.\n *\n * @param params - Answer params: `webAppQueryId` unique identifier for the query to answer (required); `result` inline result built by the caller (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position, resolved for validation (or null to use default); `options` optional abort signal (or null to omit).\n *\n * @returns The sent web app message object.\n *\n * @example\n * ```typescript\n * async handleWebAppData() {\n *   await this.renderWebAppAnswer({webAppQueryId: queryId, result: article, AGBaseId: `webapp-card`})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -29188,7 +29188,7 @@
             },
             {
               "kind": "Content",
-              "text": "`message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `gift` | `invoice` | `paidMedia` | `description`"
+              "text": "`message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`"
             },
             {
               "kind": "Content",
@@ -29434,7 +29434,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!GMessageResult:type",
-          "docComment": "/**\n * Result of `TemplateManager.getGMessage` for a `<g-message>` block.\n *\n * @remarks\n *\n * `text` is exactly the rendered message HTML string; `rich` is computed once at compile time from the raw block body and is `true` when the block contains at least one Telegram Rich HTML tag, so callers can pick `renderRich` over `render`. A missing block yields `{kind: \"message\", text: \"\", rich: false}`.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Result of `TemplateManager.getGMessage` for a `<g-message>` block.\n *\n * @remarks\n *\n * `text` is exactly the rendered message HTML string; `rich` is computed once at compile time from the raw block body and is `true` when the block contains at least one Telegram Rich HTML tag, so callers pick the rich send path from the `rich` flag. A missing block yields `{kind: \"message\", text: \"\", rich: false}`.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -31515,8 +31515,34 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!GWebAppAnswerResult:type",
+          "docComment": "/**\n * Result of `TemplateManager.getGWebAppAnswer` for a `<g-web-app-answer>` block.\n *\n * @remarks\n *\n * `text` is the marker text; the getter throws when neither the dedicated block nor the legacy `<g-answer-note>` alias is present.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type GWebAppAnswerResult = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    kind: `webAppAnswer`;\n    text: string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "GWebAppAnswerResult",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!IAnswerNoteBlock:type",
-          "docComment": "/**\n * Answer-note block for query answers without template content.\n *\n * @remarks\n *\n * Declared with `<g-answer-note>` blocks. Guest and web app answers carry caller-built results, so the block exists only as fail-fast validation that the template provides the required `AGBaseId` (plus a future content slot). `text` supports the same `{{var|filter}}` interpolation pipeline as poll questions.\n *\n * @example\n * ```typescript\n * const note: IAnswerNoteBlock = {\n *   text: `Guest answer`\n * }\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Answer-note block for query answers without template content.\n *\n * @remarks\n *\n * Declared with `<g-answer-note>` blocks. Guest answers carry caller-built results, so the block exists only as fail-fast validation that the template provides the required `AGBaseId` (plus a future content slot). `text` supports the same `{{var|filter}}` interpolation pipeline as poll questions.\n *\n * This block belongs to `renderGuestAnswer`. `renderWebAppAnswer` accepts it only as a legacy alias and prefers the dedicated `<g-web-app-answer>` block.\n *\n * @example\n * ```typescript\n * const note: IAnswerNoteBlock = {\n *   text: `Guest answer`\n * }\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -32346,6 +32372,24 @@
             },
             {
               "kind": "Content",
+              "text": ">;\n    webAppAnswer: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ReturnType",
+              "canonicalReference": "!ReturnType:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<typeof "
+            },
+            {
+              "kind": "Reference",
+              "text": "TemplateEngine.compileBlockGWebAppAnswer",
+              "canonicalReference": "gramstax!TemplateEngine.compileBlockGWebAppAnswer:member"
+            },
+            {
+              "kind": "Content",
               "text": ">;\n    gift: "
             },
             {
@@ -32466,7 +32510,7 @@
           "name": "ICompiledTemplate",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 62
+            "endIndex": 66
           }
         },
         {
@@ -34276,7 +34320,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!IGramstaxWebhookDeployOptions:type",
-          "docComment": "/**\n * Webhook deploy branch of `optionsDeploy`.\n *\n * @remarks\n *\n * Only meaningful when `deploy` is `webhook`. Carries the public URL, the secret token shape, and the queue config that used to live at the root `webhookQueue` field.\n *\n * @example\n * ```typescript\n * const webhook: IGramstaxWebhookDeployOptions = {url: `https://example.com/bot`, secretToken: `s3cr3t`, queue: {enabled: true}}\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Webhook deploy branch of `optionsDeploy`.\n *\n * @remarks\n *\n * Only meaningful when `deploy` is `webhook`. Carries the public URL, the secret token shape, and the webhook queue config under `queue`.\n *\n * @example\n * ```typescript\n * const webhook: IGramstaxWebhookDeployOptions = {url: `https://example.com/bot`, secretToken: `s3cr3t`, queue: {enabled: true}}\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -37420,7 +37464,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!IRenderEditCaptionParams:type",
-          "docComment": "/**\n * Parameters for `renderEditCaption`.\n *\n * @remarks\n *\n * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`) on the forced-edit route (`IRouteEdit`), with `mode` declared `never` — this method always edits, the mode is not a choice. Caption text comes from the `<g-base id>` block via `getGMessage` and is sent via `editMessageCaption`, which rejects a bottom keyboard, so the `keyboard` slot stays inline-only. Fallback modes mirror `renderEdit`: `delete-reply`/`reply` resend the caption as plain text, `disable` throws.\n *\n * @public\n */\n",
+          "docComment": "/**\n * Parameters for `renderEditCaption`.\n *\n * @remarks\n *\n * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`) on the forced-edit route (`IRouteEdit`), with `mode` declared `never` — this method always edits, the mode is not a choice. Caption text comes from the `<g-base id>` block via `getGMessage` and is sent via `editMessageCaption`, which rejects a bottom keyboard, so the `keyboard` slot stays inline-only. Fallback modes follow `IRouteEdit.fallback`: `delete-reply`/`reply` resend the caption as plain text, `disable` throws.\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -40015,7 +40059,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "gramstax!IUpdateQueueConfig:type",
-          "docComment": "/**\n * Update queue configuration for backpressure and worker pooling.\n *\n * @remarks\n *\n * Enable this for polling and webhook deployments. The queue buffers incoming updates and dispatches them to a worker pool, decoupling source latency from handler work. Both modes configure the same {@link UpdateQueue} class; each keeps its own instance, so the two never contend with one another.\n *\n * @example\n * ```typescript\n * webhookQueue: {\n *   enabled: true,\n *   maxQueueSize: 5000,\n *   workerCount: 8,\n *   perChatConcurrency: 1,\n *   blockWhenFull: true\n * }\n * ```\n *\n * @example\n * ```typescript\n * optionsDeploy: {polling: {queue: {enabled: true, workerCount: 8}}}\n * ```\n *\n * @public\n */\n",
+          "docComment": "/**\n * Update queue configuration for backpressure and worker pooling.\n *\n * @remarks\n *\n * Enable this for polling and webhook deployments. The queue buffers incoming updates and dispatches them to a worker pool, decoupling source latency from handler work. Both modes configure the same {@link UpdateQueue} class; each keeps its own instance, so the two never contend with one another.\n *\n * @example\n * ```typescript\n * optionsDeploy: {\n *   webhook: {\n *     queue: {enabled: true, maxQueueSize: 5000, workerCount: 8, perChatConcurrency: 1, blockWhenFull: true}\n *   }\n * }\n * ```\n *\n * @example\n * ```typescript\n * optionsDeploy: {polling: {queue: {enabled: true, workerCount: 8}}}\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -40085,6 +40129,32 @@
           "fileUrlPath": "dist/src/index.d.ts",
           "releaseTag": "Public",
           "name": "IVenueBlock",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IWebAppAnswerBlock:type",
+          "docComment": "/**\n * Web-app answer block for query answers without template content.\n *\n * @remarks\n *\n * Declared with `<g-web-app-answer>` blocks. `renderWebAppAnswer` carries a caller-built result, so the block exists only as fail-fast validation that the template provides the required `AGBaseId`. `text` supports the same `{{var|filter}}` interpolation pipeline as poll questions.\n *\n * This is the block `renderWebAppAnswer` prefers; `<g-answer-note>` remains accepted for it as a legacy alias.\n *\n * @example\n * ```typescript\n * const note: IWebAppAnswerBlock = {\n *   text: `Web app answer`\n * }\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWebAppAnswerBlock = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    text: string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWebAppAnswerBlock",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 2
@@ -46826,6 +46896,54 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine._processGWebAppAnswerBlocks:member(1)",
+              "docComment": "/**\n * Block: g-web-app-answer Extracts `<g-web-app-answer>` marker blocks from a template string.\n *\n * @remarks\n *\n * Children form only; content is cleaned exactly like `<g-message>` and keyed by `lang` (`\"default\"` when absent; last block wins per lang). Raw content is preserved verbatim (including `{{var|filter}}` spans) for later compilation. The block is a validation marker for `renderWebAppAnswer`, whose result content comes from the caller, not from the template. Plain-text rules are enforced by `validateBlockGWebAppAnswerAttributes`, not here.\n *\n * @param template - The template string containing `<g-web-app-answer>` blocks\n *\n * @returns An object mapping language keys to their raw text content\n *\n * @example\n * ```typescript\n * const blocks = TemplateEngine._processGWebAppAnswerBlocks(`<g-web-app-answer>Web app note {{kind}}</g-web-app-answer>`);\n * // Result: { default: 'Web app note {{kind}}' }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static _processGWebAppAnswerBlocks(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        [lang: string]: string;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_processGWebAppAnswerBlocks"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processMediaGroupItems:member(1)",
               "docComment": "/**\n * Parses inner `<g-media>` items inside a `<g-media-group>` block body.\n *\n * Extracts `type`, `src`, `lang`, and `shared` attributes plus the caption body for each inner `<g-media>` element. `shared` supports both standalone boolean (`<g-media shared>`) and explicit (`<g-media shared=\"true\">`) syntax.\n *\n * @param groupContent - The content between `<g-media-group>` and `</g-media-group>`\n *\n * @returns An array of parsed media item descriptors, preserving document order\n */\n",
               "excerptTokens": [
@@ -49867,6 +49985,93 @@
               "name": "compileBlockGVenue"
             },
             {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.compileBlockGWebAppAnswer:member(1)",
+              "docComment": "/**\n * Compiles web-app answer blocks from a template into executable functions.\n *\n * @remarks\n *\n * Each leaf resolves the marker text for the given render data. The text is never sent; `renderWebAppAnswer` uses the block as fail-fast validation.\n *\n * @param template - The template string containing `<g-web-app-answer>` blocks\n *\n * @param baseBlocks - Optional pre-processed base blocks\n *\n * @returns Functions indexed by base ID and language\n *\n * @example\n * ```typescript\n * const compiled = TemplateEngine.compileBlockGWebAppAnswer(`<g-base><g-web-app-answer>Note {{kind}}</g-web-app-answer></g-base>`);\n * // Result: compiled.default.default({kind: `vip`}) === 'Note vip'\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static compileBlockGWebAppAnswer(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseBlocks?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ReturnType",
+                  "canonicalReference": "!ReturnType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<typeof "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TemplateEngine._processGBaseBlocks",
+                  "canonicalReference": "gramstax!TemplateEngine._processGBaseBlocks:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        [AGBaseId: string]: {\n            [ALang: string]: (data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITemplateData",
+                  "canonicalReference": "gramstax!~ITemplateData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => string;\n        };\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 8,
+                "endIndex": 11
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "baseBlocks",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 7
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "compileBlockGWebAppAnswer"
+            },
+            {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateEngine.DICE_EMOJI:member",
               "docComment": "/**\n * Bot API dice emoji values accepted by `<g-dice emoji>`.\n *\n * @remarks\n *\n * Single source of truth shared by the `g-dice` validators and `Ctx.DICE_EMOJI`/`Ctx.assertDiceEmoji`: exactly the six `sendDice` emoji (`🎲🎯🏀⚽🎳🎰`).\n *\n * @public\n */\n",
@@ -51178,7 +51383,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validateBlockGMessageRich:member(1)",
-              "docComment": "/**\n * Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.\n *\n * @remarks\n *\n * This is a convenience method that runs all validators in order:\n *\n * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes 7. {@link TemplateEngine.validateTelegramUnknownAttributesBlock} — rejects unknown attribute names on Telegram Rich HTML tags 8. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content 30. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal) 31. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized) 32. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.\n *\n * @remarks\n *\n * This is a convenience method that runs all validators in order:\n *\n * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes 7. {@link TemplateEngine.validateTelegramUnknownAttributesBlock} — rejects unknown attribute names on Telegram Rich HTML tags 8. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content 30. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content 31. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal) 32. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized) 33. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -51747,8 +51952,65 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockGWebAppAnswerAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes on `<g-web-app-answer>` blocks.\n *\n * @remarks\n *\n * Allowed attributes are `lang` only. The body is a validation marker for `renderWebAppAnswer`, so HTML markup is rejected.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockGWebAppAnswerAttributes(`<g-base><g-web-app-answer>Note</g-web-app-answer></g-base>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockGWebAppAnswerAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockGWebAppAnswerAttributes"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validateFormatBlock:member(1)",
-              "docComment": "/**\n * Validates block syntax format (self-closing vs regular open/close).\n *\n * @remarks\n *\n * This method checks that each block tag uses the correct syntax format:\n *\n * **Must be self-closing:** the set holds `space`, `import`, `hr`, `img`, `input`, `br` and `tg-map`. - `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>` — Telegram Rich HTML void elements - `space` and `import` are listed, but the captured tag name is `g-space` / `g-import`, so that branch never matches those two. Write them self-closing by convention.\n *\n * **Must NOT be self-closing (must use open/close tags):** - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`, `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`, `<g-option>...</g-option>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`, `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`, `<g-map>...</g-map>`, `<g-div>...</g-div>`\n *\n * Nine page blocks appear in neither set and accept either form: `<g-price>`, `<g-venue>`, `<g-dice>`, `<g-gift>`, `<g-callback-answer>`, `<g-precheckout-error>`, `<g-shipping-error>`, `<g-inline-button>`, `<g-answer-note>`.\n *\n * Telegram HTML formatting tags with content (e.g. `<b>`, `<p>`, `<table>`) passthrough and are not format-checked — both `<b>text</b>` and `<b/>` are accepted.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each format violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateFormatBlock(`<hr>`);\n * // Result: { valid: false, errors: [{ line: 1, message: 'Block <hr> must be self-closing: use <hr /> instead' }] }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Validates block syntax format (self-closing vs regular open/close).\n *\n * @remarks\n *\n * This method checks that each block tag uses the correct syntax format:\n *\n * **Must be self-closing:** the set holds `space`, `import`, `hr`, `img`, `input`, `br` and `tg-map`. - `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>` — Telegram Rich HTML void elements - `space` and `import` are listed, but the captured tag name is `g-space` / `g-import`, so that branch never matches those two. Write them self-closing by convention.\n *\n * **Must NOT be self-closing (must use open/close tags):** - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`, `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`, `<g-option>...</g-option>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`, `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`, `<g-map>...</g-map>`, `<g-div>...</g-div>`, `<g-web-app-answer>...</g-web-app-answer>`\n *\n * Nine page blocks appear in neither set and accept either form: `<g-price>`, `<g-venue>`, `<g-dice>`, `<g-gift>`, `<g-callback-answer>`, `<g-precheckout-error>`, `<g-shipping-error>`, `<g-inline-button>`, `<g-answer-note>`.\n *\n * Telegram HTML formatting tags with content (e.g. `<b>`, `<p>`, `<table>`) passthrough and are not format-checked — both `<b>text</b>` and `<b/>` are accepted.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each format violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateFormatBlock(`<hr>`);\n * // Result: { valid: false, errors: [{ line: 1, message: 'Block <hr> must be self-closing: use <hr /> instead' }] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -52261,7 +52523,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validateTemplate:member(1)",
-              "docComment": "/**\n * Full template validation — runs all validation passes.\n *\n * @remarks\n *\n * Executes every registered validator in sequence and collects all errors. Validation steps:\n *\n * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes 7. {@link TemplateEngine.validateTelegramUnknownAttributesBlock} — rejects unknown attribute names on Telegram Rich HTML tags 8. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content 30. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal) 31. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized) 32. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Full template validation — runs all validation passes.\n *\n * @remarks\n *\n * Executes every registered validator in sequence and collects all errors. Validation steps:\n *\n * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes 7. {@link TemplateEngine.validateTelegramUnknownAttributesBlock} — rejects unknown attribute names on Telegram Rich HTML tags 8. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content 30. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content 31. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal) 32. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized) 33. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -54479,6 +54741,108 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "getGVenue"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#getGWebAppAnswer:member(1)",
+              "docComment": "/**\n * Gets compiled text from block <g-web-app-answer>.\n *\n * @remarks\n *\n * Strict lookup with a legacy fallback, resolved per base: for the requested `AGBaseId`, `<g-web-app-answer>` wins over `<g-answer-note>`; if that base has neither, the same two-step lookup repeats on the `default` base. A template that has neither block in either base throws.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getGWebAppAnswer(key: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", AGBaseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", ALang?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "GWebAppAnswerResult",
+                  "canonicalReference": "gramstax!GWebAppAnswerResult:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 10,
+                "endIndex": 11
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "key",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "AGBaseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "ALang",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 9
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getGWebAppAnswer"
             },
             {
               "kind": "Method",

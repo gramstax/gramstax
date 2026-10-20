@@ -50,7 +50,7 @@ bun add gramstax
     Why a key the winning route would ignore is a compile error, not a silent drop.
   </Card>
   <Card title="Templates" icon="code" href="/concepts/templates">
-    29 page blocks, 54 Telegram Rich HTML tags, filters, and per-block languages.
+    30 page blocks, 54 Telegram Rich HTML tags, filters, and per-block languages.
   </Card>
   <Card title="Deploy" icon="server" href="/concepts/deploy">
     Polling, webhook, serverless, raw, test: one field selects the mode.
@@ -100,7 +100,7 @@ equal `deploy`.
 ## API reference
 
 Every exported symbol, generated from the TypeScript declarations and kept in
-step by CI: 1,489 pages grouped by class and type.
+step by CI: 1,495 pages grouped by class and type.
 
 <Card title="Browse the reference" icon="code" href="/reference/gramstax">
   `Ctx`, `Gramstax`, `TemplateEngine`, every `render*()` method, and the 12 route

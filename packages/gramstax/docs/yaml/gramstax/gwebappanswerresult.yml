@@ -1,0 +1,17 @@
+### YamlMime:TSTypeAlias
+name: GWebAppAnswerResult
+uid: gramstax!GWebAppAnswerResult:type
+package: gramstax!
+fullName: GWebAppAnswerResult
+summary: Result of `TemplateManager.getGWebAppAnswer` for a `<g-web-app-answer>` block.
+remarks: >-
+  `text` is the marker text; the getter throws when neither the dedicated block nor the legacy `<g-answer-note>` alias
+  is present.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GWebAppAnswerResult = {
+      kind: `webAppAnswer`;
+      text: string;
+  };

@@ -928,7 +928,7 @@ export type GAnswerNoteResult = {
 };
 
 // @public
-export type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `gift` | `invoice` | `paidMedia` | `description`;
+export type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`;
 
 // @public
 export type GCallbackAnswerResult = {
@@ -2829,6 +2829,12 @@ export type GVenueResult = {
 } & IVenueBlock;
 
 // @public
+export type GWebAppAnswerResult = {
+    kind: `webAppAnswer`;
+    text: string;
+};
+
+// @public
 export type IAnswerNoteBlock = {
     text: string;
 };
@@ -2948,6 +2954,7 @@ export type ICompiledTemplate = {
     shippingError: ReturnType<typeof TemplateEngine.compileBlockGShippingError>;
     inlineButton: ReturnType<typeof TemplateEngine.compileBlockGInlineButton>;
     answerNote: ReturnType<typeof TemplateEngine.compileBlockGAnswerNote>;
+    webAppAnswer: ReturnType<typeof TemplateEngine.compileBlockGWebAppAnswer>;
     gift: ReturnType<typeof TemplateEngine.compileBlockGGift>;
     invoice: ReturnType<typeof TemplateEngine.compileBlockGInvoice>;
     paidMedia: ReturnType<typeof TemplateEngine.compileBlockGPaidMedia>;
@@ -4103,6 +4110,11 @@ export type IVenueBlock = {
     longitude: string;
 };
 
+// @public
+export type IWebAppAnswerBlock = {
+    text: string;
+};
+
 // @public @deprecated
 export type IWebhookQueueConfig = IUpdateQueueConfig;
 
@@ -4479,6 +4491,11 @@ export class TemplateEngine {
             [ALang: string]: (data?: ITemplateData) => IVenueBlock;
         };
     };
+    static compileBlockGWebAppAnswer(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITemplateData) => string;
+        };
+    };
     static _compileFilterChain(access: string, expr: string, warned: Set<string>): string;
     static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITemplateData) => string): (data?: ITemplateData) => string | InputFile | Buffer | Uint8Array;
     // Warning: (ae-forgotten-export) The symbol "ITemplateRenderer" needs to be exported by the entry point index.d.ts
@@ -4584,6 +4601,9 @@ export class TemplateEngine {
     static _processGSwitchBlocks(template: string): string;
     static _processGVenueBlocks(template: string): {
         [lang: string]: IVenueBlock;
+    };
+    static _processGWebAppAnswerBlocks(template: string): {
+        [lang: string]: string;
     };
     static _processMediaGroupItems(groupContent: string): Array<{
         type: `photo` | `video` | `audio` | `document`;
@@ -4828,6 +4848,13 @@ export class TemplateEngine {
             message: string;
         }>;
     };
+    static validateBlockGWebAppAnswerAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
     static _validateDiceItems(template: string): Array<{
         line: number;
         message: string;
@@ -4980,6 +5007,7 @@ export class TemplateManager {
     getGPrecheckoutError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GPreCheckoutErrorResult;
     getGShippingError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GShippingErrorResult;
     getGVenue(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GVenueResult;
+    getGWebAppAnswer(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GWebAppAnswerResult;
     handleFileAdd(filepath: string): void;
     handleFileChange(filepath: string): void;
     handleFileDelete(filepath: string): void;
@@ -5063,10 +5091,10 @@ export type WebhookQueue<T = unknown> = UpdateQueue<T>;
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:7527:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
-// dist/src/index.d.ts:7618:5 - (ae-forgotten-export) The symbol "IMediaEditOpt1" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:7631:5 - (ae-forgotten-export) The symbol "IMediaReplyOpt" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:23364:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
+// dist/src/index.d.ts:7671:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
+// dist/src/index.d.ts:7762:5 - (ae-forgotten-export) The symbol "IMediaEditOpt1" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:7775:5 - (ae-forgotten-export) The symbol "IMediaReplyOpt" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:23503:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 

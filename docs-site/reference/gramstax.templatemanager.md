@@ -496,6 +496,20 @@ Gets compiled from block \<g-venue>.
 </td></tr>
 <tr><td>
 
+[getGWebAppAnswer(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgwebappanswer.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled text from block \<g-web-app-answer>.
+
+
+</td></tr>
+<tr><td>
+
 [handleFileAdd(filepath)](./gramstax.templatemanager.handlefileadd.md)
 
 

@@ -245,7 +245,7 @@ Validation follows the Telegram Bot API 10.3 Rich Message Formatting Options spe
 
 ## PAGE Attribute Validation
 
-`<g-*>` PAGE blocks follow the same two-layer validation pattern as Telegram Rich HTML, mirrored through the centralized specs `TemplateEngine._PAGE_REQUIRED_ATTRS` and `TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS`. Both layers are wired into `validateTemplate` as steps 21 and 22 (the per-block `validateBlockG*Attributes` methods at steps 7–20 stay for granular access and also delegate to the same value spec).
+`<g-*>` PAGE blocks follow the same two-layer validation pattern as Telegram Rich HTML, mirrored through the centralized specs `TemplateEngine._PAGE_REQUIRED_ATTRS` and `TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS`. Both layers are wired into `validateTemplate` as steps 32 and 33 (the per-block `validateBlockG*Attributes` methods at steps 8–31 stay for granular access and also delegate to the same value spec).
 
 - **`_PAGE_REQUIRED_ATTRS`** — currently empty. PAGE block attributes are mostly optional; this spec is reserved for future context-dependent requirements.
 - **`_PAGE_ATTR_VALUE_VALIDATORS`** — centralizes format checks for:

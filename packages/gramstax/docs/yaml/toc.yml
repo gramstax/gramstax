@@ -49,6 +49,8 @@ items:
             uid: gramstax!GShippingErrorResult:type
           - name: GVenueResult
             uid: gramstax!GVenueResult:type
+          - name: GWebAppAnswerResult
+            uid: gramstax!GWebAppAnswerResult:type
           - name: IAnswerNoteBlock
             uid: gramstax!IAnswerNoteBlock:type
           - name: IAppManifest
@@ -405,6 +407,8 @@ items:
             uid: gramstax!IUpdateSuccessEvent:type
           - name: IVenueBlock
             uid: gramstax!IVenueBlock:type
+          - name: IWebAppAnswerBlock
+            uid: gramstax!IWebAppAnswerBlock:type
           - name: IWebhookQueueConfig
             uid: gramstax!IWebhookQueueConfig:type
           - name: LabelGKeyboard

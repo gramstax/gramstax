@@ -4,6 +4,7 @@ import {mkdir, rm} from "node:fs/promises"
 import {join} from "node:path"
 import {TemplateEngine} from "~/template/engine"
 import {TemplateManager} from "~/template/manager"
+import type {ICompiledTemplate} from "~/types/template"
 
 const TEST_DIR = join(import.meta.dir, `views-answer-blocks`)
 
@@ -114,6 +115,11 @@ describe(`answer-blocks-struct-parser`, () => {
     const blocks = TemplateEngine._processGAnswerNoteBlocks(answerNoteTemplate)
     expect(blocks.default).toBe(`Guest fallback {{kind}}`)
   })
+
+  it(`parses web-app answer children with interpolation preserved`, () => {
+    const blocks = TemplateEngine._processGWebAppAnswerBlocks(webAppAnswerTemplate)
+    expect(blocks.default).toBe(`Web app answer {{kind}}`)
+  })
 })
 
 describe(`answer-blocks-struct-compile`, () => {
@@ -126,6 +132,11 @@ describe(`answer-blocks-struct-compile`, () => {
   it(`compiles answer-note under its base id`, () => {
     const compiled = TemplateEngine.compileBlockGAnswerNote(answerNoteTemplate)
     expect(compiled.guest?.default?.({kind: `vip`})).toBe(`Guest fallback vip`)
+  })
+
+  it(`compiles web-app answer under its base id`, () => {
+    const compiled = TemplateEngine.compileBlockGWebAppAnswer(webAppAnswerTemplate)
+    expect(compiled.webapp?.default?.({kind: `vip`})).toBe(`Web app answer vip`)
   })
 })
 
@@ -157,6 +168,40 @@ describe(`answer-blocks-struct-validate`, () => {
   it(`rejects HTML inside answer-note`, () => {
     const result = TemplateEngine.validateBlockGAnswerNoteAttributes(`<g-base><g-answer-note>N <b>x</b></g-answer-note></g-base>`)
     expect(result.valid).toBe(false)
+  })
+})
+
+const webAppAnswerTemplate = `<g-base id="webapp">
+  <g-web-app-answer>Web app answer {{kind}}</g-web-app-answer>
+</g-base>`
+
+describe(`web-app-answer-validation`, () => {
+  it(`accepts the dedicated web-app answer block`, () => {
+    const result = TemplateEngine.validateTemplate(webAppAnswerTemplate)
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
+  })
+
+  it(`rejects a self-closing web-app answer block`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-base><g-web-app-answer/></g-base>`)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((error) => error.message.includes(`must not be self-closing`))).toBe(true)
+  })
+
+  it(`rejects unknown attributes on the web-app answer block`, () => {
+    const result = TemplateEngine.validateBlockGWebAppAnswerAttributes(`<g-base><g-web-app-answer bogus="1">Note</g-web-app-answer></g-base>`)
+    expect(result.valid).toBe(false)
+    expect(result.errors.length).toBeGreaterThan(0)
+  })
+
+  it(`rejects HTML inside the web-app answer block`, () => {
+    const result = TemplateEngine.validateBlockGWebAppAnswerAttributes(`<g-base><g-web-app-answer>N <b>x</b></g-web-app-answer></g-base>`)
+    expect(result.valid).toBe(false)
+  })
+
+  it(`still accepts the legacy answer-note block`, () => {
+    const result = TemplateEngine.validateTemplate(answerNoteTemplate)
+    expect(result.valid).toBe(true)
   })
 })
 
@@ -200,5 +245,65 @@ describe(`answer-blocks-manager`, () => {
     expect(() => manager.getGShippingError(`empty`)).toThrow(/ShippingError function not found/)
     expect(() => manager.getGInlineButton(`empty`)).toThrow(/InlineButton function not found/)
     expect(() => manager.getGAnswerNote(`empty`)).toThrow(/AnswerNote function not found/)
+  })
+
+  const webAppOnly = `<g-base id="webapp"><g-web-app-answer>New {{x}}</g-web-app-answer></g-base>`
+  const legacyOnly = `<g-base id="webapp"><g-answer-note>Legacy {{x}}</g-answer-note></g-base>`
+  const bothBlocks = `<g-base id="webapp"><g-web-app-answer>New {{x}}</g-web-app-answer><g-answer-note>Legacy {{x}}</g-answer-note></g-base>`
+
+  it(`prefers the dedicated block and falls back to the legacy alias`, () => {
+    const manager = new TemplateManager({path: [TEST_DIR]})
+    manager.compile(`webapp-new`, webAppOnly)
+    manager.compile(`webapp-legacy`, legacyOnly)
+    manager.compile(`webapp-both`, bothBlocks)
+    expect(manager.getGWebAppAnswer(`webapp-new`, `webapp`, `default`, {x: `A`})).toEqual({kind: `webAppAnswer`, text: `New A`})
+    expect(manager.getGWebAppAnswer(`webapp-legacy`, `webapp`, `default`, {x: `B`})).toEqual({kind: `webAppAnswer`, text: `Legacy B`})
+    expect(manager.getGWebAppAnswer(`webapp-both`, `webapp`, `default`, {x: `C`}).text).toBe(`New C`)
+    expect(manager.getGAnswerNote(`webapp-both`, `webapp`, `default`, {x: `C`}).text).toBe(`Legacy C`)
+  })
+
+  it(`keeps guest answers isolated from the dedicated block`, () => {
+    const manager = new TemplateManager({path: [TEST_DIR]})
+    manager.compile(`webapp-new-isolated`, webAppOnly)
+    expect(() => manager.getGAnswerNote(`webapp-new-isolated`, `webapp`)).toThrow(/AnswerNote function not found/)
+  })
+
+  it(`throws the dedicated error when neither block exists`, () => {
+    const manager = new TemplateManager({path: [TEST_DIR]})
+    manager.compile(`webapp-empty`, `<g-base><g-message>Hi</g-message></g-base>`)
+    expect(() => manager.getGWebAppAnswer(`webapp-empty`)).toThrow(/WebAppAnswer function not found/)
+  })
+
+  it(`resolves base and language to default before the legacy alias`, () => {
+    const manager = new TemplateManager({path: [TEST_DIR]})
+    manager.compile(`webapp-fallback`, `<g-base><g-web-app-answer>Default base</g-web-app-answer></g-base>`)
+    expect(manager.getGWebAppAnswer(`webapp-fallback`, `missing`, `id`).text).toBe(`Default base`)
+  })
+
+  it(`keeps an unmigrated base on its legacy block`, () => {
+    const manager = new TemplateManager({path: [TEST_DIR]})
+    manager.compile(`webapp-mixed`, `<g-base id="default"><g-web-app-answer>New default</g-web-app-answer></g-base><g-base id="other"><g-answer-note>Legacy other</g-answer-note></g-base>`)
+    expect(manager.getGWebAppAnswer(`webapp-mixed`, `other`).text).toBe(`Legacy other`)
+    expect(manager.getGWebAppAnswer(`webapp-mixed`, `missing`).text).toBe(`New default`)
+  })
+
+  it(`serves a legacy compiled template without the webAppAnswer field`, () => {
+    const manager = new TemplateManager({path: [TEST_DIR]})
+    const legacy = {answerNote: {default: {default: () => `Legacy compiled`}}} as unknown as ICompiledTemplate
+    manager.registerCompiled(`webapp-legacy-compiled`, legacy)
+    expect(manager.getGWebAppAnswer(`webapp-legacy-compiled`).text).toBe(`Legacy compiled`)
+  })
+
+  it(`throws when the requested base is missing and the template has no default base`, () => {
+    const manager = new TemplateManager({path: [TEST_DIR]})
+    manager.compile(`webapp-only-base`, webAppOnly)
+    expect(() => manager.getGWebAppAnswer(`webapp-only-base`, `missing`)).toThrow(/WebAppAnswer function not found/)
+  })
+
+  it(`falls back to the default language of the dedicated block`, () => {
+    const manager = new TemplateManager({path: [TEST_DIR]})
+    manager.compile(`webapp-lang`, `<g-base id="webapp"><g-web-app-answer>Default</g-web-app-answer><g-web-app-answer lang="id">Indonesian</g-web-app-answer></g-base>`)
+    expect(manager.getGWebAppAnswer(`webapp-lang`, `webapp`, `id`).text).toBe(`Indonesian`)
+    expect(manager.getGWebAppAnswer(`webapp-lang`, `webapp`, `fr`).text).toBe(`Default`)
   })
 })

@@ -391,12 +391,14 @@ const ACCEPTED = new Set([...SOURCE_TOKENS, ...NON_API_TOKENS, ...AUX_TOKENS])
 // available in CI. Each name was checked by hand with `git grep -l <name> v5.0.0`.
 const MIGRATION_DOCS = new Set(["docs-site/guides/migrating-to-6.md"])
 
-// Two groups. Sixteen shipped in v5 and were removed by v6, so they are the
+// Two groups. Twenty-five shipped in v5 and were removed by v6, so they are the
 // rename tables' "v5" column:
 //   _webhookSecretToken, broadcastOpts, fallbackEdit, options1, options2,
-//   pollingDispatcher, pollingQueue, pollingQueueInstance, renderBroadcastEdit,
-//   renderBroadcastMedia, renderBroadcastPoll, renderChunked, webhookDispatcher,
-//   webhookDrainTimeoutMs, webhookQueueInstance, webhookServer
+//   pollingDispatcher, pollingQueue, pollingQueueInstance, renderAuto,
+//   renderAutoMedia, renderAutoRich, renderBroadcast, renderBroadcastEdit,
+//   renderBroadcastMedia, renderBroadcastPoll, renderChunked, renderEdit,
+//   renderEditMedia, renderEditRich, renderRich, webhookDispatcher,
+//   webhookDrainTimeoutMs, webhookQueue, webhookQueueInstance, webhookServer
 // The other six never shipped at either tag. They are the pre-release param
 // names and the intermediate v6 field names, and the page says so out loud in
 // `## Param types carry the I prefix` and in the labelled note under the route
@@ -412,12 +414,21 @@ const REMOVED_TOKENS = new Set([
   "pollingDispatcher",
   "pollingQueue",
   "pollingQueueInstance",
+  "renderAuto",
+  "renderAutoMedia",
+  "renderAutoRich",
+  "renderBroadcast",
   "renderBroadcastEdit",
   "renderBroadcastMedia",
   "renderBroadcastPoll",
   "renderChunked",
+  "renderEdit",
+  "renderEditMedia",
+  "renderEditRich",
+  "renderRich",
   "webhookDispatcher",
   "webhookDrainTimeoutMs",
+  "webhookQueue",
   "webhookQueueInstance",
   "webhookServer",
   "BroadcastSendParams",

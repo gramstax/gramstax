@@ -95,8 +95,8 @@ animation and voice.
 
 You never call a send method. `render*()` is the entire outbound surface: 32
 methods that pick the underlying call for you from the route you pass
-(`replyWithPhoto`, `editMessageText`, and so on). Broadcast is a route
-(`renderBroadcast`), not a method. Broadcast and edit are selected by the route,
+(`replyWithPhoto`, `editMessageText`, and so on). Broadcast is a route option
+(`broadcast`), not a method. Broadcast and edit are selected by the route,
 never named directly.
 
 Keyboard builders: `bottomKeyboardT`, `inlineKeyboardT`, and `buildData` for
@@ -112,7 +112,7 @@ full atom list.
 | **Depends On** | Nothing external (pure string→function compilation via `new Function()`). |
 | **Depended On By** | `TemplateManager`. |
 
-Compiles blocks with `_compileToFunction` using `new Function("data", "__esc", "FILTERS", body)` (`engine.ts:2984`, `:2987`). Processes base/message/keyboard/media/description/import/map/script/switch/div/space blocks and resolves scopes/interpolation (`_processScope*`, `_processG*Blocks`). Validation is layered: three layers for Telegram tags (required attributes, value formats, unknown attributes) and two for PAGE blocks (required attributes, value formats); see [Template Blocks](/guides/template-blocks).
+Compiles blocks with `_compileToFunction` using `new Function("data", "__esc", "FILTERS", body)` (`engine.ts:3037`, `:3040`). Processes base/message/keyboard/media/description/import/map/script/switch/div/space blocks and resolves scopes/interpolation (`_processScope*`, `_processG*Blocks`). Validation is layered: three layers for Telegram tags (required attributes, value formats, unknown attributes) and two for PAGE blocks (required attributes, value formats); see [Template Blocks](/guides/template-blocks).
 
 ### TemplateManager
 
@@ -126,8 +126,8 @@ Compiles blocks with `_compileToFunction` using `new Function("data", "__esc", "
 `_supportedExtensions = new Set([".html", ".ts", ".js"])` gates which files load at
 all. `enableWatch` drives the `chokidar` watcher. The public read surface is the
 `getG*` family: `getGMessage`, `getGKeyboard`, `getGMedia`, `getGDescription`,
-`getGPoll`, `getGVenue`, `getGDice`, `getGInvoice`, `getGCallbackAnswer` and
-friends, each taking `(key, AGBaseId, ALang, data)`. The bare `getMessage` name
+`getGPoll`, `getGVenue`, `getGDice`, `getGInvoice`, `getGCallbackAnswer`,
+`getGWebAppAnswer`, and friends, each taking `(key, AGBaseId, ALang, data)`. The bare `getMessage` name
 does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for these.
 
 ### PageManager
@@ -226,7 +226,7 @@ does not exist; `E2eHelper.gmsg/gkb/gmedia` are the e2e-side shorthands for thes
 | `IGramstaxParams` | `src/types/bot.ts` | Constructor options (`token`, `deploy`, `optionsDeploy`, `log`, `botConfig`, `cacheSession`, `cacheKeyboard`, `templateManager`, `manifest`, `optionsPage`, `rateLimit`, `throttle`, `sessionLock`). |
 | `IUpdateQueueConfig` | `src/types/bot.ts` | `enabled`, `maxQueueSize`, `workerCount`, `perChatConcurrency`, `blockWhenFull`, `enqueueTimeoutMs`, `waiterTimeoutMs`, `drainTimeoutMs`. Aliased as the deprecated `IWebhookQueueConfig`. |
 | `ITemplateOptions` | `src/types/template.ts` | `path[]`, `enableWatch?`, `watchOptions?`, `onReload?`. |
-| `ICompiledTemplate` | `src/types/template.ts` | Cached compiled blocks: `media`, `poll`, `venue`, `dice`, `callbackAnswer`, `precheckoutError`, `shippingError`, `inlineButton`, `answerNote`, `gift`, `invoice`, `paidMedia`, `message`, `keyboard`, `description`. |
+| `ICompiledTemplate` | `src/types/template.ts` | Cached compiled blocks: `media`, `poll`, `venue`, `dice`, `callbackAnswer`, `precheckoutError`, `shippingError`, `inlineButton`, `answerNote`, `webAppAnswer`, `gift`, `invoice`, `paidMedia`, `message`, `keyboard`, `description`. |
 | `IPageData` | `src/types/ctx.ts` | Route metadata: `name`, `intentText`, `intentCommandText`, `intentCallbackQueryData`, plus the optional `intentTextMap` / `intentCommandTextMap` language variants. |
 | `Ctx` handler signatures | `src/core/ctx.ts` | `handleText`, `handleCallbackQueryData`, `handleFree*`, `handleSession*`, `handle*Caption*`. |
 

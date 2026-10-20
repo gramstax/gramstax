@@ -688,11 +688,13 @@ export type IInlineButtonBlock = {
  * Answer-note block for query answers without template content.
  *
  * @remarks
- * Declared with `<g-answer-note>` blocks. Guest and web app answers carry
- * caller-built results, so the block exists only as fail-fast validation
- * that the template provides the required `AGBaseId` (plus a future content
- * slot). `text` supports the same `{{var|filter}}` interpolation pipeline as
- * poll questions.
+ * Declared with `<g-answer-note>` blocks. Guest answers carry caller-built
+ * results, so the block exists only as fail-fast validation that the template
+ * provides the required `AGBaseId` (plus a future content slot). `text`
+ * supports the same `{{var|filter}}` interpolation pipeline as poll questions.
+ *
+ * This block belongs to `renderGuestAnswer`. `renderWebAppAnswer` accepts it
+ * only as a legacy alias and prefers the dedicated `<g-web-app-answer>` block.
  *
  * @example
  * ```typescript
@@ -706,6 +708,38 @@ export type IInlineButtonBlock = {
 export type IAnswerNoteBlock = {
   /**
    * Marker note text.
+   *
+   * @remarks
+   * Supports `{{var|filter}}` interpolation. Carries no rendered content —
+   * validation-only marker for the required `AGBaseId`.
+   */
+  text: string
+}
+
+/**
+ * Web-app answer block for query answers without template content.
+ *
+ * @remarks
+ * Declared with `<g-web-app-answer>` blocks. `renderWebAppAnswer` carries a
+ * caller-built result, so the block exists only as fail-fast validation that
+ * the template provides the required `AGBaseId`. `text` supports the same
+ * `{{var|filter}}` interpolation pipeline as poll questions.
+ *
+ * This is the block `renderWebAppAnswer` prefers; `<g-answer-note>` remains
+ * accepted for it as a legacy alias.
+ *
+ * @example
+ * ```typescript
+ * const note: IWebAppAnswerBlock = {
+ *   text: `Web app answer`
+ * }
+ * ```
+ *
+ * @public
+ */
+export type IWebAppAnswerBlock = {
+  /**
+   * Marker text for the web-app answer.
    *
    * @remarks
    * Supports `{{var|filter}}` interpolation. Carries no rendered content —
@@ -752,7 +786,7 @@ export type IGiftBlock = {
  *
  * @public
  */
-export type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `gift` | `invoice` | `paidMedia` | `description`
+export type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`
 
 /**
  * Result of `TemplateManager.getGMessage` for a `<g-message>` block.
@@ -760,8 +794,8 @@ export type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyb
  * @remarks
  * `text` is exactly the rendered message HTML string; `rich` is computed
  * once at compile time from the raw block body and is `true` when the block
- * contains at least one Telegram Rich HTML tag, so callers can pick
- * `renderRich` over `render`. A missing block yields
+ * contains at least one Telegram Rich HTML tag, so callers pick the rich send
+ * path from the `rich` flag. A missing block yields
  * `{kind: "message", text: "", rich: false}`.
  *
  * @public
@@ -863,6 +897,16 @@ export type GInlineButtonResult = {kind: `inlineButton`} & IInlineButtonBlock
  * @public
  */
 export type GAnswerNoteResult = {kind: `answerNote`; text: string}
+/**
+ * Result of `TemplateManager.getGWebAppAnswer` for a `<g-web-app-answer>` block.
+ *
+ * @remarks
+ * `text` is the marker text; the getter throws when neither the dedicated
+ * block nor the legacy `<g-answer-note>` alias is present.
+ *
+ * @public
+ */
+export type GWebAppAnswerResult = {kind: `webAppAnswer`; text: string}
 /**
  * Result of `TemplateManager.getGGift` for a `<g-gift>` block.
  *
@@ -984,6 +1028,14 @@ export type ICompiledTemplate = {
    * an `IAnswerNoteBlock` for the given render data.
    */
   answerNote: ReturnType<typeof TemplateEngine.compileBlockGAnswerNote>
+  /**
+   * Compiled web-app answer blocks indexed by base ID and language.
+   *
+   * @remarks
+   * Produced by `TemplateEngine.compileBlockGWebAppAnswer`. Each leaf resolves
+   * an `IWebAppAnswerBlock` for the given render data.
+   */
+  webAppAnswer: ReturnType<typeof TemplateEngine.compileBlockGWebAppAnswer>
   /**
    * Compiled gift blocks indexed by base ID and language.
    *

@@ -43,7 +43,7 @@ export const template = {media: {"default": {}}, ..., message: {"default": {"def
 ```
 
 A message leaf returns `{text, rich}` and a keyboard leaf returns an array of
-labels. `export const template` always carries all 15 `ICompiledTemplate` fields;
+labels. `export const template` always carries all 16 `ICompiledTemplate` fields;
 a block the template does not use is an empty object, and a used one is indexed by
 base id and then by language. `pages` stays in userland source (023
 `manifest.js`).
@@ -82,10 +82,11 @@ for (const [key, template] of Object.entries(templates)) manager.registerCompile
 ```
 
 <Check>
-  Registered templates render identically to JIT for all 15 `ICompiledTemplate`
+  Registered templates render identically to JIT for all 16 `ICompiledTemplate`
   fields: proven by `template.aot-parity.test.ts` (media, poll, venue, dice,
-  callbackAnswer, precheckoutError, shippingError, inlineButton, answerNote, gift,
-  invoice, paidMedia, message, keyboard, description × 2 datasets each). One field
+  callbackAnswer, precheckoutError, shippingError, inlineButton, answerNote,
+  webAppAnswer, gift, invoice, paidMedia, message, keyboard, description × 2
+  datasets each). One field
   per `compileBlockG*` static on `TemplateEngine`; there is no single dispatcher
   method.
 </Check>

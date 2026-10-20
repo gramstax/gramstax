@@ -96,7 +96,7 @@ Regenerate it after every template change. See
 
 ### Which Telegram features are supported?
 
-29 PAGE blocks covering message, keyboards, media, media groups, polls, invoices,
+30 PAGE blocks covering message, keyboards, media, media groups, polls, invoices,
 paid media, venues, dice, gifts, descriptions, answers and imports, plus 54
 Telegram Rich HTML tags validated against Bot API 10.3. The vocabulary is in
 [templates](/concepts/templates).

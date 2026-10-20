@@ -18,7 +18,9 @@ type IAnswerNoteBlock = {
 
 ## Remarks
 
-Declared with `<g-answer-note>` blocks. Guest and web app answers carry caller-built results, so the block exists only as fail-fast validation that the template provides the required `AGBaseId` (plus a future content slot). `text` supports the same `{{var|filter}}` interpolation pipeline as poll questions.
+Declared with `<g-answer-note>` blocks. Guest answers carry caller-built results, so the block exists only as fail-fast validation that the template provides the required `AGBaseId` (plus a future content slot). `text` supports the same `{{var|filter}}` interpolation pipeline as poll questions.
+
+This block belongs to `renderGuestAnswer`. `renderWebAppAnswer` accepts it only as a legacy alias and prefers the dedicated `<g-web-app-answer>` block.
 
 ## Example
 

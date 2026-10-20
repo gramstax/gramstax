@@ -19,7 +19,7 @@ type IGramstaxWebhookDeployOptions = {
 
 ## Remarks
 
-Only meaningful when `deploy` is `webhook`<!-- -->. Carries the public URL, the secret token shape, and the queue config that used to live at the root `webhookQueue` field.
+Only meaningful when `deploy` is `webhook`<!-- -->. Carries the public URL, the secret token shape, and the webhook queue config under `queue`<!-- -->.
 
 ## Example
 

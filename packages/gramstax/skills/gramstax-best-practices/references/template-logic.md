@@ -48,21 +48,21 @@ export class ReportPage extends PageBase {
 
 ## The block registry
 
-`TemplateEngine.ALLOWED_BLOCKS_PAGE` (`src/template/engine.ts:273`) — the authoritative list of 29 PAGE blocks:
+`TemplateEngine.ALLOWED_BLOCKS_PAGE` (`src/template/engine.ts:273`) — the authoritative list of 30 PAGE blocks:
 
 ```text
 <g-base>  <g-message>  <g-keyboard>  <g-media>  <g-media-group>
 <g-poll>  <g-question>  <g-option>  <g-invoice>  <g-price>
 <g-paid-media>  <g-venue>  <g-dice>  <g-description>
 <g-callback-answer>  <g-precheckout-error>  <g-shipping-error>
-<g-inline-button>  <g-answer-note>  <g-gift>
+<g-inline-button>  <g-answer-note>  <g-web-app-answer>  <g-gift>
 <g-script>  <g-ifelse>  <g-switch>  <g-case>  <g-default>  <g-map>  <g-div>
 <g-import/>  <g-space/>
 ```
 
-Telegram Rich tags extend the list via `ALLOWED_BLOCKS_TELEGRAM` — see `template-rich.md`. Scope syntax is `ALLOWED_SCOPE = ['{{}}', '{~~}']` (`src/template/engine.ts:719`): `{{key}}` escapes, `{{{key}}}` is raw, `{{key|filter:arg}}` chains pipes. `{~~}` is JIT-only — it emits `with(` and fails the AOT build, so it cannot appear in any template that gets built.
+Telegram Rich tags extend the list via `ALLOWED_BLOCKS_TELEGRAM` — see `template-rich.md`. Scope syntax is `ALLOWED_SCOPE = ['{{}}', '{~~}']` (`src/template/engine.ts:720`): `{{key}}` escapes, `{{{key}}}` is raw, `{{key|filter:arg}}` chains pipes. `{~~}` is JIT-only — it emits `with(` and fails the AOT build, so it cannot appear in any template that gets built.
 
-The 15 `ICompiledTemplate` output fields map to these blocks one-for-one and are what the AOT parity suite locks — see `template-aot.md`.
+The 16 `ICompiledTemplate` output fields map to these blocks one-for-one and are what the AOT parity suite locks — see `template-aot.md`.
 
 ## Structure
 
@@ -126,7 +126,7 @@ Accepted bodies — anything containing `?:`, `&&`, `||`, or `??`:
 <g-ifelse>user.isAdmin && user.name</g-ifelse>
 ```
 
-Four rules, all enforced by `validateBlockGIfElseBody` (`src/template/engine.ts:6138`):
+Four rules, all enforced by `validateBlockGIfElseBody` (`src/template/engine.ts:6324`):
 
 | Rule | Rejected input | Message |
 | --- | --- | --- |

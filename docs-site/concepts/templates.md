@@ -15,7 +15,7 @@ call**, so it can be compiled, validated, translated and reused by tests.
 
 ## Blocks
 
-Page blocks are prefixed `g-`. There are 29 of them, and each one maps to a
+Page blocks are prefixed `g-`. There are 30 of them, and each one maps to a
 Telegram capability:
 
 | Block | Purpose |
@@ -27,14 +27,17 @@ Telegram capability:
 | `g-poll` | A poll, with `g-question` and `g-option` children |
 | `g-invoice` | An invoice, with `g-price` children |
 | `g-callback-answer` | The answer to a callback query |
+| `g-answer-note` | The guest-mode answer marker |
+| `g-web-app-answer` | The web-app query answer marker |
 | `g-ifelse` / `g-switch` / `g-case` | Conditionals |
 | `g-import` | Pull in another template file |
 | `g-script` | Inline execution, **rejected by AOT**, see below |
 
-Every content block sits inside a `<g-base>`. The validator treats 18 blocks as
+Every content block sits inside a `<g-base>`. The validator treats 19 blocks as
 containers and rejects a self-closing form for them, from `<g-base>` down to
-`<g-div>`; nine blocks are exempt from that check entirely (`g-price`, `g-venue`,
-`g-dice`, `g-callback-answer`, `g-precheckout-error`, `g-shipping-error`,
+`<g-div>`, plus `<g-web-app-answer>`; nine blocks are exempt from that check
+entirely (`g-price`, `g-venue`, `g-dice`, `g-callback-answer`,
+`g-precheckout-error`, `g-shipping-error`,
 `g-inline-button`, `g-answer-note`, `g-gift`), so either form is accepted for
 those. `<g-space>` and `<g-import>` are the two utility blocks and are written
 self-closing.

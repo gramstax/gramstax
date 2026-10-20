@@ -239,7 +239,7 @@ what it is used for; a page-class method covers the rest.
 
 <Columns cols={3}>
   <Card title="Template Blocks" icon="blocks" href="/guides/template-blocks">
-    The 29 PAGE blocks, including `<g-ifelse>`, `<g-map>` and `<g-script>`.
+    The 30 PAGE blocks, including `<g-ifelse>`, `<g-map>` and `<g-script>`.
   </Card>
   <Card title="Telegram Rich HTML" icon="code-xml" href="/guides/rich-html">
     The 54 tags a filtered value can be dropped into.

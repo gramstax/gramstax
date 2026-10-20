@@ -58,7 +58,7 @@ The sent or edited message object, the array of sent message objects when `chunk
 
 ## Remarks
 
-Single method for every text send/edit path, folding the former `render`<!-- -->, `renderEdit`<!-- -->, `renderRich`<!-- -->, `renderAuto`<!-- -->, `renderAutoRich`<!-- -->, `renderEditRich`<!-- -->, and `renderBroadcast`<!-- -->. `mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits.
+One method covers every text send/edit path. `mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits. Broadcast fan-out is a route option (`broadcast`<!-- -->), not a separate method.
 
 Rich content is chosen at COMPILE time: when the `<g-message>` block contains Telegram Rich HTML tags, the message is sent or edited through `replyWithRichMessage`<!-- -->/`editMessageText` with an `InputRichMessage` payload (Telegram Bot API [TemplateEngine.BOT\_API\_VERSION](./gramstax.templateengine.bot_api_version.md)<!-- -->) instead of plain HTML text. Rich message limits: - Up to 32,768 UTF-8 characters - Up to 500 blocks - Up to 16 nesting levels - Up to 20 table columns
 

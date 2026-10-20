@@ -2978,12 +2978,10 @@ export class Ctx extends Context {
    *
    * Template block: `<g-message>` (read via `getGMessage`).
    * @remarks
-   * Single method for every text send/edit path, folding the former `render`,
-   * `renderEdit`, `renderRich`, `renderAuto`, `renderAutoRich`,
-   * `renderEditRich`, and `renderBroadcast`. `mode` resolves the
-   * send-versus-edit decision: `auto`
-   * (default) edits when `this.callbackQuery` exists, `reply` always sends,
-   * `edit` always edits.
+   * One method covers every text send/edit path. `mode` resolves the
+   * send-versus-edit decision: `auto` (default) edits when `this.callbackQuery`
+   * exists, `reply` always sends, `edit` always edits. Broadcast fan-out is a
+   * route option (`broadcast`), not a separate method.
    *
    * Rich content is chosen at COMPILE time: when the `<g-message>` block
    * contains Telegram Rich HTML tags, the message is sent or edited through
@@ -3508,14 +3506,15 @@ export class Ctx extends Context {
   /**
    * Answers a web app query via the Bot API with a caller-built result.
    *
-   * Template block: `<g-answer-note>` (read via `getGAnswerNote`).
+   * Template block: `<g-web-app-answer>` (read via `getGWebAppAnswer`);
+   * `<g-answer-note>` remains a legacy alias for this method.
    * @remarks
    * Unlike the other answers this carries an explicit query id (there is no
    * context-aware alias — web app queries arrive without an answerable
    * update), mirroring `renderGift`'s explicit target. The result content is
-   * built by the caller from `data` (multilang payloads); the `<g-answer-note>`
-   * block is resolved as fail-fast validation that the template exists, per
-   * the same fail-fast validation.
+   * built by the caller from `data` (multilang payloads); the
+   * `<g-web-app-answer>` block is resolved as fail-fast validation that the
+   * template exists.
    *
    * Observe-only send-error coverage (mirrors `renderGift`): failures are
    * classified via `Ctx.classifySendError`, reported to `notifySendError`,
@@ -3536,7 +3535,7 @@ export class Ctx extends Context {
    */
   async renderWebAppAnswer(params: IRenderWebAppAnswerParams) {
     const {webAppQueryId, result, data, AGBaseId, options} = params
-    void this.templateManager.getGAnswerNote(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    void this.templateManager.getGWebAppAnswer(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
     try {
       return await this.api.answerWebAppQuery(webAppQueryId, result, options ?? undefined)
     } catch (error) {
@@ -3586,11 +3585,10 @@ export class Ctx extends Context {
    *
    * Template block: `<g-media>` (read via `getGMedia`).
    * @remarks
-   * Single method for every media send/edit path, folding the former
-   * `renderAutoMedia`, `renderEditMedia`, the per-kind reply base, and the
-   * broadcast-media / broadcast-edit fan-outs. `mode`
-   * resolves the send-versus-edit decision: `auto` (default) edits when
-   * `this.callbackQuery` exists, `reply` always sends, `edit` always edits.
+   * One method covers every media send/edit path; the per-kind wrappers
+   * (`renderPhoto`, `renderVideo`, and so on) sit on top. `mode` resolves the
+   * send-versus-edit decision: `auto` (default) edits when `this.callbackQuery`
+   * exists, `reply` always sends, `edit` always edits.
    * This is the base method for all media methods. Use specific methods
    * like {@link (Ctx:class).renderPhoto} or {@link (Ctx:class).renderVideo} for simpler usage.
    *

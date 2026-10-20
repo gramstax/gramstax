@@ -5544,7 +5544,7 @@ Template block: `<g-media>` (read via `renderMedia`<!-- -->).
 
 Answers a web app query via the Bot API with a caller-built result.
 
-Template block: `<g-answer-note>` (read via `getGAnswerNote`<!-- -->).
+Template block: `<g-web-app-answer>` (read via `getGWebAppAnswer`<!-- -->); `<g-answer-note>` remains a legacy alias for this method.
 
 
 </td></tr>

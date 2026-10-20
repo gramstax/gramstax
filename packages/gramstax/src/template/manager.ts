@@ -2,7 +2,7 @@ import {existsSync, readdirSync, readFileSync, statSync, writeFileSync} from "no
 import {basename, extname, join, relative, resolve} from "node:path"
 import {type FSWatcher, watch} from "chokidar"
 import {PageManager} from "~/page/manager"
-import type {GAnswerNoteResult, GCallbackAnswerResult, GDescriptionResult, GDiceResult, GGiftResult, GInlineButtonResult, GInvoiceResult, GKeyboardResult, GMediaResult, GMessageResult, GPaidMediaResult, GPollResult, GPreCheckoutErrorResult, GShippingErrorResult, GVenueResult, ICompiledTemplate, ITemplateOptions} from "~/types/template"
+import type {GAnswerNoteResult, GCallbackAnswerResult, GDescriptionResult, GDiceResult, GGiftResult, GInlineButtonResult, GInvoiceResult, GKeyboardResult, GMediaResult, GMessageResult, GPaidMediaResult, GPollResult, GPreCheckoutErrorResult, GShippingErrorResult, GVenueResult, GWebAppAnswerResult, ICompiledTemplate, ITemplateOptions} from "~/types/template"
 import {TemplateEngine} from "./engine"
 
 /**
@@ -813,6 +813,10 @@ export class TemplateManager {
       compiled.answerNote = TemplateEngine.compileBlockGAnswerNote(processedTemplate, baseBlocks)
       updated = true
     }
+    if (keepIfExist === undefined || keepIfExist?.webAppAnswer === false || existing?.webAppAnswer === undefined) {
+      compiled.webAppAnswer = TemplateEngine.compileBlockGWebAppAnswer(processedTemplate, baseBlocks)
+      updated = true
+    }
     if (keepIfExist === undefined || keepIfExist?.gift === false || existing?.gift === undefined) {
       compiled.gift = TemplateEngine.compileBlockGGift(processedTemplate, baseBlocks)
       updated = true
@@ -1139,6 +1143,31 @@ export class TemplateManager {
     }
 
     return {kind: `answerNote`, text: func(data)}
+  }
+
+  /**
+   * Gets compiled text from block <g-web-app-answer>.
+   *
+   * @remarks
+   * Strict lookup with a legacy fallback, resolved per base: for the requested
+   * `AGBaseId`, `<g-web-app-answer>` wins over `<g-answer-note>`; if that base
+   * has neither, the same two-step lookup repeats on the `default` base. A
+   * template that has neither block in either base throws.
+   *
+   * @public
+   */
+  getGWebAppAnswer(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GWebAppAnswerResult {
+    const map = this.getCompiled(key)
+    const pick = (field: ICompiledTemplate[`webAppAnswer`] | ICompiledTemplate[`answerNote`] | undefined, base: string) => {
+      const one = field?.[base]
+      return one?.[ALang] ?? one?.default
+    }
+    const bases = AGBaseId === `default` ? [`default`] : [AGBaseId, `default`]
+    for (const base of bases) {
+      const func = pick(map?.webAppAnswer, base) ?? pick(map?.answerNote, base)
+      if (func) return {kind: `webAppAnswer`, text: func(data)}
+    }
+    throw new Error(`WebAppAnswer function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
   }
 
   /**

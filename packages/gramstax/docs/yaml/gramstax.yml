@@ -38,6 +38,7 @@ typeAliases:
   - gramstax!GramstaxConfig:type
   - gramstax!GShippingErrorResult:type
   - gramstax!GVenueResult:type
+  - gramstax!GWebAppAnswerResult:type
   - gramstax!IAnswerNoteBlock:type
   - gramstax!IAppManifest:type
   - gramstax!IBottomKb:type
@@ -214,6 +215,7 @@ typeAliases:
   - gramstax!IUpdateQueueConfig:type
   - gramstax!IUpdateSuccessEvent:type
   - gramstax!IVenueBlock:type
+  - gramstax!IWebAppAnswerBlock:type
   - gramstax!IWebhookQueueConfig:type
   - gramstax!WebhookQueue:type
 interfaces:

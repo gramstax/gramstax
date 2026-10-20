@@ -163,6 +163,7 @@
             "reference/gramstax.gramstaxconfig",
             "reference/gramstax.gshippingerrorresult",
             "reference/gramstax.gvenueresult",
+            "reference/gramstax.gwebappanswerresult",
             "reference/gramstax.ianswernoteblock",
             "reference/lmdb.ianycolumnbuilder",
             "reference/gramstax.iappmanifest",
@@ -379,6 +380,7 @@
             "reference/gramstax.iupdatequeueconfig",
             "reference/gramstax.iupdatesuccessevent",
             "reference/gramstax.ivenueblock",
+            "reference/gramstax.iwebappanswerblock",
             "reference/gramstax.iwebhookqueueconfig",
             "reference/worker-thread.iworkerthreadasyncmethods",
             "reference/worker-thread.iworkerthreadexportopt",
@@ -790,6 +792,12 @@
               "group": "_processgvenueblocks",
               "pages": [
                 "reference/gramstax.templateengine._processgvenueblocks"
+              ]
+            },
+            {
+              "group": "_processgwebappanswerblocks",
+              "pages": [
+                "reference/gramstax.templateengine._processgwebappanswerblocks"
               ]
             },
             {
@@ -1621,6 +1629,12 @@
               ]
             },
             {
+              "group": "compileblockgwebappanswer",
+              "pages": [
+                "reference/gramstax.templateengine.compileblockgwebappanswer"
+              ]
+            },
+            {
               "group": "composite",
               "pages": [
                 "reference/lmdb.iindexdef.composite"
@@ -2300,6 +2314,12 @@
               "group": "getgvenue",
               "pages": [
                 "reference/gramstax.templatemanager.getgvenue"
+              ]
+            },
+            {
+              "group": "getgwebappanswer",
+              "pages": [
+                "reference/gramstax.templatemanager.getgwebappanswer"
               ]
             },
             {
@@ -6667,6 +6687,12 @@
               "group": "validateblockgvenueattributes",
               "pages": [
                 "reference/gramstax.templateengine.validateblockgvenueattributes"
+              ]
+            },
+            {
+              "group": "validateblockgwebappanswerattributes",
+              "pages": [
+                "reference/gramstax.templateengine.validateblockgwebappanswerattributes"
               ]
             },
             {

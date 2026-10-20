@@ -18,5 +18,5 @@ type GMessageResult = {
 
 ## Remarks
 
-`text` is exactly the rendered message HTML string; `rich` is computed once at compile time from the raw block body and is `true` when the block contains at least one Telegram Rich HTML tag, so callers can pick `renderRich` over `render`<!-- -->. A missing block yields `{kind: "message", text: "", rich: false}`<!-- -->.
+`text` is exactly the rendered message HTML string; `rich` is computed once at compile time from the raw block body and is `true` when the block contains at least one Telegram Rich HTML tag, so callers pick the rich send path from the `rich` flag. A missing block yields `{kind: "message", text: "", rich: false}`<!-- -->.
 

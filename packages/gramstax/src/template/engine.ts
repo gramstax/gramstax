@@ -291,6 +291,7 @@ export class TemplateEngine {
     `<g-shipping-error>`,
     `<g-inline-button>`,
     `<g-answer-note>`,
+    `<g-web-app-answer>`,
     `<g-gift>`,
     // Logic blocks
     `<g-script>`,
@@ -2609,6 +2610,58 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: g-web-app-answer
+   * Extracts `<g-web-app-answer>` marker blocks from a template string.
+   *
+   * @remarks
+   * Children form only; content is cleaned exactly like `<g-message>` and
+   * keyed by `lang` (`"default"` when absent; last block wins per lang).
+   * Raw content is preserved verbatim (including `{{var|filter}}` spans)
+   * for later compilation. The block is a validation marker for
+   * `renderWebAppAnswer`, whose result content comes from the caller, not
+   * from the template. Plain-text rules are enforced by
+   * `validateBlockGWebAppAnswerAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-web-app-answer>` blocks
+   * @returns An object mapping language keys to their raw text content
+   *
+   * @example
+   * ```typescript
+   * const blocks = TemplateEngine._processGWebAppAnswerBlocks(`<g-web-app-answer>Web app note {{kind}}</g-web-app-answer>`);
+   * // Result: { default: 'Web app note {{kind}}' }
+   * ```
+   *
+   * @public
+   */
+  static _processGWebAppAnswerBlocks(template: string) {
+    const blockRegex = /<g-web-app-answer(?:\s+([^>]*))?>([\s\S]*?)<\/g-web-app-answer>/gi
+    const result: {
+      [lang: string]: string
+    } = {}
+
+    for (const [, attributesStr, rawContent] of template.matchAll(blockRegex)) {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+
+      const lang = attrs.lang || `default`
+      const cleaned = rawContent!
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .trim()
+
+      result[lang] = cleaned
+    }
+    return result
+  }
+
+  /**
    * Block: g-gift
    * Extracts `<g-gift>` card-text blocks from a template string.
    *
@@ -3718,6 +3771,46 @@ export class TemplateEngine {
   }
 
   /**
+   * Compiles web-app answer blocks from a template into executable functions.
+   *
+   * @remarks
+   * Each leaf resolves the marker text for the given render data. The text is
+   * never sent; `renderWebAppAnswer` uses the block as fail-fast validation.
+   *
+   * @param template - The template string containing `<g-web-app-answer>` blocks
+   * @param baseBlocks - Optional pre-processed base blocks
+   * @returns Functions indexed by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const compiled = TemplateEngine.compileBlockGWebAppAnswer(`<g-base><g-web-app-answer>Note {{kind}}</g-web-app-answer></g-base>`);
+   * // Result: compiled.default.default({kind: `vip`}) === 'Note vip'
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGWebAppAnswer(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITemplateData) => string
+      }
+    } = {}
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const blocks = this._processGWebAppAnswerBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, content] of Object.entries(blocks)) {
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(content))))))
+        result[AGBaseId][ALang] = this._compileToFunction(processed, false)
+      }
+    }
+
+    return result
+  }
+
+  /**
    * Compiles gift blocks from a template into executable functions.
    *
    * @remarks
@@ -4616,7 +4709,7 @@ export class TemplateEngine {
    *   `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`,
    *   `<g-option>...</g-option>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
    *   `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`,
-   *   `<g-map>...</g-map>`, `<g-div>...</g-div>`
+   *   `<g-map>...</g-map>`, `<g-div>...</g-div>`, `<g-web-app-answer>...</g-web-app-answer>`
    *
    * Nine page blocks appear in neither set and accept either form: `<g-price>`,
    * `<g-venue>`, `<g-dice>`, `<g-gift>`, `<g-callback-answer>`,
@@ -4641,7 +4734,7 @@ export class TemplateEngine {
   static validateFormatBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
     const selfClosingBlocks = new Set([`space`, `import`, `hr`, `img`, `input`, `br`, `tg-map`])
-    const regularBlocks = new Set([`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-paid-media`, `g-description`, `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`])
+    const regularBlocks = new Set([`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-paid-media`, `g-description`, `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`, `g-web-app-answer`])
 
     const tagRegex = /<(\/?)(\w[\w-]*)([^>]*)>/g
     let match: RegExpExecArray | null
@@ -6110,6 +6203,30 @@ export class TemplateEngine {
   }
 
   /**
+   * Validates attributes on `<g-web-app-answer>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `lang` only. The body is a validation marker for
+   * `renderWebAppAnswer`, so HTML markup is rejected.
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockGWebAppAnswerAttributes(`<g-base><g-web-app-answer>Note</g-web-app-answer></g-base>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockGWebAppAnswerAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-web-app-answer`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-web-app-answer`])
+    errors.push(...this._validateAnswerTextContent(template, `g-web-app-answer`))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
    * Validates attributes on `<g-gift>` blocks.
    *
    * @remarks
@@ -6424,9 +6541,10 @@ export class TemplateEngine {
    * 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
    * 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
    * 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
-   * 30. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
-   * 31. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-   * 32. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+   * 30. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content
+   * 31. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
+   * 32. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+   * 33. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -6576,9 +6694,10 @@ export class TemplateEngine {
    * 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
    * 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
    * 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
-   * 30. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
-   * 31. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-   * 32. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+   * 30. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content
+   * 31. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
+   * 32. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+   * 33. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Errors from all validators are combined into a single result.
    *
@@ -6633,6 +6752,7 @@ export class TemplateEngine {
     const shippingErrorAttrResult = this.validateBlockGShippingErrorAttributes(template)
     const inlineButtonAttrResult = this.validateBlockGInlineButtonAttributes(template)
     const answerNoteAttrResult = this.validateBlockGAnswerNoteAttributes(template)
+    const webAppAnswerAttrResult = this.validateBlockGWebAppAnswerAttributes(template)
     const giftAttrResult = this.validateBlockGGiftAttributes(template)
     const pageAttrResult = this.validatePageAttributesBlock(template)
     const pageValueResult = this.validatePageAttributeValuesBlock(template)
@@ -6675,6 +6795,7 @@ export class TemplateEngine {
       ...shippingErrorAttrResult.errors,
       ...inlineButtonAttrResult.errors,
       ...answerNoteAttrResult.errors,
+      ...webAppAnswerAttrResult.errors,
       ...giftAttrResult.errors,
       ...pageAttrResult.errors,
       ...pageValueResult.errors,

@@ -2175,8 +2175,8 @@ export type IRenderDiceParams = IContent &
  * method always edits, the mode is not a choice. Caption text comes from the
  * `<g-base id>` block via `getGMessage` and is sent via `editMessageCaption`,
  * which rejects a bottom keyboard, so the `keyboard` slot stays inline-only.
- * Fallback modes mirror `renderEdit`: `delete-reply`/`reply` resend the caption
- * as plain text, `disable` throws.
+ * Fallback modes follow `IRouteEdit.fallback`: `delete-reply`/`reply` resend the
+ * caption as plain text, `disable` throws.
  *
  * @public
  */

@@ -134,8 +134,10 @@ These read their text from a template block instead of taking a literal string, 
 | `renderPreCheckout` | `<g-precheckout-error>` | `{ok, data?, AGBaseId, options?}` |
 | `renderShipping` | `<g-shipping-error>` | `{ok, data?, AGBaseId, options?}` |
 | `renderInlineAnswer` | `<g-inline-button>` | `{results, data?, AGBaseId, options?, buttonStartParameter?}` |
-| `renderGuestAnswer` | — | `{result, data?, AGBaseId, options?}` |
-| `renderWebAppAnswer` | — | `{webAppQueryId, result, data?, AGBaseId, options?}` |
+| `renderGuestAnswer` | `<g-answer-note>` | `{result, data?, AGBaseId, options?}` |
+| `renderWebAppAnswer` | `<g-web-app-answer>` | `{webAppQueryId, result, data?, AGBaseId, options?}` |
+
+`renderWebAppAnswer` reads the dedicated `<g-web-app-answer>` block. `<g-answer-note>` stays valid for it as a legacy alias, resolved per base after the `<g-web-app-answer>` lookup.
 
 ```typescript
 // the answer text comes from the template, localized, not a hardcoded string
@@ -186,12 +188,14 @@ Every method in this rule is locked by a unit test, but **none is used in `examp
 | `renderEditCaption`, `renderEditKeyboard` | `core.ctx.render-edit-caption-keyboard.test.ts` |
 | `renderGift` | `core.ctx.render-gift.test.ts` |
 | `renderCallbackAnswer`, `renderPreCheckout`, `renderShipping` | `core.ctx.render-callback-payment.test.ts` |
-| `renderInlineAnswer`, `renderGuestAnswer`, `renderWebAppAnswer` | `core.ctx.render-inline-answer.test.ts` |
+| `renderInlineAnswer`, `renderGuestAnswer` | `core.ctx.render-inline-answer.test.ts` |
+| `renderWebAppAnswer` (dedicated `<g-web-app-answer>` getter, `<g-answer-note>` alias) | `core.ctx.render-inline-answer.test.ts` |
 
 ## Notes
 
 - `AGBaseId` is **optional everywhere** — omit it to use the template's default base. All fields on every method accept `undefined`/`null`; the base id is what selects the block, so passing it is what picks a non-default one.
 - `options` is generally an abort signal, spread last into the Telegram call, except on the answers where it can override the block text (`renderPreCheckout`).
 - Every one of these emits the matching `ITCompiledTemplate` field, so all of them are covered by the AOT parity suite. See `template-aot.md`.
-- The `<g-callback-answer>`, `<g-precheckout-error>`, `<g-shipping-error>`, `<g-inline-button>`, `<g-answer-note>`, and `<g-gift>` blocks are in the PAGE registry — see `template-logic.md`.
+- The `<g-callback-answer>`, `<g-precheckout-error>`, `<g-shipping-error>`, `<g-inline-button>`, `<g-answer-note>`, `<g-web-app-answer>`, and `<g-gift>` blocks are in the PAGE registry — see `template-logic.md`.
+- `<g-web-app-answer>` is the dedicated block for `renderWebAppAnswer`; `<g-answer-note>` remains its legacy alias and stays the guest answer's own block.
 - Assert these in e2e through the captured API payload: `e2e.lastCall('editMessageCaption')?.body`, `e2e.extractText(call)`, `e2e.calls.map(c => c.method)`. See `e2e-validation.md`.

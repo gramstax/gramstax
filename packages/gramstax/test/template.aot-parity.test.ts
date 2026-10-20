@@ -34,6 +34,7 @@ const ENTRIES: Entry[] = [
   {block: `shippingError`, datasets: [{city: `Bogor`}, {}], render: (manager, data) => manager.getGShippingError(`parity-shippingError`, `default`, `default`, data), template: `<g-base><g-shipping-error>Di luar zona {{city}}</g-shipping-error></g-base>`},
   {block: `inlineButton`, datasets: [{item: `Pro`}, {}], render: (manager, data) => manager.getGInlineButton(`parity-inlineButton`, `default`, `default`, data), template: `<g-base><g-inline-button text="Lihat {{item}}" start-parameter="detail-1"/></g-base>`},
   {block: `answerNote`, datasets: [{kind: `guest`}, {}], render: (manager, data) => manager.getGAnswerNote(`parity-answerNote`, `default`, `default`, data), template: `<g-base><g-answer-note>Guest fallback {{kind}}</g-answer-note></g-base>`},
+  {block: `webAppAnswer`, datasets: [{kind: `web`}, {}], render: (manager, data) => manager.getGWebAppAnswer(`parity-webAppAnswer`, `default`, `default`, data), template: `<g-base><g-web-app-answer>Web app note {{kind}}</g-web-app-answer></g-base>`},
   {block: `gift`, datasets: [{item: `stars`}, {}], render: (manager, data) => manager.getGGift(`parity-gift`, `default`, `default`, data), template: `<g-base><g-gift>Hadiah <b>{{item}}</b> untukmu!</g-gift></g-base>`},
   {
     block: `invoice`,
@@ -108,7 +109,7 @@ afterEach(() => {
   rmSync(emptyDir, {force: true, recursive: true})
 })
 
-describe(`AOT 15-block parity`, () => {
+describe(`AOT 16-block parity`, () => {
   for (const entry of ENTRIES) {
     it(`${entry.block} renders identically JIT vs AOT`, async () => {
       await checkParity(entry, entry.block === `media`)
@@ -116,6 +117,6 @@ describe(`AOT 15-block parity`, () => {
   }
 
   it(`covers every _compile dispatch field`, () => {
-    expect(ENTRIES.map((entry) => entry.block).sort()).toEqual([`answerNote`, `callbackAnswer`, `description`, `dice`, `gift`, `inlineButton`, `invoice`, `keyboard`, `media`, `message`, `paidMedia`, `poll`, `precheckoutError`, `shippingError`, `venue`])
+    expect(ENTRIES.map((entry) => entry.block).sort()).toEqual([`answerNote`, `callbackAnswer`, `description`, `dice`, `gift`, `inlineButton`, `invoice`, `keyboard`, `media`, `message`, `paidMedia`, `poll`, `precheckoutError`, `shippingError`, `venue`, `webAppAnswer`])
   })
 })

@@ -26,7 +26,7 @@ in [Template Blocks](/guides/template-blocks).
 | `ALLOWED_BLOCKS_TELEGRAM_LEGACY` | 9 | the original `parse_mode="HTML"` tags |
 | `ALLOWED_BLOCKS_TELEGRAM_RICH` | 45 | everything the Rich Message Formatting spec added |
 | `ALLOWED_BLOCKS_TELEGRAM` | **54** | the union, and the single source of truth |
-| `ALLOWED_BLOCKS` | 83 | the 54 Telegram tags plus the 29 PAGE blocks |
+| `ALLOWED_BLOCKS` | 84 | the 54 Telegram tags plus the 30 PAGE blocks |
 
 The legacy 9 are `b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote` and
 `blockquote expandable`.
@@ -283,7 +283,7 @@ named:
 
 <Columns cols={3}>
   <Card title="Template Blocks" icon="blocks" href="/guides/template-blocks">
-    The 29 PAGE blocks, their attributes, and where the compile pipeline runs.
+    The 30 PAGE blocks, their attributes, and where the compile pipeline runs.
   </Card>
   <Card title="Filters" icon="filter" href="/guides/filters">
     The six compile-time pipes and the escaping `{{}}` applies before this.

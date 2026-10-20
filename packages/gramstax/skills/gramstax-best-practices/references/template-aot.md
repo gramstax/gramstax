@@ -108,14 +108,14 @@ Discipline: treat any change under `src/pages/` or any `.html` as requiring `gra
 
 | Test | Locks |
 | --- | --- |
-| `template.aot-parity.test.ts` | all 15 `ICompiledTemplate` fields × 2 datasets, AOT output equals JIT, plus zero-codegen-token assertions |
+| `template.aot-parity.test.ts` | all 16 `ICompiledTemplate` fields × 2 datasets, AOT output equals JIT, plus zero-codegen-token assertions |
 | `template.aot-emit.test.ts` | emitter output shape |
 | `template.aot-body.test.ts` | body collection, including under a sabotaged `Function` |
 | `core.manifest-parity.test.ts` | manifest boot vs fs boot routing tables |
 | `cli.build-parity.test.ts` | `gramstax build` output vs direct generation |
 | `build-manifest.test.ts`, `cli.build.test.ts` | generator and CLI surface |
 
-The 15 fields are `media`, `poll`, `venue`, `dice`, `callbackAnswer`, `precheckoutError`, `shippingError`, `inlineButton`, `answerNote`, `gift`, `invoice`, `paidMedia`, `message`, `keyboard`, `description` — one per `compileBlockG*` static. The block registry that produces them is in `template-logic.md`.
+The 16 fields are `media`, `poll`, `venue`, `dice`, `callbackAnswer`, `precheckoutError`, `shippingError`, `inlineButton`, `answerNote`, `webAppAnswer`, `gift`, `invoice`, `paidMedia`, `message`, `keyboard`, `description` — one per `compileBlockG*` static. The block registry that produces them is in `template-logic.md`.
 
 ## Limits
 

@@ -29,12 +29,10 @@ Enable this for polling and webhook deployments. The queue buffers incoming upda
 
 
 ```typescript
-webhookQueue: {
-  enabled: true,
-  maxQueueSize: 5000,
-  workerCount: 8,
-  perChatConcurrency: 1,
-  blockWhenFull: true
+optionsDeploy: {
+  webhook: {
+    queue: {enabled: true, maxQueueSize: 5000, workerCount: 8, perChatConcurrency: 1, blockWhenFull: true}
+  }
 }
 ```
 

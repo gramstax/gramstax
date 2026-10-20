@@ -585,6 +585,17 @@ Result of `TemplateManager.getGVenue` for a `<g-venue>` block.
 </td></tr>
 <tr><td>
 
+[GWebAppAnswerResult](./gramstax.gwebappanswerresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGWebAppAnswer` for a `<g-web-app-answer>` block.
+
+
+</td></tr>
+<tr><td>
+
 [IAnswerNoteBlock](./gramstax.ianswernoteblock.md)
 
 
@@ -2516,6 +2527,17 @@ Structured success event emitted by `onUpdate`<!-- -->.
 </td><td>
 
 Venue block configuration for Telegram venues.
+
+
+</td></tr>
+<tr><td>
+
+[IWebAppAnswerBlock](./gramstax.iwebappanswerblock.md)
+
+
+</td><td>
+
+Web-app answer block for query answers without template content.
 
 
 </td></tr>

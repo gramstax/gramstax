@@ -97,12 +97,13 @@ That structure is what produces the differences below:
 
 ### The template pipeline
 
-- 🧱 **29 PAGE blocks**: `g-base`, `g-message`, `g-keyboard`, `g-media`,
+- 🧱 **30 PAGE blocks**: `g-base`, `g-message`, `g-keyboard`, `g-media`,
   `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-price`,
   `g-paid-media`, `g-venue`, `g-dice`, `g-gift`, `g-description`, plus logic
   (`g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`, `g-script`),
   answers (`g-callback-answer`, `g-inline-button`, `g-precheckout-error`,
-  `g-shipping-error`, `g-answer-note`) and utilities (`g-import`, `g-space`).
+  `g-shipping-error`, `g-answer-note`, `g-web-app-answer`) and utilities
+  (`g-import`, `g-space`).
 - 🌐 **54 Telegram HTML tags** validated to Bot API 10.3: 9 legacy tags plus 45
   Rich HTML tags, with per-tag attribute allow-lists.
 - 🧮 **Compile-time filter pipes**: `{{name|upper}}`, `{{price|number:2}}`,
@@ -414,7 +415,7 @@ The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error
 
 ### Template blocks
 
-29 PAGE blocks, grouped by what they do.
+30 PAGE blocks, grouped by what they do.
 
 **Structure and sharing**
 
@@ -471,7 +472,7 @@ The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error
 <g-gift>🎁 Gift text</g-gift>
 ```
 
-**Answers**, the text a query is answered with is a template block, so it is localizable: `<g-callback-answer>Saved</g-callback-answer>`, `<g-inline-button text="Search" start-parameter="q" />`, `<g-precheckout-error>Card declined</g-precheckout-error>`, `<g-shipping-error>We cannot ship there</g-shipping-error>`, `<g-answer-note>Note appended to the inline result</g-answer-note>`.
+**Answers**, the text a query is answered with is a template block, so it is localizable: `<g-callback-answer>Saved</g-callback-answer>`, `<g-inline-button text="Search" start-parameter="q" />`, `<g-precheckout-error>Card declined</g-precheckout-error>`, `<g-shipping-error>We cannot ship there</g-shipping-error>`, `<g-answer-note>Note appended to the inline result</g-answer-note>`, `<g-web-app-answer>Note appended to the web-app result</g-web-app-answer>`.
 
 **Telegram HTML.** 54 tags pass straight through to the message `html` field: 9 legacy tags (`b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`, `blockquote expandable`) plus 45 Rich HTML tags spanning inline (`del`, `em`, `ins`, `mark`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`), block (`aside`, `details`, `footer`, `h1`-`h6`, `li`, `ol`, `p`, `summary`, `table`, `td`, `th`, `tr`, `ul`), `tg-*` specifics (`tg-collage`, `tg-emoji`, `tg-map`, `tg-math`, `tg-math-block`, `tg-reference`, `tg-slideshow`, `tg-time`), media (`audio`, `cite`, `figcaption`, `figure`, `img`, `video`) and forms (`input`). Void elements must self-close (`<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>`). Required attributes, value formats and the per-tag allowlist are all validated: `<tg-time unix="1647531900">` is legal, `<tg-time unix="abc">` is not, and `<table ngasal="x">` is rejected by name.
 
@@ -626,7 +627,7 @@ Six methods take their text from a template block instead of a literal string, s
 | `renderShipping` | `<g-shipping-error>` | `answerShippingQuery` | `{ok, data?, AGBaseId?, options?}` |
 | `renderInlineAnswer` | `<g-inline-button>` | `answerInlineQuery` | `{results, data?, AGBaseId?, options?, buttonStartParameter?}` |
 | `renderGuestAnswer` | `<g-answer-note>` | `answerGuestQuery` | `{result, data?, AGBaseId?, options?}` |
-| `renderWebAppAnswer` | `<g-answer-note>` | `api.answerWebAppQuery` | `{webAppQueryId, result, data?, AGBaseId?, options?}` |
+| `renderWebAppAnswer` | `<g-web-app-answer>` | `api.answerWebAppQuery` | `{webAppQueryId, result, data?, AGBaseId?, options?}` |
 
 ```ts
 await this.renderCallbackAnswer({showAlert: true, AGBaseId: Base.denied})
@@ -635,6 +636,8 @@ await this.renderCallbackAnswer({showAlert: true, AGBaseId: Base.denied})
 Send failures are classified by `Ctx.classifySendError` into `fallback-text` or `retryable`, reported to the `hookSendError` surface, and logged. A `retryable` failure is always rethrown. A `fallback-text` failure is rethrown by the answer methods, but the media family answers with fallback text instead of throwing. Plan for the throw.
 
 `renderPreCheckout` resolves its block even when `ok: true`, as fail-fast validation that the template exists.
+
+`renderWebAppAnswer` reads `<g-web-app-answer>`; `<g-answer-note>` stays valid for it as a legacy alias.
 
 ### Broadcast
 
@@ -881,8 +884,8 @@ flowchart TD
 2. **Expand `<g-import/>`**: a base importing another base's blocks (`processGImportBlocks`), recursively resolved against the import cache.
 3. **Validate again**: the expanded template goes through the same checks, because an import can carry anything the original could not.
 4. **Split into bases**: `_processGBaseBlocks` keys every block by base id, then by language.
-5. **Compile each block family**: one static per block kind: `compileBlockGMessage`, `compileBlockGKeyboards`, `compileBlockGMedia`, `compileBlockGPoll`, `compileBlockGVenue`, `compileBlockGDice`, `compileBlockGGift`, `compileBlockGInvoice`, `compileBlockGPaidMedia`, `compileBlockGDescription`, `compileBlockGCallbackAnswer`, `compileBlockGPrecheckoutError`, `compileBlockGShippingError`, `compileBlockGInlineButton`, `compileBlockGAnswerNote`.
-6. **Produce an `ICompiledTemplate`**: 15 fields, each indexed by base id and then by language.
+5. **Compile each block family**: one static per block kind: `compileBlockGMessage`, `compileBlockGKeyboards`, `compileBlockGMedia`, `compileBlockGPoll`, `compileBlockGVenue`, `compileBlockGDice`, `compileBlockGGift`, `compileBlockGInvoice`, `compileBlockGPaidMedia`, `compileBlockGDescription`, `compileBlockGCallbackAnswer`, `compileBlockGPrecheckoutError`, `compileBlockGShippingError`, `compileBlockGInlineButton`, `compileBlockGAnswerNote`, `compileBlockGWebAppAnswer`.
+6. **Produce an `ICompiledTemplate`**: 16 fields, each indexed by base id and then by language.
 7. **`new Function`** on the JIT path (`gramstax start`), or plain ESM source on the AOT path (`gramstax build`): the AOT emitter is asserted per file to contain no codegen tokens.
 
 Under `gramstax start --watch`, chokidar re-runs this for a changed template file only.

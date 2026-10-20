@@ -38,7 +38,11 @@ there is nothing to edit and nowhere to fall back to.
 | `renderShipping` | `<g-shipping-error>` | `answerShippingQuery` | `ok` | `data`, `AGBaseId`, `options` |
 | `renderInlineAnswer` | `<g-inline-button>` | `answerInlineQuery` | `results` | `data`, `AGBaseId`, `options`, `buttonStartParameter` |
 | `renderGuestAnswer` | `<g-answer-note>` | `answerGuestQuery` | `result` | `data`, `AGBaseId`, `options` |
-| `renderWebAppAnswer` | `<g-answer-note>` | `api.answerWebAppQuery` | `webAppQueryId`, `result` | `data`, `AGBaseId`, `options` |
+| `renderWebAppAnswer` | `<g-web-app-answer>` | `api.answerWebAppQuery` | `webAppQueryId`, `result` | `data`, `AGBaseId`, `options` |
+
+`renderWebAppAnswer` reads `<g-web-app-answer>`. `<g-answer-note>` stays valid
+for it as a legacy alias, so a template written before the dedicated block
+keeps working.
 
 The params types are `IRenderCallbackAnswerParams`, `IRenderPreCheckoutParams`,
 `IRenderShippingParams`, `IRenderInlineAnswerParams`,
@@ -124,20 +128,29 @@ block's button when there is a start parameter to attach. Precedence is
 block's own `start-parameter`. Without any of the three, no button is sent and
 the results stand alone.
 
-**Guest and web-app answers are pure validation markers.** `<g-answer-note>`
-holds a note in your markup, but neither method sends it. They exist so the page
-declares, in the template, that this page answers guest or web-app queries, and
-so a missing declaration fails at the call instead of in production.
+**Guest and web-app answers are pure validation markers, and they use two
+different blocks.** `<g-answer-note>` belongs to `renderGuestAnswer`;
+`<g-web-app-answer>` belongs to `renderWebAppAnswer`. Each holds a note in your
+markup, but neither method sends it. They exist so the page declares, in the
+template, that this page answers guest or web-app queries, and so a missing
+declaration fails at the call instead of in production. `<g-answer-note>` also
+works for `renderWebAppAnswer` as a legacy alias: the web-app answer prefers
+`<g-web-app-answer>` and falls back to `<g-answer-note>` when the base declares
+only the older block. The guest answer never reads `<g-web-app-answer>`.
 
 ```html
 <g-base id="guest-card">
   <g-answer-note>Appended to the inline result, kept here for translators.</g-answer-note>
 </g-base>
+
+<g-base id="webapp-card">
+  <g-web-app-answer>Appended to the web-app result, kept here for translators.</g-web-app-answer>
+</g-base>
 ```
 
 ## A missing block throws, by name
 
-Every one of the five blocks is read through a strict getter on
+Every one of the six blocks is read through a strict getter on
 `TemplateManager`, and a strict getter means a missing block is an error rather
 than an empty string. The messages name the template, the base and the language,
 because the wrong language variant is the common cause.
@@ -148,14 +161,16 @@ PrecheckoutError function not found for template "start" (base "pay", lang "defa
 ShippingError function not found for template "start" (base "ship", lang "default")
 InlineButton function not found for template "start" (base "inline-card", lang "default")
 AnswerNote function not found for template "start" (base "guest-card", lang "default")
+WebAppAnswer function not found for template "start" (base "webapp-card", lang "default")
 ```
 
 These come from `getGCallbackAnswer`, `getGPrecheckoutError`, `getGShippingError`,
-`getGInlineButton` and `getGAnswerNote` in
+`getGInlineButton`, `getGAnswerNote` and `getGWebAppAnswer` in
 `packages/gramstax/src/template/manager.ts`, and the lookup falls back
 `AGBaseId` to `default` and then the language to `default`, so a template that
 declares one base and one language resolves for every base and language and only
-fails when neither exists.
+fails when neither exists. The web-app getter tries `<g-web-app-answer>` first
+and `<g-answer-note>` second, so its error means the template declares neither.
 
 <Warning>
   The lookup does throw, but it is a template error, not a send error: it is

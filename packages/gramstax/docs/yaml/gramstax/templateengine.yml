@@ -1822,6 +1822,44 @@ methods:
                   [lang: string]: <xref uid="gramstax!IVenueBlock:type" />;
               }
         description: An object mapping language keys to their venue configurations
+  - name: _processGWebAppAnswerBlocks(template)
+    uid: gramstax!TemplateEngine._processGWebAppAnswerBlocks:member(1)
+    package: gramstax!
+    fullName: _processGWebAppAnswerBlocks(template)
+    summary: 'Block: g-web-app-answer Extracts `<g-web-app-answer>` marker blocks from a template string.'
+    remarks: >-
+      Children form only; content is cleaned exactly like `<g-message>` and keyed by `lang` (`"default"` when absent;
+      last block wins per lang). Raw content is preserved verbatim (including `{{var|filter}}` spans) for later
+      compilation. The block is a validation marker for `renderWebAppAnswer`<!-- -->, whose result content comes from
+      the caller, not from the template. Plain-text rules are enforced by `validateBlockGWebAppAnswerAttributes`<!--
+      -->, not here.
+    example:
+      - >-
+        ```typescript
+
+        const blocks = TemplateEngine._processGWebAppAnswerBlocks(`<g-web-app-answer>Web app note
+        {{kind}}</g-web-app-answer>`);
+
+        // Result: { default: 'Web app note {{kind}}' }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGWebAppAnswerBlocks(template: string): {
+                [lang: string]: string;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-web-app-answer>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: string;
+              }
+        description: An object mapping language keys to their raw text content
   - name: _processMediaGroupItems(groupContent)
     uid: gramstax!TemplateEngine._processMediaGroupItems:member(1)
     package: gramstax!
@@ -3379,6 +3417,49 @@ methods:
                   };
               }
         description: Compiled venue functions organized by base ID and language
+  - name: compileBlockGWebAppAnswer(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGWebAppAnswer:member(1)
+    package: gramstax!
+    fullName: compileBlockGWebAppAnswer(template, baseBlocks)
+    summary: Compiles web-app answer blocks from a template into executable functions.
+    remarks: >-
+      Each leaf resolves the marker text for the given render data. The text is never sent; `renderWebAppAnswer` uses
+      the block as fail-fast validation.
+    example:
+      - >-
+        ```typescript
+
+        const compiled = TemplateEngine.compileBlockGWebAppAnswer(`<g-base><g-web-app-answer>Note
+        {{kind}}</g-web-app-answer></g-base>`);
+
+        // Result: compiled.default.default({kind: `vip`}) === 'Note vip'
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGWebAppAnswer(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITemplateData) => string;
+                };
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-web-app-answer>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-processed base blocks
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string;
+                  };
+              }
+        description: Functions indexed by base ID and language
   - name: processGImportBlocks(template, resolver, depth, importCache)
     uid: gramstax!TemplateEngine.processGImportBlocks:member(1)
     package: gramstax!
@@ -4265,10 +4346,12 @@ methods:
       — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29.
       [TemplateEngine.validateBlockGAnswerNoteAttributes()](xref:gramstax!TemplateEngine.validateBlockGAnswerNoteAttributes:member(1))
       — checks `<g-answer-note>` block attributes and plain-text content 30.
+      [TemplateEngine.validateBlockGWebAppAnswerAttributes()](xref:gramstax!TemplateEngine.validateBlockGWebAppAnswerAttributes:member(1))
+      — checks `<g-web-app-answer>` block attributes and plain-text content 31.
       [TemplateEngine.validateBlockGGiftAttributes()](xref:gramstax!TemplateEngine.validateBlockGGiftAttributes:member(1))
-      — checks `<g-gift>` block attributes (HTML content is legal) 31.
+      — checks `<g-gift>` block attributes (HTML content is legal) 32.
       [TemplateEngine.validatePageAttributesBlock()](xref:gramstax!TemplateEngine.validatePageAttributesBlock:member(1))
-      — checks required attributes on `<g-*>` PAGE blocks (centralized) 32.
+      — checks required attributes on `<g-*>` PAGE blocks (centralized) 33.
       [TemplateEngine.validatePageAttributeValuesBlock()](xref:gramstax!TemplateEngine.validatePageAttributeValuesBlock:member(1))
       — checks value formats on `<g-*>` PAGE block attributes (centralized)
 
@@ -4664,6 +4747,49 @@ methods:
                   }&gt;;
               }
         description: '`{valid, errors}`<!-- -->; `errors` carry 1-based line numbers.'
+  - name: validateBlockGWebAppAnswerAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGWebAppAnswerAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGWebAppAnswerAttributes(template)
+    summary: Validates attributes on `<g-web-app-answer>` blocks.
+    remarks: >-
+      Allowed attributes are `lang` only. The body is a validation marker for `renderWebAppAnswer`<!-- -->, so HTML
+      markup is rejected.
+    example:
+      - >-
+        ```typescript
+
+        const result =
+        TemplateEngine.validateBlockGWebAppAnswerAttributes(`<g-base><g-web-app-answer>Note</g-web-app-answer></g-base>`);
+
+        // Result: { valid: true, errors: [] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGWebAppAnswerAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
   - name: validateFormatBlock(template)
     uid: gramstax!TemplateEngine.validateFormatBlock:member(1)
     package: gramstax!
@@ -4685,7 +4811,7 @@ methods:
       `<g-invoice>...</g-invoice>`<!-- -->, `<g-paid-media>...</g-paid-media>`<!-- -->,
       `<g-description>...</g-description>`<!-- -->, `<g-script>...</g-script>`<!-- -->, `<g-switch>...</g-switch>`<!--
       -->, `<g-case>...</g-case>`<!-- -->, `<g-default>...</g-default>`<!-- -->, `<g-map>...</g-map>`<!-- -->,
-      `<g-div>...</g-div>`
+      `<g-div>...</g-div>`<!-- -->, `<g-web-app-answer>...</g-web-app-answer>`
 
 
       Nine page blocks appear in neither set and accept either form: `<g-price>`<!-- -->, `<g-venue>`<!-- -->,
@@ -5285,10 +5411,12 @@ methods:
       — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29.
       [TemplateEngine.validateBlockGAnswerNoteAttributes()](xref:gramstax!TemplateEngine.validateBlockGAnswerNoteAttributes:member(1))
       — checks `<g-answer-note>` block attributes and plain-text content 30.
+      [TemplateEngine.validateBlockGWebAppAnswerAttributes()](xref:gramstax!TemplateEngine.validateBlockGWebAppAnswerAttributes:member(1))
+      — checks `<g-web-app-answer>` block attributes and plain-text content 31.
       [TemplateEngine.validateBlockGGiftAttributes()](xref:gramstax!TemplateEngine.validateBlockGGiftAttributes:member(1))
-      — checks `<g-gift>` block attributes (HTML content is legal) 31.
+      — checks `<g-gift>` block attributes (HTML content is legal) 32.
       [TemplateEngine.validatePageAttributesBlock()](xref:gramstax!TemplateEngine.validatePageAttributesBlock:member(1))
-      — checks required attributes on `<g-*>` PAGE blocks (centralized) 32.
+      — checks required attributes on `<g-*>` PAGE blocks (centralized) 33.
       [TemplateEngine.validatePageAttributeValuesBlock()](xref:gramstax!TemplateEngine.validatePageAttributeValuesBlock:member(1))
       — checks value formats on `<g-*>` PAGE block attributes (centralized)
 

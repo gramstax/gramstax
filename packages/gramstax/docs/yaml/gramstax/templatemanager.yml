@@ -832,6 +832,38 @@ methods:
       return:
         type: <xref uid="gramstax!GVenueResult:type" />
         description: '[GVenueResult](xref:gramstax!GVenueResult:type) with the venue payload flat under `kind: "venue"`'
+  - name: getGWebAppAnswer(key, AGBaseId, ALang, data)
+    uid: gramstax!TemplateManager#getGWebAppAnswer:member(1)
+    package: gramstax!
+    fullName: getGWebAppAnswer(key, AGBaseId, ALang, data)
+    summary: Gets compiled text from block <g-web-app-answer>.
+    remarks: >-
+      Strict lookup with a legacy fallback, resolved per base: for the requested `AGBaseId`<!-- -->,
+      `<g-web-app-answer>` wins over `<g-answer-note>`<!-- -->; if that base has neither, the same two-step lookup
+      repeats on the `default` base. A template that has neither block in either base throws.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        getGWebAppAnswer(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>):
+        GWebAppAnswerResult;
+      parameters:
+        - id: key
+          description: ''
+          type: string
+        - id: AGBaseId
+          description: ''
+          type: string
+        - id: ALang
+          description: ''
+          type: string
+        - id: data
+          description: ''
+          type: Record&lt;string, unknown&gt;
+      return:
+        type: <xref uid="gramstax!GWebAppAnswerResult:type" />
+        description: ''
   - name: handleFileAdd(filepath)
     uid: gramstax!TemplateManager#handleFileAdd:member(1)
     package: gramstax!

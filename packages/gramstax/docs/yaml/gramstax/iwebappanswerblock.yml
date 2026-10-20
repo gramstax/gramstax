@@ -1,0 +1,26 @@
+### YamlMime:TSTypeAlias
+name: IWebAppAnswerBlock
+uid: gramstax!IWebAppAnswerBlock:type
+package: gramstax!
+fullName: IWebAppAnswerBlock
+summary: Web-app answer block for query answers without template content.
+remarks: >-
+  Declared with `<g-web-app-answer>` blocks. `renderWebAppAnswer` carries a caller-built result, so the block exists
+  only as fail-fast validation that the template provides the required `AGBaseId`<!-- -->. `text` supports the same
+  `{{var|filter}}` interpolation pipeline as poll questions.
+
+
+  This is the block `renderWebAppAnswer` prefers; `<g-answer-note>` remains accepted for it as a legacy alias.
+example:
+  - |-
+    ```typescript
+    const note: IWebAppAnswerBlock = {
+      text: `Web app answer`
+    }
+    ```
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type IWebAppAnswerBlock = {
+      text: string;
+  };

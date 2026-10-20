@@ -58,7 +58,7 @@ The sent or edited message object, or the [IBroadcastSendResult](./gramstax.ibro
 
 ## Remarks
 
-Single method for every media send/edit path, folding the former `renderAutoMedia`<!-- -->, `renderEditMedia`<!-- -->, the per-kind reply base, and the broadcast-media / broadcast-edit fan-outs. `mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits. This is the base method for all media methods. Use specific methods like [Ctx.renderPhoto()](./gramstax.ctx.renderphoto.md) or [Ctx.renderVideo()](./gramstax.ctx.rendervideo.md) for simpler usage.
+One method covers every media send/edit path; the per-kind wrappers (`renderPhoto`<!-- -->, `renderVideo`<!-- -->, and so on) sit on top. `mode` resolves the send-versus-edit decision: `auto` (default) edits when `this.callbackQuery` exists, `reply` always sends, `edit` always edits. This is the base method for all media methods. Use specific methods like [Ctx.renderPhoto()](./gramstax.ctx.renderphoto.md) or [Ctx.renderVideo()](./gramstax.ctx.rendervideo.md) for simpler usage.
 
 Edit-mode semantics for media types that cannot be edited (`voice`<!-- -->, `video_note`<!-- -->, `sticker`<!-- -->, `location`<!-- -->, `contact`<!-- -->) delete the original message and send a new one. Multi-src media groups cannot replace a single message, so supported pipe-delimited media groups also delete the original message and send a new media group.
 

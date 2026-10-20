@@ -31,7 +31,7 @@ function sliceBetween(text, startMarker, endMarker) {
   return text.slice(start, end)
 }
 
-// The 29 PAGE blocks and the 54 Telegram tag literals (53 unique: tg-emoji is
+// The 30 PAGE blocks and the 54 Telegram tag literals (53 unique: tg-emoji is
 // declared in both the legacy and the rich set).
 const pageBlocks = new Set([...sliceBetween(engine, "static ALLOWED_BLOCKS_PAGE", "])").matchAll(/`<([a-z-]+)\/?>`/g)].map((m) => m[1]))
 const legacy = sliceBetween(engine, "static ALLOWED_BLOCKS_TELEGRAM_LEGACY", "])")
