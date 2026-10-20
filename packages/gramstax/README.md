@@ -1,4 +1,7 @@
 <div align="center">
+  <h1>gramstax</h1>
+
+  <p>A modern Telegram bot framework built around page-based routing and a powerful template system you never seen before.</p>
   <p>
     <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
