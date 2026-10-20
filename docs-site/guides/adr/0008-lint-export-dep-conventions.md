@@ -1,6 +1,6 @@
 ---
 title: "ADR-0008: No @ts-ignore, Named Exports Only, Minimal Deps"
-description: The conventions downstream bots inherit: no type suppression, named exports for the package API, bun tests, and a small dependency set.
+description: "The conventions downstream bots inherit: no type suppression, named exports for the package API, bun tests, and a small dependency set."
 icon: scale
 ---
 
