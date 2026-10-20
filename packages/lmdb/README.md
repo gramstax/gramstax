@@ -1193,6 +1193,12 @@ is the package's own conventions and architecture facts.
 - TypeScript in strict mode (`noUncheckedIndexedAccess`)
 - [LMDB](https://www.npmjs.com/package/lmdb) : the storage engine this package wraps
 
+## ❤️ Donate
+
+If this project saves you time, you can support its development:
+
+**Donate:** [Sociabuzz](https://sociabuzz.com/damarts/donate) · [Damarts](https://damarts.vercel.app/donate)
+
 ## 📄 License
 
 Apache-2.0: Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).

@@ -22,8 +22,9 @@ This package owns those parts. You write a class, mark the methods that should
 be reachable, and call them as if they were local:
 
 ```ts
+
 const worker = await EchoWorker.launchWorker()
-console.log(await EchoWorker.mtdAdd(2, 3)) // 5
+console.log(await EchoWorker.mtdAdd(2, 3)) // 5. result from worker thread
 ```
 
 The transport, the id matching, the timeout, the error propagation, and the
@@ -1043,6 +1044,12 @@ is the package's own conventions and architecture facts.
 - [tsup](https://tsup.egoist.dev) : bundler
 - TypeScript in strict mode (`noUncheckedIndexedAccess`)
 - [Node worker_threads](https://nodejs.org/api/worker_threads.html) : the platform API this package builds on
+
+## ❤️ Donate
+
+If this project saves you time, you can support its development:
+
+**Donate:** [Sociabuzz](https://sociabuzz.com/damarts/donate) · [Damarts](https://damarts.vercel.app/donate)
 
 ## 📄 License
 

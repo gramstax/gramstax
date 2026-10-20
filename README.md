@@ -1,8 +1,4 @@
 <div align="center">
-  <p><img src="https://avatars.githubusercontent.com/u/187108398?s=200&v=4" alt="Gramstax logo" width="120" height="120" /></p>
-  <h1>Gramstax</h1>
-
-  <p>A modern Telegram bot framework built around page-based routing and a powerful template system. This repository holds the framework, the scaffolding CLI, and two supporting packages.</p>
   <p>
     <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
@@ -17,15 +13,12 @@
     <img alt="@gramstax/lmdb on npm" src="https://img.shields.io/npm/v/@gramstax/lmdb?label=@gramstax/lmdb&style=flat&logo=npm&logoColor=white&color=CB3837"/>
     <img alt="@gramstax/worker-thread on npm" src="https://img.shields.io/npm/v/@gramstax/worker-thread?label=@gramstax/worker-thread&style=flat&logo=npm&logoColor=white&color=CB3837"/>
   </p>
+  <p>
+    <a href="https://gramstax.mintlify.site/">
+      <img src="images/gramstax.png" alt="Gramstax overview: page-based routing, template system, zero-config setup, TypeScript first" width="100%" />
+    </a>
+  </p>
 </div>
-
-A Telegram bot framework that owns the parts of a bot every project otherwise
-reinvents: where the routes come from, where the markup lives, how a second
-language is added, whether a tap edits the message it came from, and how you
-prove the bot called the Bot API the way you thought.
-
-The unit of work is a **page**: a class that owns one screen, one template, and
-the handlers that answer updates for it.
 
 ## 💡 Why this repository
 
@@ -1219,6 +1212,12 @@ Eleven runnable workspace members under [`example/`](https://github.com/gramstax
 | 9 | `9-substore-bot` | Full e-commerce on in-memory data plus `CacheExternal`; the only example with a unit test |
 | 10 | `10-http-request` | External HTTP via `fetch` with `AbortSignal.timeout` |
 | 11 | `11-cloudflare-worker` | Manifest boot and AOT on a Cloudflare Workers isolate |
+
+## ❤️ Donate
+
+If this project saves you time, you can support its development:
+
+**Donate:** [Sociabuzz](https://sociabuzz.com/damarts/donate) · [Damarts](https://damarts.vercel.app/donate)
 
 ## 📄 License
 

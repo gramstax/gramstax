@@ -1,8 +1,4 @@
 <div align="center">
-  <p><img src="https://avatars.githubusercontent.com/u/187108398?s=200&v=4" alt="gramstax logo" width="120" height="120" /></p>
-  <h1>gramstax</h1>
-
-  <p>A modern Telegram bot framework built around page-based routing and a powerful template system.</p>
   <p>
     <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
@@ -12,15 +8,12 @@
     <a href="https://gramstax.mintlify.site/"><img alt="Docs" src="https://img.shields.io/badge/Docs-gramstax.mintlify.site-3b82f6.svg?style=flat"/></a>
     <img alt="License" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"/>
   </p>
+  <p>
+    <a href="https://gramstax.mintlify.site/">
+      <img src="https://raw.githubusercontent.com/gramstax/gramstax/main/images/gramstax.png" alt="Gramstax overview: page-based routing, template system, zero-config setup, TypeScript first" width="100%" />
+    </a>
+  </p>
 </div>
-
-A Telegram bot framework that owns the parts of a bot every project otherwise
-reinvents: where the routes come from, where the markup lives, how a second
-language is added, whether a tap edits the message it came from, and how you
-prove the bot called the Bot API the way you thought.
-
-The unit of work is a **page**: a class that owns one screen, one template, and
-the handlers that answer updates for it.
 
 ## 💡 Why this package
 
@@ -1166,6 +1159,12 @@ Eleven runnable workspace members under [`example/`](https://github.com/gramstax
 | 9 | `9-substore-bot` | Full e-commerce on in-memory data plus `CacheExternal`; the only example with a unit test |
 | 10 | `10-http-request` | External HTTP via `fetch` with `AbortSignal.timeout` |
 | 11 | `11-cloudflare-worker` | Manifest boot and AOT on a Cloudflare Workers isolate |
+
+## ❤️ Donate
+
+If this project saves you time, you can support its development:
+
+**Donate:** [Sociabuzz](https://sociabuzz.com/damarts/donate) · [Damarts](https://damarts.vercel.app/donate)
 
 ## 📄 License
 

@@ -496,6 +496,12 @@ The scaffolded source is held to rules that are checked, not reviewed: [`test/ge
 | A failed install throws                                    | `installDependencies` resolves `false` on non-zero exit, and the run fails instead of claiming done |
 | `--help` / `--version` exit `2`                            | A consequence of `.exitOverride()` plus a message-substring check; documented above, not endorsed   |
 
+## ❤️ Donate
+
+If this project saves you time, you can support its development:
+
+**Donate:** [Sociabuzz](https://sociabuzz.com/damarts/donate) · [Damarts](https://damarts.vercel.app/donate)
+
 ## 📄 License
 
 Apache-2.0: Copyright (c) 2026 Gramstax. See [LICENSE](./LICENSE).
