@@ -10,15 +10,16 @@ icon: code-compare
 
 Anyone whose `package.json` says `"gramstax": "^5"`. There is no runtime shim and
 no codemod: v6 removed render methods outright and renamed fields on the public
-types, so the compiler points at every call site you have to fix. Read
-`node_modules/gramstax/package.json` to tell which side you are on. `this.renderAuto(kb, da)`
-and `this.renderEditAudio(kb)` are v5; `this.renderText({keyboard, data})` is v6.
+types, so the compiler points at every call site you have to fix. Read the
+`gramstax` entry in your `package.json` to tell which side you are on.
+`this.renderAuto(kb, da)` and `this.renderEditAudio(kb)` are v5;
+`this.renderText({keyboard, data})` is v6.
 
 ## At a glance
 
 | Change | What breaks | How much work |
 | --- | --- | --- |
-| Render methods take one object | Every `render*()` call site. 70 methods became 32, `render()` is now `renderText()`. | Largest item, but mechanical. |
+| Render methods take one object | Every `render*()` call site. v6 has 32 methods, `render()` is now `renderText()`. | Largest item, but mechanical. |
 | `getG*()` returns an object | Direct `TemplateManager.getG*()` callers. | Small, if you call them at all. |
 | Broadcast folded behind `broadcast` | `renderBroadcast`, `renderBroadcastMedia`, `renderBroadcastPoll`, `renderBroadcastEdit` are gone. | Small, one field move. |
 | Per-kind media rejects a broadcast send | `renderPhoto({broadcast: {ids}})` and its nine siblings. | Small. |

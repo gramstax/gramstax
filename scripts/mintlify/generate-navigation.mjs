@@ -36,7 +36,7 @@ export function run(SITE) {
         group: "Get started",
         icon: "rocket",
         boost: 2,
-        pages: ["index", "introduction", "quickstart"]
+        pages: ["index", "introduction", "quickstart", "guides/packages"]
       },
       {
         // Every guide is reachable here. The 26 entries live in seven nested

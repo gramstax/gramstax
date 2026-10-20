@@ -21,7 +21,7 @@ A file under `src/pages` *is* its route:
 | `src/pages/admin/ban.ts` | `admin/ban` |
 
 Depth is not a convention you have to remember. It is the directory nesting.
-`admin/ban.ts` works at any depth because the scanner walks the tree.
+`src/pages/admin/ban.ts` works at any depth because the scanner walks the tree.
 
 One rule: a root-level `src/pages/index.ts` has no parent route and is rejected
 rather than silently swallowing the whole tree.

@@ -95,7 +95,7 @@ for (const [key, template] of Object.entries(templates)) manager.registerCompile
 <AccordionGroup>
   <Accordion title="Script blocks are rejected at build">
     The message reads ``AOT blocked for template "<key>" (<id>): body contains
-    `with(` — `with` is forbidden in ESM strict mode ...``, so move the logic into
+    `with(` - `with` is forbidden in ESM strict mode ...``, so move the logic into
     the page class, as a method returning plain data, rather than into `{~~ ... ~~}`
     or `<g-script>`. The two are equivalent: both compile to `with(data ...)`.
   </Accordion>

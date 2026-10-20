@@ -107,7 +107,7 @@ Every materialized slot is checked against its expected base. Failures throw
 naming the slot plus the base:
 
 ```text
-gramstax start: invalid `cacheSession` from ./src/cache.ts#NotACache — expected instance of CacheExternal
+gramstax start: invalid `cacheSession` from ./src/cache.ts#NotACache - expected instance of CacheExternal
 ```
 
 | Slot              | Expected base    | Builtin params form (no `module` key)              |
@@ -153,7 +153,7 @@ violations throw `Invalid gramstax config at <file>: ...` naming the field.
 | `updateTimeoutMs`       | `number`                          | _none_    | Non-negative                            |
 | `skipDuplicateUpdate`   | `boolean`                         | _none_    | Passed through                          |
 | `maxTextLength`         | `number`                          | _none_    | Non-negative                            |
-| `statusServerPort`      | `number`                          | _none_    | `0`–`65535`                             |
+| `statusServerPort`      | `number`                          | _none_    | `0`-`65535`                              |
 | `statusServerHostname`  | `string`                          | _none_    | Non-empty                               |
 | `optionsPage`           | `{shortCallbackQueryData?}`       | _none_    | Boolean when present                    |
 

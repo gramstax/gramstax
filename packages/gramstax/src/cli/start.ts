@@ -326,7 +326,7 @@ export class GramstaxStart {
   _buildOrUse<T>(exported: unknown, args: unknown[], slot: string, label: string, Expected: new (...ctorArgs: never[]) => T): T {
     const instance: unknown = typeof exported === `function` ? new (exported as new (...ctorArgs: unknown[]) => T)(...args) : exported
     if (instance instanceof Expected === false) {
-      throw new Error(`gramstax start: invalid \`${slot}\` from ${label} — expected instance of ${Expected.name}`)
+      throw new Error(`gramstax start: invalid \`${slot}\` from ${label} - expected instance of ${Expected.name}`)
     }
     return instance
   }

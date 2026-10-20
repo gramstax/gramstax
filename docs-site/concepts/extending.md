@@ -186,7 +186,7 @@ One page entry of `IAppManifest`, declared in
 
 | Field | Meaning |
 | --- | --- |
-| `path` | POSIX path relative to the pages root, e.g. `admin/settings.ts`. |
+| `path` | POSIX path relative to the pages root, e.g. `./admin/settings.ts` in your own project. |
 | `routeName` | Walk-derived route. Must be non-empty: an empty value throws. |
 | `page` | The imported page class, `typeof Ctx`. Its `static template` rides along. |
 

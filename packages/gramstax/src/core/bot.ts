@@ -568,7 +568,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
         })
         this._sessionLockKey = params.sessionLock.key
       } else {
-        this.log?.warn?.(`sessionLock requires a Redis cache backend (got memory store) — session lock disabled`)
+        this.log?.warn?.(`sessionLock requires a Redis cache backend (got memory store) - session lock disabled`)
       }
     }
     this.limits.maxTextLength = params.maxTextLength ?? 0

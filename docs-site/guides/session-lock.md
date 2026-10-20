@@ -46,7 +46,7 @@ on, so the lock is not merely disabled. It logs at boot and every update runs
 unlocked:
 
 ```text
-sessionLock requires a Redis cache backend (got memory store) — session lock disabled
+sessionLock requires a Redis cache backend (got memory store) - session lock disabled
 ```
 
 The message is not store-aware, so a custom store produces the same "memory

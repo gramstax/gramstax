@@ -46,7 +46,7 @@ Emitted files contain **zero** codegen tokens — no `new Function`, no `Functio
 ## Script blocks and scopes are rejected at build
 
 ```text
-AOT blocked for template "<key>" (<id>): body contains `with(` — `with` is forbidden in ESM strict mode
+AOT blocked for template "<key>" (<id>): body contains `with(` - `with` is forbidden in ESM strict mode
 ```
 
 `<g-script>` and **every** `{~~ ... ~~}` emit `with(...)`, which an ESM module cannot contain. For scopes this is unconditional: the `with(data || {})` retry is part of every scope body, so `{~ i + 1 ~}` fails exactly like `{~ a ? b : c ~}`. This is a hard build failure, not a stale artifact.

@@ -46,7 +46,7 @@ Where to start, depending on what you already know:
 **Read.**
 - `example/1-complex/src/core/bot.ts`: the whole extension surface. `CacheExternal`, `createCtx`, `hookBeforeRoute`, `hookAfterStart`.
 - `example/1-complex/src/jobs/increment.ts`: a `WorkerThreadInit` subclass plus `WorkerThreadExport.init`, launched from `hookAfterStart` and read back over RPC from `example/1-complex/src/pages/start/counter/thread.ts`.
-- `example/1-complex/src/pages/start/block/import.ts`, `block/map.ts`, `block/switch.ts`: the three block templates, side by side.
+- `example/1-complex/src/pages/start/block/import.ts`, `example/1-complex/src/pages/start/block/map.ts`, `example/1-complex/src/pages/start/block/switch.ts`: the three block templates, side by side.
 - `example/1-complex/src/guards/user.ts`: overriding `from.language_code` from cache before routing.
 - `example/1-complex/src/pages/start/test/media-group.ts`: the media gallery. Note that this `test/` folder holds demo pages, not tests.
 
@@ -115,7 +115,7 @@ Where to start, depending on what you already know:
 
 **Read.**
 - `example/7-crud/src/db/index.ts`: the `Db` class. `register(ItemSchema)` materializes a typed handle, which is then wrapped in a repository.
-- `example/7-crud/src/db/schema/item.ts` and `schema/sequence.ts`: the schemas, written with the `t` type builder.
+- `example/7-crud/src/db/schema/item.ts` and `example/7-crud/src/db/schema/sequence.ts`: the schemas, written with the `t` type builder.
 - `example/7-crud/src/db/repositories/item.ts`: transactions, prefix scans for per-user listing, and the delete of every key under a prefix in `purge`.
 - `example/7-crud/src/pages/create.ts`: a two-step session free-text form, the clearest small example of that pattern in the repo.
 - `example/7-crud/src/guards/crud.ts` and `example/7-crud/src/utils/time.ts`: the guard and a display formatter.

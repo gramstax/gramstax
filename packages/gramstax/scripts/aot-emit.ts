@@ -101,7 +101,7 @@ export class AotEmitter {
       if (at >= 0) {
         const snippet = body.slice(Math.max(0, at - 40), at + 40).replace(/\s+/g, ` `)
         throw new Error(
-          `AOT blocked for template "${key}" (${id}): body contains \`with(\` — \`with\` is forbidden in ESM strict mode, so the emitted module could not load. Move the logic into the page class (a method returning plain data) instead of \`{~~ ... ~~}\` / \`<g-script>\`. Snippet: ${snippet}`
+          `AOT blocked for template "${key}" (${id}): body contains \`with(\` - \`with\` is forbidden in ESM strict mode, so the emitted module could not load. Move the logic into the page class (a method returning plain data) instead of \`{~~ ... ~~}\` / \`<g-script>\`. Snippet: ${snippet}`
         )
       }
     }

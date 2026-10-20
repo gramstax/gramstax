@@ -4,7 +4,7 @@
   "name": "gramstax",
   "description": "A modern Telegram bot framework built around page-based routing and a powerful template system.",
   "colors": {
-    "primary": "#1178a7",
+    "primary": "#0c5678",
     "light": "#36aadf",
     "dark": "#1178a7"
   },

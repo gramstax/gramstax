@@ -7,7 +7,7 @@
 `_processScopeExec` wraps every scope body in a `with(data || {})` retry so bare identifiers resolve against `data`. That retry is emitted unconditionally, so **every** `{~~ ... ~~}` puts `with(` in the compiled body — conditional or not:
 
 ```text
-AOT blocked for template "<key>" (fn0): body contains `with(` — `with` is forbidden in ESM strict mode
+AOT blocked for template "<key>" (fn0): body contains `with(` - `with` is forbidden in ESM strict mode
 ```
 
 Verified for `{~ i + 1 ~}`, `{~ (rss / 1048576).toFixed(1)~}`, and `{~ deletedAt ? "Yes" : "No"~}` — all three fail the build identically.

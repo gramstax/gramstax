@@ -132,7 +132,7 @@ templateManager: {override: {module: `./src/templates.ts`, export: `SharedManage
 Every materialized slot is `instanceof`-checked against its expected base and fails loudly:
 
 ```text
-gramstax start: invalid `cacheSession` from ./src/cache.ts#NotACache — expected instance of CacheExternal
+gramstax start: invalid `cacheSession` from ./src/cache.ts#NotACache - expected instance of CacheExternal
 ```
 
 | Slot | Expected base |

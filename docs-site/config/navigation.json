@@ -11,7 +11,8 @@
           "pages": [
             "index",
             "introduction",
-            "quickstart"
+            "quickstart",
+            "guides/packages"
           ]
         },
         {
