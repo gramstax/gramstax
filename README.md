@@ -1,4 +1,5 @@
 <div align="center">
+  <p><img src="https://avatars.githubusercontent.com/u/187108398?s=200&v=4" alt="Gramstax logo" width="120" height="120" /></p>
   <h1>Gramstax</h1>
 
   <p>A modern Telegram bot framework built around page-based routing and a powerful template system you never seen before. This repository holds the framework, the scaffolding CLI, and two supporting packages.</p>
