@@ -3,6 +3,7 @@ name: lmdb-best-practices
 description: Best practices for @gramstax/lmdb (LMDB key-value store): class-only src with per-module types under src/types/, schema-class declaration via LmdbSchema + register(), embedded unique/non-unique/composite indexes, full-text search, CDC subscriptions, migrations, differential sync, sorted bulk import, production env sizing (mapSize, maxDbs), high-performance query patterns, transactions, TTL, queues, backup lifecycle, restart-safe scheduled jobs, and mitata benchmarking. Use when working in packages/lmdb, designing schemas or indexes, tuning LMDB performance, debugging slow queries, sizing databases for production scale, syncing data, or writing bench files.
 compatibility: Bun >= 1.0.0 or Node.js >= 18; @gramstax/lmdb workspace (packages/lmdb)
 metadata:
+  version: 6.0.4
   author: gramstax
   organization: gramstax
   scope: packages/lmdb

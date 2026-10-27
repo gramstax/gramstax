@@ -3,6 +3,7 @@ name: worker-thread-best-practices
 description: Best practices for @gramstax/worker-thread (Bun, Node.js >=18): the class-static API surface (WorkerThreadErrorHandler/WorkerThreadGatewayPath/WorkerThreadRpc) and src/types layout, mtd*-prefixed worker methods, launch-ready-request-shutdown lifecycle, RPC timeouts and payloads, gateway auth with at-least-once reliability, cross-platform socket paths (Windows named pipes, POSIX 104-char limit), error visibility against the silent-drop default, pool dispatch (typed pool.mtdX round-robin/broadcast/settled), and mitata benchmarks. Use when writing, reviewing, auditing, or debugging worker-thread code, or when an import fails to resolve, RPC calls hang, leak, double-execute, or reject unexpectedly, a worker dies with no log output, or a gateway works on Linux but not Windows.
 compatibility: Bun >= 1.0.0 or Node.js >= 18; @gramstax/worker-thread workspace (packages/worker-thread)
 metadata:
+  version: 6.0.4
   author: gramstax
   organization: gramstax
   scope: packages/worker-thread
