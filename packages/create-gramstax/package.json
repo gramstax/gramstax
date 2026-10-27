@@ -23,7 +23,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "nx-release-publish": "npm publish --access public"
+    "nx-release-publish": "npm publish --provenance --access public"
   },
   "repository": {
     "type": "git",

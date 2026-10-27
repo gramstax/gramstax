@@ -36,7 +36,7 @@
     "bench:ttl": "bun run ./bench/ttl.bench.ts",
     "bench:quick": "BENCH_N=1000 BENCH_CONC=10 bun run ./bench/crud.bench.ts && BENCH_N=1000 bun run ./bench/transaction.bench.ts && BENCH_N=1000 bun run ./bench/ttl.bench.ts",
     "bench:all": "bun run bench:crud && bun run bench:queue && bun run bench:range && bun run bench:queries && bun run bench:transaction && bun run bench:decode && bun run bench:concurrent && bun run bench:codec && bun run bench:index && bun run bench:batch && bun run bench:ttl",
-    "nx-release-publish": "npm publish --access public"
+    "nx-release-publish": "npm publish --provenance --access public"
   },
   "engines": {
     "node": ">=18",
