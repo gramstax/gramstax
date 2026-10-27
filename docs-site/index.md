@@ -23,6 +23,8 @@ Bot API method that route implies.
 bun add gramstax
 ```
 
+Gramstax apps run on Bun: the `gramstax` CLI, project boot, `~/*` aliases, webhook/status server, and build all require it.
+
 ## Start here
 
 <Columns cols={2}>
@@ -66,7 +68,7 @@ constructed at startup. Construction *is* boot.
 ```bash
 bunx create-gramstax my-bot
 cd my-bot
-bun --bun gramstax start
+gramstax start
 ```
 
 ## Deploy

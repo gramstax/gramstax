@@ -72,6 +72,7 @@
     "@keyv/redis": "^5.1.4",
     "chokidar": "^4.0.3",
     "commander": "^14.0.2",
+    "dotenv": "^16.4.7",
     "grammy": "^1.46.0",
     "keyv": "^5.5.4",
     "logging-pretty": "^3.0.0"

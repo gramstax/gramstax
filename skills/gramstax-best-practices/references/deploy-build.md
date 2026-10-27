@@ -117,7 +117,7 @@ log: {override: {module: `./src/helpers/log.ts`, export: `LogHe`}}
 
 `--target` overrides the config adapter key with a warning. `name` defaults to `gramstax-worker`. `url` falls back to `optionsDeploy.webhook.url` when the serverless branch omits it. No adapter configured → no `server/` output, manifest only.
 
-`--bundle` requires a serverless `--target`. For `aws-lambda-async` it moves the Lambda handler from `server/lambda.js` to `server/bundle.js`. Deprecated: prefer multi-file — it is debuggable and avoids the stub tradeoffs (the Workers bundle stubs `bun`, `@keyv/redis`, `chokidar`, `@grammyjs/transformer-throttler`, and `@grammyjs/files` node helpers with fail-fast errors).
+`--bundle` requires a serverless `--target`. For `aws-lambda-async` it moves the Lambda handler from `server/lambda.js` to `server/bundle.js`. Deprecated: prefer multi-file — it is debuggable and avoids the stub tradeoffs (the Workers bundle stubs `bun`, `@keyv/redis`, `chokidar`, `@grammyjs/transformer-throttler`, and `@grammyjs/files` filesystem helpers with fail-fast errors).
 
 ## Deploying the emitted output
 
@@ -135,7 +135,7 @@ Lambda: package `.gramstax/` with the function and wire `.gramstax/server/lambda
 
 ## Notes
 
-- `.gramstax/gen/` is always emitted; Node deploys ignore it. It exists for runtimes without the `Function` constructor.
+- `.gramstax/gen/` is always emitted; polling/webhook deploys ignore it. It exists for runtimes without the `Function` constructor.
 - `bun-stub.ts` is emitted only when the target set includes `cloudflare-mod`; it stubs `Bun.serve` as resolve-only (imports resolve, calls throw).
 - AOT rules — the `with()` restriction, the parity suite, and what must be regenerated — are in `template-aot.md`.
 - Regenerate on every pages/templates change. There is no staleness check at boot.

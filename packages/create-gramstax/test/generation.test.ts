@@ -4,13 +4,12 @@ import {tmpdir} from "node:os"
 import {join} from "node:path"
 import {Create} from "../src/create"
 import {log} from "../src/utils/log"
-import {assertNoLeftoverPlaceholders, buildServicesSource, removeDependency, removeTsconfigPathMappings, resolveRuntimeScripts, resolveWorkspaceDeps, stripBiomeScripts, writeJsonFileAtomic, writeTextFileAtomic} from "../src/utils/project"
+import {assertNoLeftoverPlaceholders, buildServicesSource, removeDependency, removeTsconfigPathMappings, resolveWorkspaceDeps, stripBiomeScripts, writeJsonFileAtomic, writeTextFileAtomic} from "../src/utils/project"
 
 type GenerationConfig = {
   projectName: string
   projectPath: string
   packageManager: `bun`
-  runtime: `bun` | `node`
   setupBiome: boolean
   useLmdb: boolean
   useWorkerThread: boolean
@@ -28,7 +27,6 @@ function baseConfig(projectPath: string, overrides?: Partial<GenerationConfig>):
     projectName: `MyBot`,
     projectPath,
     packageManager: `bun`,
-    runtime: `bun`,
     setupBiome: true,
     useLmdb: true,
     useWorkerThread: true,
@@ -398,64 +396,6 @@ describe(`workers scaffold`, () => {
     const pkg = JSON.parse(readFileSync(join(import.meta.dir, `..`, `package.json`), `utf-8`)) as {dependencies?: Record<string, string>}
     expect(pkg.dependencies?.["@gramstax/worker-thread"]).toBeUndefined()
     expect(Object.keys(pkg.dependencies ?? {}).sort()).toEqual([`commander`, `enquirer`, `logging-pretty`])
-  })
-})
-
-describe(`node runtime scripts`, () => {
-  it(`rewrites dev, start, build, and bun test scripts without deleting build`, () => {
-    const scripts = {
-      dev: `bun --watch src/index.ts`,
-      start: `bun src/index.ts`,
-      build: `bun build src/index.ts --outdir dist --target bun`,
-      typecheck: `tsc --noEmit`,
-      test: `bun test test/`,
-      "test:e2e": `bun test e2e/`,
-      "test:all": `bun test test/ e2e/`
-    }
-    const result = resolveRuntimeScripts(`node`, scripts)
-    expect(result.dev).toBe(`node --watch src/index.ts`)
-    expect(result.start).toBe(`node src/index.ts`)
-    expect(result.build).toBeDefined()
-    expect(result.build ?? ``).not.toContain(`bun`)
-    for (const key of [`test`, `test:e2e`, `test:all`]) {
-      expect(result[key] ?? ``).not.toContain(`bun`)
-    }
-    expect(result.typecheck).toBe(`tsc --noEmit`)
-  })
-
-  it(`rewrites the generated package.json scripts for node`, async () => {
-    const root = makeTempRoot()
-    const projectPath = join(root, `proj`)
-    const seen = {calls: 0}
-    const creator = makeCreator(seen)
-    try {
-      await creator.executeProjectGeneration(baseConfig(projectPath, {runtime: `node`}))
-      const pkg = JSON.parse(readFileSync(join(projectPath, `package.json`), `utf-8`)) as {scripts?: Record<string, string>}
-      expect(pkg.scripts?.dev).toContain(`gramstax start`)
-      expect(pkg.scripts?.start).toContain(`gramstax start`)
-      expect(pkg.scripts?.build).toBeUndefined()
-      for (const [key, value] of Object.entries(pkg.scripts ?? {})) {
-        if (value.includes(`gramstax start`)) continue
-        expect(value).not.toContain(`bun`)
-        expect(key).not.toBe(``)
-      }
-    } finally {
-      rmSync(root, {recursive: true, force: true})
-    }
-  })
-
-  it(`keeps gramstax start scripts on bun for node runtime`, () => {
-    const scripts = {
-      dev: `bun --bun gramstax start --watch`,
-      start: `bun --bun gramstax start`,
-      typecheck: `tsc --noEmit`,
-      test: `bun test test/`
-    }
-    const result = resolveRuntimeScripts(`node`, scripts)
-    expect(result.dev).toBe(`bun --bun gramstax start --watch`)
-    expect(result.start).toBe(`bun --bun gramstax start`)
-    expect(result.test).toBe(`node --test test/`)
-    expect(result.typecheck).toBe(`tsc --noEmit`)
   })
 })
 

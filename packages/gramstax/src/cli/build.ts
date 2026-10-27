@@ -7,6 +7,7 @@ import type {IGramstaxConfig} from "~/types/config"
 import {GRAMSTAX_SERVERLESS_ADAPTERS} from "~/types/config"
 import {generate} from "../../scripts/build-manifest"
 import {GramstaxConfigLoader} from "./config"
+import {loadProjectEnv} from "./env"
 import {LambdaTarget} from "./targets/lambda"
 import {WorkerTarget} from "./targets/worker"
 
@@ -120,6 +121,7 @@ export class GramstaxBuild {
    * @public
    */
   async run(argv: string[], cwd: string = process.cwd()): Promise<number> {
+    loadProjectEnv(cwd)
     const options = this._parseArgv(argv)
     if (options.target !== undefined && BUILD_TARGETS.includes(options.target) === false) {
       throw new Error(`gramstax build: unknown target ${options.target} (supported: ${BUILD_TARGETS.join(`, `)})`)

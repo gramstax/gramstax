@@ -9,8 +9,7 @@ icon: zap
 This page gets you from nothing to a bot answering messages. It assumes Bun is
 installed and you have a Telegram bot token from
 [@BotFather](https://t.me/BotFather). `gramstax start` resolves TypeScript paths
-directly, so this path runs under Bun. The scaffolder also supports
-`--runtime node` for projects that build and test on Node.
+directly, so the project runs under Bun.
 
 <Steps>
   <Step title="Scaffold the project">
@@ -88,13 +87,14 @@ directly, so this path runs under Bun. The scaffolder also supports
 
   <Step title="Run it">
     ```bash
-    bun --bun gramstax start
+    gramstax start
     ```
 
     <Warning>
-      Bun is required for `gramstax start`. The CLI resolves TypeScript paths and
-      the `~` alias, which plain Node cannot do here. A `--runtime node` project
-      still builds and runs its tests on Node, but `start` itself uses Bun.
+      Bun is required for `gramstax start`. The published binary has a Bun
+      shebang, so no `bun --bun` prefix is needed, and it loads project-root
+      `.env*` files automatically. The CLI resolves TypeScript paths and the `~`
+      alias.
     </Warning>
   </Step>
 

@@ -159,14 +159,19 @@ That structure is what produces the differences below:
 - 🏗️ **Scaffolding that stays consistent**:
   [`create-gramstax`](https://github.com/gramstax/gramstax/tree/main/packages/create-gramstax)
   generates 9 page templates plus an e2e suite mirroring the page tree, with
-  `--lmdb` / `--worker-thread` / `--biome` / `--runtime node`.
+  `--lmdb` / `--worker-thread` / `--biome`.
 
 ## 🚀 Quick Start
 
 ### 1. Prerequisites
 
-- [Bun](https://bun.sh): the CLI imports your TypeScript config and page modules
-  directly, so it runs under Bun rather than plain `node`.
+| Runtime | Support |
+| --- | --- |
+| **Bun** | **Required.** The `gramstax` CLI (`gramstax start`, `gramstax build`, and other commands), project boot, `~/*` path aliases, the webhook/status server (`Bun.serve`), and `gramstax build --bundle` all run on Bun. Generated projects use Bun for their scripts and tests. |
+
+`gramstax start --watch` is the dev loop; `gramstax start` is the production boot.
+
+- [Bun](https://bun.sh)
 - `typescript ^6.0.3` (peer dependency)
 - A bot token from [@BotFather](https://t.me/BotFather)
 
@@ -189,12 +194,13 @@ The positional is a bare name, not a path. Non-interactive mode needs the flags
 it would otherwise prompt for:
 
 ```bash
-bunx create-gramstax@latest my-bot --pm bun --runtime bun --skip-install
+bunx create-gramstax@latest my-bot --pm bun --skip-install
 ```
 
 Each optional feature has a matching negation (`--no-lmdb`, `--no-worker-thread`,
-`--no-biome`), and `--runtime node` rewires the scripts to `node`,
-`tsc --outDir dist`, and `node --test`.
+`--no-biome`). Generated projects are Bun-only: their `dev`, `start`, `test`,
+and `test:e2e` scripts all invoke Bun, and there is no runtime option to
+select.
 
 ### 3. Declare a page
 
@@ -271,9 +277,14 @@ export default config
 ```
 
 ```bash
-bun --bun gramstax start          # boot
-bun --bun gramstax start --watch  # boot + restart on src change
+gramstax start          # boot
+gramstax start --watch  # boot + restart on src change
 ```
+
+`.env`, `.env.local`, `.env.<NODE_ENV>`, and `.env.<NODE_ENV>.local` in the
+project root are loaded automatically before `gramstax.config.ts` is imported;
+shell values win. The published binary has a Bun shebang, so no `bun --bun`
+prefix is needed.
 
 ### 5. Next steps
 

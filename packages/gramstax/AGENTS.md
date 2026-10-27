@@ -64,7 +64,7 @@ Barrel (`src/index.ts`) re-exports all public symbols. No default exports. Add n
 
 Config-driven. There is no `src/index.ts` and no hand-written `new Gramstax({...})` entry.
 
-- `gramstax start [--deploy <mode>] [--watch]` reads `gramstax.config.ts` from the project root (default export, annotated `: GramstaxConfig`), discovers the `Gramstax` subclass at `src/core/bot.ts`, materializes each ref slot, then constructs it — construction *is* boot, no `.run()`. Requires Bun (`bun --bun`).
+- `gramstax start [--deploy <mode>] [--watch]` reads `gramstax.config.ts` from the project root (default export, annotated `: GramstaxConfig`), discovers the `Gramstax` subclass at `src/core/bot.ts`, materializes each ref slot, then constructs it — construction *is* boot, no `.run()`. Bun is required, but the published bin has a Bun shebang; no `bun --bun` prefix is needed. The CLI loads project-root `.env*` files automatically.
 - `gramstax build [--target cloudflare-mod|aws-lambda-async] [--bundle] [--dry-run] [--raw]` freezes `src/pages` into `.gramstax/` (`routes.json`, `manifest.js`, AOT `gen/`, plus `server/` entries per target). AOT always runs — no `--aot` flag.
 - `deploy` selects the mode; `optionsDeploy` carries per-mode settings in **nested branches** with at most one branch non-empty, and that branch must equal `deploy`. `webhook` requires `url` + `secretToken`; `serverless` is keyed by adapter and requires `url` + `secretToken`. The legacy `webhook:<url>` / `serverless:<adapter>` colon grammar throws.
 - Only `serverless` auto-loads `.gramstax/`; `polling`/`webhook`/`test` boot from the filesystem.

@@ -2026,7 +2026,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    */
   async _runWebhook(fullUrl: string): Promise<void> {
     await this.hookBeforeStart?.()
-    const {serve} = await import(`bun`) // <==== import in this because this package support node/bun (default use bun)
+    const {serve} = await import(`bun`) // Load Bun lazily so polling-only paths do not touch the webhook server module.
     const handleUpdate = webhookCallback(this.bot, `bun`)
     const queueConfig = this.webhook.queue
     const queueEnabled = queueConfig?.enabled === true

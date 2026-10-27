@@ -3,8 +3,8 @@
   "name": "example-2-helloworld",
   "private": false,
   "scripts": {
-    "start": "bun --bun gramstax start",
-    "dev": "bun --bun gramstax start --watch",
+    "start": "gramstax start",
+    "dev": "gramstax start --watch",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "bench:webhook": "bun ./src/bench/webhook-server.ts",
     "test": "bun test test/",

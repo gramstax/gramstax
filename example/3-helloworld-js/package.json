@@ -4,8 +4,8 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "start": "bun --bun gramstax start",
-    "dev": "bun --bun gramstax start --watch"
+    "start": "gramstax start",
+    "dev": "gramstax start --watch"
   },
   "dependencies": {
     "gramstax": "workspace:*"

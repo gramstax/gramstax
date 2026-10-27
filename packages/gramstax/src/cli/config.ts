@@ -59,7 +59,7 @@ export class GramstaxConfigLoader {
    * an error — it yields the defaults, which keeps a bare project bootable — but a
    * file that exists and cannot be imported is fatal, since silently falling back
    * would hide a typo in the path. The file is imported dynamically through a
-   * `file://` URL, so loading TypeScript requires a TS-capable runtime (`bun --bun`).
+   * `file://` URL, so loading TypeScript requires a TS-capable runtime (Bun).
    * The default export must be an object; a missing or non-object export is rejected.
    *
    * @param cwd - Absolute project root searched for `gramstax.config.ts`.

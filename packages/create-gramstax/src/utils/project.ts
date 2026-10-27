@@ -3,8 +3,6 @@ import {join} from "node:path"
 
 export const PACKAGE_MANAGERS = [`bun`, `npm`, `pnpm`, `yarn`] as const
 export type IPackageManager = (typeof PACKAGE_MANAGERS)[number]
-export const RUNTIMES = [`bun`, `node`] as const
-export type IRuntime = (typeof RUNTIMES)[number]
 export const PROJECT_NAME_PATTERN = /^[a-z0-9-_]{1,100}$/i
 export const RUNTIME_PLACEHOLDERS = [`userName`, `result`, `res`]
 export const BIOME_DEV_VERSION = `^2.5.5`
@@ -32,12 +30,9 @@ export function sanitizeProjectName(name: string): string {
   return slug || `gramstax-bot`
 }
 
-export function validateCliOptions(packageManager?: string, runtime?: string): void {
+export function validateCliOptions(packageManager?: string): void {
   if (packageManager !== undefined && !(PACKAGE_MANAGERS as readonly string[]).includes(packageManager)) {
     throw new Error(`Unsupported package manager "${packageManager}". Supported: ${PACKAGE_MANAGERS.join(`, `)}`)
-  }
-  if (runtime !== undefined && !(RUNTIMES as readonly string[]).includes(runtime)) {
-    throw new Error(`Unsupported runtime "${runtime}". Supported: ${RUNTIMES.join(`, `)}`)
   }
 }
 
@@ -226,25 +221,6 @@ export function removeTsconfigPathMappings(content: string, names: string[]): st
   return `${JSON.stringify(parsed, null, 2)}\n`
 }
 
-export function setTsconfigCompilerOptions(content: string, options: Record<string, string | boolean>): string {
-  let parsed: {compilerOptions?: Record<string, unknown>}
-  try {
-    parsed = JSON.parse(stripJsonComments(content)) as {compilerOptions?: Record<string, unknown>}
-  } catch {
-    return content
-  }
-  if (!parsed.compilerOptions) return content
-  let changed = false
-  for (const [key, value] of Object.entries(options)) {
-    if (parsed.compilerOptions[key] !== value) {
-      parsed.compilerOptions[key] = value
-      changed = true
-    }
-  }
-  if (!changed) return content
-  return `${JSON.stringify(parsed, null, 2)}\n`
-}
-
 export function resolveWorkspaceDeps(pkg: IDependencySections, version: string | undefined): void {
   const sections = DEP_SECTIONS.map((section) => pkg[section])
   const pending = sections.some((deps) => deps !== undefined && Object.values(deps).includes(`workspace:*`))
@@ -266,33 +242,6 @@ export class SetupCancelledError extends Error {
     super(`Setup cancelled`)
     this.name = `SetupCancelledError`
   }
-}
-
-function toNodeBuildScript(value: string): string {
-  if (/^bun build\b/.test(value)) return `tsc --outDir dist`
-  return value.replace(/^bun(?=\s|$)/, `node`)
-}
-
-export function resolveRuntimeScripts(runtime: IRuntime, scripts: Record<string, string>): Record<string, string> {
-  if (runtime === `bun`) return scripts
-  const next = {...scripts}
-  for (const [key, value] of Object.entries(next)) {
-    // `gramstax start` boots TypeScript directly (TS paths + `~` alias),
-    // so it stays on Bun even for node-runtime projects.
-    if (value.includes(`gramstax start`)) continue
-    if (key === `dev` || key === `start`) {
-      next[key] = value.replace(/^bun(?=\s|$)/, `node`)
-    } else if (key === `build`) {
-      next[key] = toNodeBuildScript(value)
-    } else if (key === `build:gramstax`) {
-      // `bun --bun gramstax build` only needs the flag to boot under Bun;
-      // the bare binary is what node runs.
-      next[key] = value.replace(/^bun\s+--bun\s+/, ``)
-    } else if (/^test($|:)/.test(key)) {
-      next[key] = value.replace(/^bun test\b/, `node --test`)
-    }
-  }
-  return next
 }
 
 export function assertNoLeftoverPlaceholders(rootDir: string, allowed: readonly string[] = RUNTIME_PLACEHOLDERS): void {

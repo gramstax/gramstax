@@ -129,7 +129,7 @@ dropped is reported per-slot at build time, with the reason, including under
     `default ?? first export`, then instantiated if it is a constructor. Because the
     import is static, the platform bundler resolves (and, for `.ts`, compiles) it at
     build time, so a bad path fails the build instead of the first request. For the
-    lambda target this requires `--bundle` (see §4b), since Node cannot import `.ts`
+    lambda target this requires `--bundle` (see §4b), since the Lambda runtime cannot import `.ts`
     itself.
   </Accordion>
 
@@ -169,11 +169,11 @@ Works for both targets. `--target cloudflare-mod --bundle` emits
   (debuggable, no stub tradeoffs), and `WorkerTarget.emitBundle` is marked
   `@deprecated Not recommended` in the source. For `aws-lambda-async` it is the
   opposite: the bundle is the documented way to resolve TypeScript path refs,
-  because Node cannot import `.ts` itself.
+  because the Lambda runtime cannot import `.ts` itself.
 </Warning>
 
 **Lambda gains the most from it.** The unbundled `lambda.js` runs as-is, so a
-`path-ref` pointing at `.ts` source could not be imported by Node.
+`path-ref` pointing at `.ts` source could not be imported by the Lambda runtime.
 Bundling resolves and compiles every specifier ahead of the deployment package.
 It still needs `gramstax` resolvable from the emit dir: true in a real project,
 which walks up to its own `node_modules`, but a constraint if you emit elsewhere.
@@ -181,9 +181,9 @@ which walks up to its own `node_modules`, but a constraint if you emit elsewhere
 For `cloudflare-mod`, the bundle stubs five edge-impossible graphs with fail-fast
 errors: `bun` (serve), `@keyv/redis` (no TCP sessions), `chokidar` (no fs to
 watch), `@grammyjs/transformer-throttler` (bottleneck), and `@grammyjs/files`
-node file helpers (no fs download; `hydrateFiles` mount itself works). Anything
+filesystem helpers (no fs download; `hydrateFiles` mount itself works). Anything
 calling them throws a clear message naming the multi-file output as the
-alternative. The lambda bundle stubs only `bun`, since Lambda is real Node.
+alternative. The lambda bundle stubs only `bun`, since Lambda provides its own runtime.
 
 Pre-flight without credentials:
 

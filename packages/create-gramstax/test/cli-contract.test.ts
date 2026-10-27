@@ -61,34 +61,32 @@ afterEach(() => {
   tempDirs = []
 })
 
-describe(`cli-contract pm runtime case-insensitive plus choices`, () => {
-  it(`normalizes uppercase pm runtime before validation`, async () => {
+describe(`cli-contract pm case-insensitive plus choices`, () => {
+  it(`normalizes uppercase pm before validation`, async () => {
     const base = makeTempBase()
     FsUt.resolveInitialWorkingDirectory = () => base
     setTTY(false)
     const name = `norm-${Date.now().toString(36)}`
     const create = new Create(name, {
-      cliOptions: {packageManager: `NPM` as unknown as `npm`, runtime: `NODE` as unknown as `node`, lmdb: true, workerThread: true, biome: true}
+      cliOptions: {packageManager: `NPM` as unknown as `npm`, lmdb: true, workerThread: true, biome: true}
     })
     const config = await create.gatherProjectConfig()
     expect(config.packageManager).toBe(`npm`)
-    expect(config.runtime).toBe(`node`)
   })
 
-  it(`trims whitespace around pm runtime`, async () => {
+  it(`trims whitespace around pm`, async () => {
     const base = makeTempBase()
     FsUt.resolveInitialWorkingDirectory = () => base
     setTTY(false)
     const name = `trim-${Date.now().toString(36)}`
     const create = new Create(name, {
-      cliOptions: {packageManager: `  pnpm  ` as unknown as `pnpm`, runtime: `  bun  ` as unknown as `bun`, lmdb: true, workerThread: true, biome: true}
+      cliOptions: {packageManager: `  pnpm  ` as unknown as `pnpm`, lmdb: true, workerThread: true, biome: true}
     })
     const config = await create.gatherProjectConfig()
     expect(config.packageManager).toBe(`pnpm`)
-    expect(config.runtime).toBe(`bun`)
   })
 
-  it(`declares commander choices for pm and runtime`, () => {
+  it(`declares commander choices for pm and no runtime option`, () => {
     const source = readIndex()
     expect(source).toContain(`choices`)
     expect(source).toContain(`bun`)
@@ -97,6 +95,7 @@ describe(`cli-contract pm runtime case-insensitive plus choices`, () => {
     expect(source).toContain(`yarn`)
     expect(source).toContain(`toLowerCase`)
     expect(source).toContain(`trim`)
+    expect(source).not.toContain(`--runtime`)
   })
 })
 
@@ -174,13 +173,13 @@ describe(`cli-contract detectPackageManager pure`, () => {
 })
 
 describe(`cli-contract partial flags prompt or throw`, () => {
-  it(`throws explicit missing runtime in non-TTY partial mode`, async () => {
+  it(`throws explicit missing feature flags in non-TTY partial mode`, async () => {
     const base = makeTempBase()
     FsUt.resolveInitialWorkingDirectory = () => base
     setTTY(false)
     const name = `partial-${Date.now().toString(36)}`
     const create = new Create(name, {cliOptions: {packageManager: `bun`}})
-    await expect(create.gatherProjectConfig()).rejects.toThrow(/runtime/i)
+    await expect(create.gatherProjectConfig()).rejects.toThrow(/lmdb/i)
   })
 
   it(`prompts for missing fields in TTY partial mode`, async () => {
@@ -190,7 +189,7 @@ describe(`cli-contract partial flags prompt or throw`, () => {
     let prompted = false
     mockEnquirer(async () => {
       prompted = true
-      return {packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true, biome: true}
+      return {packageManager: `bun`, lmdb: true, workerThread: true, biome: true}
     })
     const name = `partial-tty-${Date.now().toString(36)}`
     const create = new Create(name, {cliOptions: {packageManager: `bun`}})
@@ -221,9 +220,9 @@ describe(`cli-contract missing project name`, () => {
         namePrompted = true
         return {projectName: `tty-named-${Date.now().toString(36)}`}
       }
-      return {packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true, biome: true}
+      return {packageManager: `bun`, lmdb: true, workerThread: true, biome: true}
     })
-    const create = new Create(undefined, {cliOptions: {packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true, biome: true}})
+    const create = new Create(undefined, {cliOptions: {packageManager: `bun`, lmdb: true, workerThread: true, biome: true}})
     const config = await create.gatherProjectConfig()
     expect(namePrompted).toBe(true)
     expect(config.projectName.startsWith(`tty-named-`)).toBe(true)
@@ -274,9 +273,7 @@ describe(`cli-contract version resilient plus validation messages`, () => {
   })
 
   it(`validation errors mention received value plus legal list`, () => {
-    expect(() => validateCliOptions(`bogus-pm`, undefined)).toThrow(/bogus-pm/)
-    expect(() => validateCliOptions(`bogus-pm`, undefined)).toThrow(/bun, npm, pnpm, yarn/)
-    expect(() => validateCliOptions(undefined, `deno`)).toThrow(/deno/)
-    expect(() => validateCliOptions(undefined, `deno`)).toThrow(/bun, node/)
+    expect(() => validateCliOptions(`bogus-pm`)).toThrow(/bogus-pm/)
+    expect(() => validateCliOptions(`bogus-pm`)).toThrow(/bun, npm, pnpm, yarn/)
   })
 })

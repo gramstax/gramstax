@@ -10,6 +10,9 @@ icon: settings
 `{deploy: "polling"}`), and anything else throws `unknown field` with the list of
 supported keys.
 
+The CLI loads project-root `.env*` files before importing this config; see
+[Environment files](/guides/gramstax-start#environment-files) for precedence.
+
 <Note>
   The config file holds **refs and plain data, never instances**. `cacheSession`
   takes `{store, ttlMs?, namespace?}` or a module ref, not a constructed

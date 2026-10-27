@@ -86,36 +86,29 @@ describe(`promptForProjectName validation uses PROJECT_NAME_PATTERN`, () => {
 })
 
 describe(`promptForConfiguration partial rejection`, () => {
-  it(`rejects when runtime is missing`, async () => {
-    mockPrompt(async () => ({packageManager: `bun`, lmdb: true, workerThread: true, biome: true}))
-    const create = new Create(undefined)
-    const result = create.promptForConfiguration()
-    await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
-  })
-
   it(`rejects when lmdb is missing`, async () => {
-    mockPrompt(async () => ({packageManager: `bun`, runtime: `bun`, workerThread: true, biome: true}))
+    mockPrompt(async () => ({packageManager: `bun`, workerThread: true, biome: true}))
     const create = new Create(undefined)
     const result = create.promptForConfiguration()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 
   it(`rejects when workerThread is missing`, async () => {
-    mockPrompt(async () => ({packageManager: `bun`, runtime: `bun`, lmdb: true, biome: true}))
+    mockPrompt(async () => ({packageManager: `bun`, lmdb: true, biome: true}))
     const create = new Create(undefined)
     const result = create.promptForConfiguration()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 
   it(`rejects when biome is missing`, async () => {
-    mockPrompt(async () => ({packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true}))
+    mockPrompt(async () => ({packageManager: `bun`, lmdb: true, workerThread: true}))
     const create = new Create(undefined)
     const result = create.promptForConfiguration()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
   })
 
   it(`rejects when packageManager is missing but rest present`, async () => {
-    mockPrompt(async () => ({runtime: `bun`, lmdb: true, workerThread: true, biome: true}))
+    mockPrompt(async () => ({lmdb: true, workerThread: true, biome: true}))
     const create = new Create(undefined)
     const result = create.promptForConfiguration()
     await expect(result).rejects.toBeInstanceOf(SetupCancelledError)
@@ -131,10 +124,10 @@ describe(`promptForConfiguration partial rejection`, () => {
   })
 
   it(`resolves full answers`, async () => {
-    mockPrompt(async () => ({packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true, biome: true}))
+    mockPrompt(async () => ({packageManager: `bun`, lmdb: true, workerThread: true, biome: true}))
     const create = new Create(undefined)
     const result = await create.promptForConfiguration()
-    expect(result).toEqual({packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true, biome: true})
+    expect(result).toEqual({packageManager: `bun`, lmdb: true, workerThread: true, biome: true})
   })
 })
 
@@ -179,7 +172,7 @@ describe(`directory validation before summary`, () => {
     log.info = ((message?: unknown) => {
       infos.push(String(message))
     }) as typeof log.info
-    const create = new Create(`taken`, {cliOptions: {packageManager: `bun`, runtime: `bun`, lmdb: true, workerThread: true, biome: true}})
+    const create = new Create(`taken`, {cliOptions: {packageManager: `bun`, lmdb: true, workerThread: true, biome: true}})
     await expect((create as unknown as GatherConfig).gatherProjectConfig()).rejects.toThrow(/already exists/)
     expect(infos.some((m) => m.startsWith(`Project:`))).toBe(false)
     expect(infos.some((m) => m.startsWith(`Location:`))).toBe(false)

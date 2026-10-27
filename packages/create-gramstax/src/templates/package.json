@@ -15,9 +15,9 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "dev": "bun --bun gramstax start --watch",
-    "start": "bun --bun gramstax start",
-    "build:gramstax": "bun --bun gramstax build",
+    "dev": "gramstax start --watch",
+    "start": "gramstax start",
+    "build:gramstax": "gramstax build",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint",
     "lint:fix": "biome lint --write --unsafe",

@@ -347,9 +347,13 @@ negative spellings now exist, which is what makes non-interactive use possible a
 all, since a prompt is unavailable in a pipe. Stating neither spelling prompts;
 declining leaves `src/db/`, `src/workers/` and `biome.json` absent, accepting keeps them and adds the dependencies.
 
+The runtime-selection option has been removed. Generated projects are Bun-only,
+so drop it from any scripted invocation; the Bun app, test, and build scripts
+are now the only output.
+
 ```bash
 # before: --skip-install was parsed, then dropped; this installed everything
-bunx create-gramstax my-bot --skip-install --runtime bun
+bunx create-gramstax my-bot --skip-install
 
 # after: generates and stops, and there is no way to turn a feature off by prompt
 bunx create-gramstax my-bot --no-lmdb --no-worker-thread --no-biome --skip-install

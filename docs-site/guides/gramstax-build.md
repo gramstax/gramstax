@@ -36,6 +36,8 @@ gramstax build
 bun run build:gramstax
 ```
 
+Bun is required: the published `gramstax` binary has a Bun shebang and resolves the TypeScript paths.
+
 Paths are convention, not configuration: pages always come from `src/pages`
 and artifacts always land in `.gramstax/`, both resolved from the project
 root (cwd): like Next.js reading `app/` and emitting `.next/`, so there are
@@ -93,7 +95,7 @@ The scaffolded `gramstax.config.ts`
 | --------------------------------------- | ------------------------ | ------------------- | -------------------------------------------------------------------------- |
 | `…['cloudflare-mod'].name`              | `string`                  | `gramstax-worker`   | Written to the Workers `name`; never emitted as a comment                 |
 | `…['cloudflare-mod'].compatibilityDate` | `string`                  | `2026-01-01`        | Always written: it also gates `compatibilityFlags`                       |
-| `…['cloudflare-mod'].compatibilityFlags`| `string[]`                | `["nodejs_compat"]` | Required: the dependency graph uses Node builtins                        |
+| `…['cloudflare-mod'].compatibilityFlags`| `string[]`                | `["nodejs_compat"]` | Required: the dependency graph uses built-in modules                        |
 | `…['cloudflare-mod'].toml`              | `Record<string, unknown>` | _none_              | Escape hatch; consulted FIRST for `name`, `compatibility_date` and `compatibility_flags`, so it overrides those three typed values; `toml.main` is rejected outright (the emitter owns `main`); any other non-reserved key is appended after the typed block; `vars` is merged key-by-key under `[vars]`; `[alias]` is emitter-owned |
 | `…[any].url`                            | `string`                  | _none_              | Real `https?://` with no `<` placeholder                                  |
 | `…[any].secretToken`                    | `string`                  | _none_              | `^[A-Za-z0-9_-]{1,256}$`; never baked into a bundle                       |
@@ -107,10 +109,13 @@ Invalid shapes throw `Invalid gramstax config at <file>: ...` naming the field. 
 
 `gramstax build [--target <name>] [--bundle] [--dry-run] [--raw]`
 
+Both `gramstax build` and `gramstax start` load project-root `.env*` files
+using the same precedence; see [Environment files](/guides/gramstax-start#environment-files).
+
 | Flag | Effect |
 | ---- | ------ |
 | `--target cloudflare-mod\|aws-lambda-async` | Server entry to emit. Same vocabulary as the config key. Wins over the configured key, with a warning when they disagree |
-| `--bundle` | Not deprecated as a flag, but not recommended for Cloudflare: `WorkerTarget.emitBundle` is marked `@deprecated Not recommended` in the source (the multi-file output is debuggable and has no stub tradeoffs), while `LambdaTarget.emitBundle` is not deprecated and is the documented way to resolve TypeScript path refs on Node. Needs `--target cloudflare-mod` or `--target aws-lambda-async`. For lambda it also moves the handler to `server/bundle.js` (see below) |
+| `--bundle` | Not deprecated as a flag, but not recommended for Cloudflare: `WorkerTarget.emitBundle` is marked `@deprecated Not recommended` in the source (the multi-file output is debuggable and has no stub tradeoffs), while `LambdaTarget.emitBundle` is not deprecated and is the documented way to resolve TypeScript path refs for the Lambda target. Needs `--target cloudflare-mod` or `--target aws-lambda-async`. For lambda it also moves the handler to `server/bundle.js` (see below) |
 | `--dry-run` | Print resolved plan with value sources, write nothing |
 | `--raw` | Skip: exit 0 with `skip (raw deploy, nothing to build)` |
 
@@ -159,7 +164,7 @@ are mutually exclusive per build: `LambdaTarget` emits `server/lambda.js`, and
 .gramstax/
   routes.json   # frozen route list (pure data, diffable), always emitted
   manifest.js   # static page-class imports + embedded templates (runnable), always emitted
-  gen/          # AOT modules (always emitted: workers need them, Node ignores them)
+  gen/          # AOT modules (always emitted: workers need them, the Lambda runtime ignores them)
   server/
     lambda.js       # `serverless` entry (key `aws-lambda-async`): `--target aws-lambda-async` only
     worker.js       # `serverless` entry (key `cloudflare-mod`): `--target cloudflare-mod` only

@@ -8,7 +8,7 @@
 |---|---|---|---|
 | 1 | `1-complex` | Kitchen-sink reference (not a teaching step): multi-page, guards, i18n (`lang="id"` variants), media replies, block templates (`<g-import>`, map, switch), worker-thread job (`src/jobs/increment.ts`), error-handling demo, `CacheExternal` (memory), `hookAfterStart`/`hookBeforeRoute` | `gramstax` + `@gramstax/worker-thread` (`workspace:*`) |
 | 2 | `2-helloworld` | Minimal TS template bot (pages: start/status/blank); adds `src/bench/webhook-server.ts` + `update.json` (`bench:webhook` script); `guards/__nocode.ts` placeholder | `gramstax` only |
-| 3 | `3-helloworld-js` | Pure-JS port of #2: runs on `node`, `"type": "module"`, `.js` import extensions, JS e2e tests. Proves Gramstax works without TypeScript. Its `tsconfig.json` is a resolution shim only (empty `paths` shadowing the root src-redirect so `gramstax start` discovery sees the same dist copy — Node ignores the file) | `gramstax` only |
+| 3 | `3-helloworld-js` | Pure-JS port of #2: a JavaScript example that runs with Bun, `"type": "module"`, `.js` import extensions, JS e2e tests. Proves Gramstax works without TypeScript. Its `tsconfig.json` is a resolution shim only (empty `paths` shadowing the root src-redirect so `gramstax start` discovery sees the same dist copy — it is not used for compilation) | `gramstax` only |
 | 4 | `4-echo` | Beginner multi-page echo bot (pages: start/help/echo/status/blank) | `gramstax` only |
 | 5 | `5-interactive-menu` | Inline keyboards + pagination (`inline/with-range` + `inline/without-range`), reply keyboards, stateful navigation; static catalog at `src/data/catalog.ts` | `gramstax` only |
 | 6 | `6-bank-system` | Stateful in-memory store at `core/store.ts`; bigint math (`DECIMALS = 6n`, hex storage); pages for balance/deposit/withdraw/transfer/history; `guards/bank.ts` | `gramstax` only |
@@ -23,7 +23,7 @@ All TS examples share the same `src/` layout:
 - `base/{guard,page}.ts`, `blocks/g-keyboard.ts`, `core/{bot,ctx}.ts`, `guards/`, `helpers/log.ts`, `pages/`, `utils/array.ts`, `env.ts`
 - Class chain: `PageBase extends CtxCore extends Ctx`; `BotCore extends Gramstax` overriding `hookBeforeRoute` + `hookErrorPage` + `hookNotFoundPage` (via `StatusPage.gerror/gnotFound`)
 - `base/page-admin.ts` (`PageAdminBase extends PageBase`, adds a `hookBeforeRoute` access gate) is **not** part of the shared skeleton — only `8-newsletter` (real check via `AdminGuard.isAdmin`) and `11-cloudflare-worker` (unused `return true` stub) define it, and `8-newsletter/src/pages/broadcast.ts` is the only page in the repo that actually extends it
-- Boot convention: **no `src/index.ts`**. Each example has a root `gramstax.config.ts` (default export, annotated `: GramstaxConfig`) and `bun --bun gramstax start` boots it — the CLI discovers the `Gramstax` subclass at `src/core/bot.ts` and constructs it. Only `e2e/setup.ts` constructs `BotCore` directly.
+- Boot convention: **no `src/index.ts`**. Each example has a root `gramstax.config.ts` (default export, annotated `: GramstaxConfig`) and `gramstax start` boots it — the CLI discovers the `Gramstax` subclass at `src/core/bot.ts` and constructs it. The published bin has a Bun shebang and loads project-root `.env*` files automatically. Only `e2e/setup.ts` constructs `BotCore` directly.
 - `@gramstax/worker-thread` (only `1-complex`) is a background-job runner launched from `BotCore.hookAfterStart()` — not a bot-instance scaler
 - `env.ts` = static class with `BOT_DEPLOY` (default `polling`) and a hardcoded (revoked) test token
 - Every TS example has its own `tsconfig.json` extending `../../tsconfig.json` (composite, `noEmit: false`, includes `src/test/e2e`) with `~/*` → `./src/*` path alias
@@ -45,7 +45,7 @@ All TS examples share the same `src/` layout:
 ## PER-EXAMPLE DELTAS
 - `1-complex`: largest e2e suite (27 test files, incl. `e2e/start/test/media-group.test.ts`, `e2e/start/keyboard/inline.test.ts`, `e2e/start/counter/thread.test.ts`)
 - `2-helloworld`: adds `bench:webhook` script
-- `3-helloworld-js`: node runtime, resolution-shim tsconfig only (pure JS source), no test scripts beyond start
+- `3-helloworld-js`: JavaScript example that runs with Bun, resolution-shim tsconfig only (pure JS source), no test scripts beyond start
 - `11-cloudflare-worker`: the only example with `optionsPage.shortCallbackQueryData: true`
 - `7-crud`: env `STORE_PATH`; `8-newsletter`: env `DB_PATH` + `BOT_ADMIN_IDS`; `9-substore-bot`: env `BOT_TOKEN` + `STORE_ADMIN_USERNAME`
 - `9-substore-bot`: only example with a real unit test (`test/store.test.ts`; all others just `test/.gitkeep`) and a `PROMPT.md` (the create-gramstax generation prompt that produced it)
@@ -55,4 +55,4 @@ All TS examples share the same `src/` layout:
 - `example/1-complex/src/pages/start/test/*.ts` are demo `PageBase` classes (media demo pages), NOT test files — the `test/` folder name inside `src/pages` is coincidental and confuses agents
 - `guards/__nocode.ts` is a deliberate empty placeholder to keep the folder non-empty
 - `optionsPage.shortCallbackQueryData: true` is set only in `11-cloudflare-worker`; the menu-heavy bots (1, 5, 9) do not set it
-- `3-helloworld-js` is the odd one out: node runtime, resolution-shim tsconfig only, no test scripts beyond start
+- `3-helloworld-js` is the odd one out: JavaScript that runs with Bun, resolution-shim tsconfig only, no test scripts beyond start

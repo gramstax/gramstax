@@ -13,11 +13,10 @@ icon: rocket
 | Requirement                 | Version             | Install                                   |
 | --------------------------- | ------------------- | ----------------------------------------- |
 | Bun (runtime + test runner) | latest              | https://bun.sh (or `npm i -g bun`)        |
-| Node.js                     | LTS (`lts/*`)       | For the npm OIDC release step in CI only  |
 | TypeScript                  | `^6.0.3` (peer dep) | `bun add -d typescript`                   |
 | Bot token                   | _not applicable_    | From [@BotFather](https://t.me/BotFather) |
 
-`gramstax` targets `esnext` and uses Bun APIs (e.g. `Bun.serve` for webhooks), so **Bun is the primary runtime**. The repo is an Nx monorepo; this guide covers the `packages/gramstax` library and a local bot that consumes it.
+`gramstax` targets `esnext` and uses Bun APIs (e.g. `Bun.serve` for webhooks), so **Bun is required to run a Gramstax app**: the CLI, project boot, `~/*` aliases, webhook/status server, and `--bundle` all depend on it. The repo is an Nx monorepo; this guide covers the `packages/gramstax` library and a local bot that consumes it.
 
 ## Installation
 
@@ -121,8 +120,8 @@ export default config
 ```
 
 ```bash
-# Run with Bun: the CLI resolves TypeScript paths and the ~ alias
-BOT_TOKEN="123456:ABC…" bun --bun gramstax start
+# The published bin runs through a Bun shebang; project-root .env files load automatically
+BOT_TOKEN="123456:ABC…" gramstax start
 ```
 
 <Warning>

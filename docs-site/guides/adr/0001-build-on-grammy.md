@@ -41,7 +41,7 @@ Build `gramstax` **on top of [`grammy`](https://grammy.dev)**. `Gramstax` extend
 | Alternative | Why Not Chosen |
 |-------------|---------------|
 | Raw `fetch` to Bot API | Duplicates transport, `Context`, and media builders; loses grammY's typing and ecosystem. |
-| `telegraf` (Node) | Node-oriented; repo targets Bun and grammY's design fits the `Context`-extension model better. |
+| `telegraf` | Older design; repo targets Bun and grammY's design fits the `Context`-extension model better. |
 
 ## Sources
 

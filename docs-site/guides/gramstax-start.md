@@ -20,8 +20,32 @@ gramstax start [--deploy <mode>] [--watch]
 | `--deploy` | Deploy mode for this boot (beats config `deploy`) |
 | `--watch`  | Restart the bot on `src` change                   |
 
-Requires Bun: `bun --bun gramstax start`. Plain node breaks TS paths plus the
-`~` alias, so template scripts always force the Bun runtime.
+The published `gramstax` binary has a Bun shebang, so Bun must be installed
+but the command is direct:
+
+```bash
+gramstax start
+```
+
+`bun run start` and the older explicit-Bun invocation still work, but neither
+is required. Bun resolves TypeScript paths and the `~` alias.
+
+## Environment files
+
+`gramstax start` and `gramstax build` load project-root env files before
+importing `gramstax.config.ts`. The files are read in this order:
+
+| Priority | File | Notes |
+| --- | --- | --- |
+| 1 | `.env.$(NODE_ENV).local` | highest |
+| 2 | `.env.local` | skipped when `NODE_ENV=test` |
+| 3 | `.env.$(NODE_ENV)` | mode-specific |
+| 4 | `.env` | shared defaults |
+
+`NODE_ENV` defaults to `development`. Variables already present in the shell
+are never overwritten. The project root is the current working directory; run
+the command from the directory containing `gramstax.config.ts`. Changing
+`.env` alone requires a restart; `--watch` watches `src`, not env files.
 
 ## Discovery
 

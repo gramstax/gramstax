@@ -1,12 +1,12 @@
 # CREATE-GRAMSTAX — CLI Scaffolding Tool
 
-Generates new Gramstax bot projects via `npx create-gramstax` with interactive or non-interactive mode.
+Generates new Gramstax bot projects via `bunx create-gramstax` with interactive or non-interactive mode.
 
 ## Source Layout
 
 ```
 packages/create-gramstax/src/
-├── index.ts           CLI entrypoint (#!/usr/bin/env node, commander)
+├── index.ts           CLI entrypoint (commander)
 ├── create.ts          Project generator (copy + placeholder replacement + conditional post-processing)
 ├── utils/fs.ts        Filesystem helpers, package-manager command resolution
 ├── utils/log.ts       Logger singleton
@@ -36,7 +36,7 @@ packages/create-gramstax/src/
 
 ## How It Works
 
-1. User runs `npx create-gramstax [project-name]` with optional flags (`--skip-install`, `--no-biome`, `--no-lmdb`, `--no-worker-thread`, `--pm`, `--runtime`, etc.). The positional is a bare name (not a path).
+1. User runs `bunx create-gramstax [project-name]` with optional flags (`--skip-install`, `--no-biome`, `--no-lmdb`, `--no-worker-thread`, `--pm`, etc.). The positional is a bare name (not a path).
 2. CLI reads flags, prompts for missing values via enquirer (non-TTY without full flags errors out naming what is missing).
 3. Copies `templates/` to target dir, replacing generator placeholders (`projectName`, `packageName`, `installCmd`, etc.); runtime `{{userName}}`/`{{result}}`/`{{res}}` placeholders are intentionally preserved, and any other leftover `{{...}}` fails the run.
 4. Post-processes:
@@ -46,7 +46,6 @@ packages/create-gramstax/src/
    - Removes `src/workers/` + `src/types/job.ts` + `@gramstax/worker-thread` dep when workers disabled
    - Regenerates `src/core/services.ts` from `buildServicesSource(useLmdb, useWorkerThread)` — `BotCore` calls `ServicesCore.start()`/`ServicesCore.stop()` unconditionally, so it must never statically reference a pruned directory
    - Adds `@biomejs/biome` to devDependencies when Biome enabled (installed with the rest); removes `biome.json` + `lint*`/`format*` scripts otherwise
-   - For `--runtime node`: dev/start → `node`, build → `tsc --outDir dist` (kept), `test*` → `node --test`, template `noEmit` flipped off
 5. Runs `installCmd` in the target directory (unless `--skip-install`).
 6. Errors: `Create` only throws (never `process.exit`); `index.ts` maps to exit codes (0 ok, 1 error, 2 usage, 0 + `Setup cancelled` on cancel).
 
@@ -55,12 +54,12 @@ packages/create-gramstax/src/
 Generated projects have **no `src/index.ts`**. `gramstax.config.ts` is the composition point and `gramstax start` constructs the `Gramstax` subclass found at `src/core/bot.ts`:
 
 ```json
-"dev": "bun --bun gramstax start --watch",
-"start": "bun --bun gramstax start",
+"dev": "gramstax start --watch",
+"start": "gramstax start",
 "build:gramstax": "gramstax build"
 ```
 
-`bun --bun` is required — plain node cannot resolve TS paths or the `~` alias.
+Bun is required, but the published bin has a Bun shebang; no `bun --bun` prefix is needed. The CLI loads project-root `.env*` files automatically. Generated projects are Bun-only: there is no runtime selection, and every app, test, and build script runs through Bun.
 
 ## CLI Flags
 
@@ -68,13 +67,12 @@ Generated projects have **no `src/index.ts`**. `gramstax.config.ts` is the compo
 | ----------------------------- | ---------- | ------------------ |
 | `project-name`                | positional | interactive prompt |
 | `--pm <name>`                 | string     | detect (lockfile/user-agent) → `bun` |
-| `--runtime <name>`            | string     | detect → `bun`     |
 | `--lmdb` / `--no-lmdb`        | boolean    | LMDB included      |
 | `--worker-thread` / `--no-worker-thread` | boolean | Workers included |
 | `--biome` / `--no-biome`      | boolean    | Biome included     |
 | `--skip-install`              | boolean    | install runs       |
 
-Case-insensitive `--pm`/`--runtime` (normalized before validation). Boolean flags are single-side definitions with default `true` (negation is commander-automatic).
+Case-insensitive `--pm` (normalized before validation). Boolean flags are declared on both sides; with neither side supplied, the corresponding prompt is reachable.
 ## Template Variables
 
 Placeholders replaced in all copied files:

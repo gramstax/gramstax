@@ -12,7 +12,7 @@ Use the config unless you have a concrete reason below. Reach for this rule when
 
 | Case | Why the config cannot do it |
 | --- | --- |
-| **Node `cluster`** | one instance per worker process; each needs its own wiring (worker id, distinct status port or none, shared vs per-process caches) |
+| **Process cluster** | one instance per worker process; each needs its own wiring (worker id, distinct status port or none, shared vs per-process caches) |
 | **Multi-bot in one process** | the config carries one `token` and one `BotCore`; N bots means N constructor calls |
 | **Worker thread running its own bot** | a thread is a separate realm; it constructs its own instance inside the thread |
 | **Custom supervisor** | you need `await bot.stop()` then re-construct on reload, or retry/backoff around boot, or migrate before boot |
@@ -40,14 +40,14 @@ export const bot = new BotCore({
 })
 ```
 
-Use `import.meta.dirname`, not `import.meta.dir` — the latter is Bun-only and throws on plain Node.
+Use `import.meta.dirname`, not the Bun-only `import.meta.dir`.
 
-If you want `gramstax start` to keep working here, rename the file to `gramstax.config.ts` and let it be type-checked — the CLI imports it through a TS-capable runtime, so the `.ts` extension costs nothing at runtime.
+If you want `gramstax start` to keep working here, rename the file to `gramstax.config.ts` and let it be type-checked — the CLI runs on Bun, so the `.ts` extension costs nothing at runtime.
 
-## cluster
+## Process cluster
 
 ```typescript
-// src/cluster.ts — run with `bun --bun src/cluster.ts`
+// src/cluster.ts — run with `bun src/cluster.ts`
 import {availableParallelism} from "node:os"
 import {cluster} from "node:cluster"
 import {join} from "node:path"

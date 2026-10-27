@@ -11,11 +11,9 @@ import {
   removeDependency,
   removeTsconfigPathMappings,
   replaceTemplateVariables,
-  resolveRuntimeScripts,
   resolveWorkspaceDeps,
   SetupCancelledError,
   sanitizeProjectName,
-  setTsconfigCompilerOptions,
   stripBiomeScripts,
   validateCliOptions
 } from "../src/utils/project"
@@ -73,7 +71,7 @@ describe(`create-gramstax utilities`, () => {
     expect(FsUt.resolvePackageManagerCommand(`bun`, `linux`)).toBe(`bun`)
   })
 
-  it(`spawns .cmd shims through a shell on Windows (Node EINVAL guard)`, () => {
+  it(`spawns .cmd shims through a shell on Windows (EINVAL guard)`, () => {
     expect(FsUt.resolveSpawnShell(`npm`, `win32`)).toBe(true)
     expect(FsUt.resolveSpawnShell(`pnpm`, `win32`)).toBe(true)
     expect(FsUt.resolveSpawnShell(`yarn`, `win32`)).toBe(true)
@@ -203,22 +201,16 @@ describe(`sanitizeProjectName`, () => {
 })
 
 describe(`validateCliOptions`, () => {
-  it(`accepts supported package managers and runtimes`, () => {
-    expect(() => validateCliOptions(`bun`, `bun`)).not.toThrow()
-    expect(() => validateCliOptions(`npm`, `node`)).not.toThrow()
-    expect(() => validateCliOptions(`pnpm`, undefined)).not.toThrow()
-    expect(() => validateCliOptions(undefined, `bun`)).not.toThrow()
-    expect(() => validateCliOptions(undefined, undefined)).not.toThrow()
+  it(`accepts supported package managers`, () => {
+    expect(() => validateCliOptions(`bun`)).not.toThrow()
+    expect(() => validateCliOptions(`npm`)).not.toThrow()
+    expect(() => validateCliOptions(`pnpm`)).not.toThrow()
+    expect(() => validateCliOptions(undefined)).not.toThrow()
   })
 
   it(`throws a clear error for unsupported package managers`, () => {
-    expect(() => validateCliOptions(`bogus`, undefined)).toThrow(/Unsupported package manager "bogus"/)
-    expect(() => validateCliOptions(`bogus`, undefined)).toThrow(/bun, npm, pnpm, yarn/)
-  })
-
-  it(`throws a clear error for unsupported runtimes`, () => {
-    expect(() => validateCliOptions(undefined, `deno`)).toThrow(/Unsupported runtime "deno"/)
-    expect(() => validateCliOptions(undefined, `deno`)).toThrow(/bun, node/)
+    expect(() => validateCliOptions(`bogus`)).toThrow(/Unsupported package manager "bogus"/)
+    expect(() => validateCliOptions(`bogus`)).toThrow(/bun, npm, pnpm, yarn/)
   })
 })
 
@@ -350,29 +342,6 @@ describe(`create-gramstax package.json`, () => {
   })
 })
 
-describe(`resolveRuntimeScripts`, () => {
-  const bunScripts = {dev: `bun --watch src/index.ts`, start: `bun src/index.ts`, build: `bun build src/index.ts --outdir dist --target bun`, typecheck: `tsc --noEmit`}
-
-  it(`keeps bun scripts unchanged for the bun runtime`, () => {
-    expect(resolveRuntimeScripts(`bun`, bunScripts)).toBe(bunScripts)
-  })
-
-  it(`switches dev/start to node and keeps a tsc build for the node runtime`, () => {
-    const result = resolveRuntimeScripts(`node`, bunScripts)
-    expect(result.dev).toBe(`node --watch src/index.ts`)
-    expect(result.start).toBe(`node src/index.ts`)
-    expect(result.build).toBe(`tsc --outDir dist`)
-    expect(result.typecheck).toBe(`tsc --noEmit`)
-  })
-
-  it(`does not mutate the input scripts object`, () => {
-    const input = {...bunScripts}
-    resolveRuntimeScripts(`node`, input)
-    expect(input.dev).toBe(`bun --watch src/index.ts`)
-    expect(input.build).toBeDefined()
-  })
-})
-
 describe(`template package.json`, () => {
   const pkgPath = join(import.meta.dir, `..`, `src`, `templates`, `package.json`)
 
@@ -387,6 +356,22 @@ describe(`template package.json`, () => {
   it(`provides a typecheck script using the peer typescript`, () => {
     const pkg = JSON.parse(readFileSync(pkgPath, `utf-8`)) as {scripts?: Record<string, string>}
     expect(pkg.scripts?.typecheck).toBe(`tsc --noEmit`)
+  })
+
+  it(`uses clean gramstax scripts without a bun prefix`, () => {
+    const pkg = JSON.parse(readFileSync(pkgPath, `utf-8`)) as {scripts?: Record<string, string>}
+    expect(pkg.scripts?.dev).toBe(`gramstax start --watch`)
+    expect(pkg.scripts?.start).toBe(`gramstax start`)
+    expect(pkg.scripts?.[`build:gramstax`]).toBe(`gramstax build`)
+    for (const value of Object.values(pkg.scripts ?? {})) {
+      expect(value).not.toContain(`bun --bun gramstax`)
+    }
+  })
+
+  it(`documents automatic env loading in the generated README`, () => {
+    const readme = readFileSync(join(import.meta.dir, `..`, `src`, `templates`, `README.md`), `utf-8`)
+    expect(readme).toContain(`automatically`)
+    expect(readme).toContain(`.env`)
   })
 })
 
@@ -568,25 +553,6 @@ describe(`resolveWorkspaceDeps`, () => {
     const pkg = {dependencies: {gramstax: `^1.0.0`}}
     expect(() => resolveWorkspaceDeps(pkg, undefined)).not.toThrow()
     expect(pkg.dependencies?.gramstax).toBe(`^1.0.0`)
-  })
-})
-
-describe(`setTsconfigCompilerOptions`, () => {
-  it(`flips noEmit off for the node runtime`, () => {
-    const out = setTsconfigCompilerOptions(`{"compilerOptions": {"noEmit": true}}`, {noEmit: false})
-    expect(JSON.parse(out).compilerOptions.noEmit).toBe(false)
-  })
-
-  it(`parses JSONC with comments`, () => {
-    const out = setTsconfigCompilerOptions(`{// generated\n"compilerOptions": {"noEmit": true}}`, {noEmit: false})
-    expect(JSON.parse(out).compilerOptions.noEmit).toBe(false)
-  })
-
-  it(`returns input untouched when already set or unparseable`, () => {
-    const same = `{"compilerOptions": {"noEmit": false}}`
-    expect(setTsconfigCompilerOptions(same, {noEmit: false})).toBe(same)
-    const broken = `{"compilerOptions": {`
-    expect(setTsconfigCompilerOptions(broken, {noEmit: false})).toBe(broken)
   })
 })
 

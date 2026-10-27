@@ -57,9 +57,8 @@ export class FsUt {
    * Whether `spawn` needs `shell: true` for the given package manager.
    *
    * @remarks
-   * Node.js refuses to spawn `.cmd`/`.bat` shims with `shell: false` on Windows
-   * (throws `EINVAL`), and the published CLI runs under Node (`#!/usr/bin/env node`),
-   * e.g. via `npx create-gramstax`. Bun is a real executable, so it needs no shell.
+   * `.cmd`/`.bat` shims require `shell: true` on Windows (otherwise `spawn`
+   * throws `EINVAL`); Bun is a real executable, so it needs no shell.
    */
   static resolveSpawnShell(packageManager: `bun` | `npm` | `pnpm` | `yarn`, platform = process.platform): boolean {
     return platform === `win32` && packageManager !== `bun`

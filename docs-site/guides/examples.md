@@ -176,7 +176,7 @@ Where to start, depending on what you already know:
 
 ```bash
 bun run build              # gramstax build: freezes src/pages into .gramstax/
-bun run deploy:serverless  # builds, then npx wrangler deploy --config .gramstax/server/wrangler.toml
+bun run deploy:serverless  # builds, then bunx wrangler deploy --config .gramstax/server/wrangler.toml
 ```
 
 `deploy:serverless` needs `BOT_DEPLOY=serverless`, `BOT_DEPLOY_NAME`, `BOT_DEPLOY_URL` (the public Worker URL, including the webhook path), and the webhook secret. The secret is set on the Worker side with `wrangler secret put BOT_WEBHOOK_SECRET` and read locally from `BOT_WEBHOOK_SECRET`; the two must be the same value and the literal never belongs in the config. See [Serverless deploy](/guides/serverless-deploy) for the full workflow.
@@ -200,11 +200,11 @@ The postinstall step matters: Bun does not link `workspace:*` binaries, so the b
 
 ```bash
 cd example/2-helloworld
-bun run start    # bun --bun gramstax start
-bun run dev      # bun --bun gramstax start --watch
+bun run start    # gramstax start
+bun run dev      # gramstax start --watch
 ```
 
-Plain `node` cannot be used: the CLI resolves TypeScript paths and the `~/*` alias, so it needs the Bun runtime.
+Bun is required: the CLI resolves TypeScript paths and the `~/*` alias. The published bin has a Bun shebang and loads project-root `.env*` files automatically.
 
 **Tests.** Every example except `3-helloworld-js` exposes `bun run test:e2e` for the in-process e2e suite and `bun run test:all` for unit plus e2e. `11-cloudflare-worker` has no `test/` directory, so its `test:all` is just `test:e2e`. From the root, `bun run test:example` runs `bun test ./example` across all of them. The e2e harness constructs `BotCore` directly with `deploy: "test"` and `token: "test"`, so no real token is needed. See [E2E testing](/guides/e2e-testing) for the harness API.
 

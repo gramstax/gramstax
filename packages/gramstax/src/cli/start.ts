@@ -13,6 +13,7 @@ import type {Ctx} from "../core/ctx"
 import {log as defaultLog, LoggingHelper, log} from "../helpers/log"
 import {TemplateManager} from "../template/manager"
 import {GramstaxConfigLoader} from "./config"
+import {loadProjectEnv} from "./env"
 
 export class GramstaxStart {
   /**
@@ -48,9 +49,9 @@ export class GramstaxStart {
    * @remarks
    * Construction *is* boot — there is no separate `run()` step. Exposed separately
    * from `run` because the `--watch` restarter needs to build a fresh instance
-   * without re-parsing flags or re-attaching a watcher. Requires a TS-capable
-   * runtime: the discovered bot file is imported through a `file://` URL, so plain
-   * node cannot load TypeScript sources.
+   * without re-parsing flags or re-attaching a watcher. The published CLI runs on
+   * Bun: the discovered bot file is imported through a `file://` URL, and Bun loads
+   * the TypeScript source directly.
    *
    * @param argv - Positional flag list from the Commander action, parsed for `--deploy`.
    * @param cwd - Absolute project root holding `gramstax.config.ts` and `src/core/bot.ts`.
@@ -66,6 +67,7 @@ export class GramstaxStart {
    * @public
    */
   async boot(argv: string[], cwd: string = process.cwd()): Promise<Gramstax> {
+    loadProjectEnv(cwd)
     const options = this._parseArgv(argv)
     const config: IGramstaxConfig = await new GramstaxConfigLoader().loadConfig(cwd)
     const token = this._resolveToken(config)
@@ -174,7 +176,7 @@ export class GramstaxStart {
    * Report which `gramstax` entry the running CLI resolved, for diagnostics.
    *
    * @remarks
-   * Prefers Node resolution so the printed path is the one the CLI itself loaded;
+   * Uses module resolution so the printed path is the one the CLI itself loaded;
    * falls back to `../index.js` relative to this module when the bare specifier
    * cannot be resolved, which happens in a linked or workspace layout. The value
    * only ever reaches an error message.

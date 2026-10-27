@@ -2,6 +2,8 @@
 
 A production-ready Telegram bot built with [Gramstax](https://github.com/gramstax/gramstax): declarative pages, template-driven messages, and end-to-end tested flows.
 
+The generated project is Bun-only: `gramstax start`, the test suite, and the build all run on Bun.
+
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white)
 ![Telegram](https://img.shields.io/badge/Telegram-26A5E4.svg?style=flat&logo=telegram&logoColor=white)
@@ -27,7 +29,7 @@ A production-ready Telegram bot built with [Gramstax](https://github.com/gramsta
 
 ### 2. Configure your environment
 
-Edit `.env` (already created for you on scaffold) and set your bot token; get one from [@BotFather](https://t.me/BotFather)
+Edit `.env` (already created for you on scaffold) and set your bot token; get one from [@BotFather](https://t.me/BotFather). The CLI loads `.env` from the project root automatically; there is no `--env-file` flag to type and no `bun --bun` prefix.
 
 ```bash
 BOT_TOKEN="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
@@ -91,7 +93,7 @@ New page? Create `src/pages/my-page.ts` plus `e2e/my-page.test.ts`: the mirror i
 
 ## Configuration
 
-All settings live in `.env` and are wired through `gramstax.config.ts` (`token` holds the token value via `process.env.BOT_TOKEN ?? ```, `deploy` and the session cache read their vars with local defaults):
+All settings live in `.env` and are wired through `gramstax.config.ts` (`token` holds the token value via `process.env.BOT_TOKEN ?? ```, `deploy` and the session cache read their vars with local defaults). `gramstax start` and `gramstax build` load project-root `.env*` files automatically, with shell variables taking precedence:
 
 | Variable                 | Required | Description                                                     |
 | :----------------------- | :------- | :-------------------------------------------------------------- |

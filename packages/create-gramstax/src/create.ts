@@ -12,17 +12,14 @@ import {
   BIOME_DEV_VERSION,
   buildServicesSource,
   type IPackageManager,
-  type IRuntime,
   isValidProjectName,
   PROJECT_NAME_PATTERN,
   removeDependency,
   removeTsconfigPathMappings,
   replaceTemplateVariables,
-  resolveRuntimeScripts,
   resolveWorkspaceDeps,
   SetupCancelledError,
   sanitizeProjectName,
-  setTsconfigCompilerOptions,
   stripBiomeScripts,
   validateCliOptions,
   writeJsonFileAtomic,
@@ -34,7 +31,6 @@ const __dirname = path.dirname(__filename)
 
 export type ICliOptions = {
   packageManager?: IPackageManager
-  runtime?: IRuntime
   lmdb?: boolean
   workerThread?: boolean
   biome?: boolean
@@ -45,7 +41,6 @@ type IProjectConfig = {
   projectName: string
   projectPath: string
   packageManager: IPackageManager
-  runtime: IRuntime
   setupBiome: boolean
   useLmdb: boolean
   useWorkerThread: boolean
@@ -158,7 +153,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
   async promptForConfiguration(): Promise<{
     packageManager: IPackageManager
-    runtime: IRuntime
     biome: boolean
     lmdb: boolean
     workerThread: boolean
@@ -166,7 +160,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     const answers = await enquirer
       .prompt<{
         packageManager?: IPackageManager
-        runtime: IRuntime
         lmdb?: boolean
         workerThread?: boolean
         biome?: boolean
@@ -180,16 +173,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
             {name: `npm`, message: `npm`, value: `npm`},
             {name: `pnpm`, message: `pnpm`, value: `pnpm`},
             {name: `yarn`, message: `Yarn`, value: `yarn`}
-          ],
-          initial: 0
-        },
-        {
-          type: `select`,
-          name: `runtime`,
-          message: `Which runtime would you like to use?`,
-          choices: [
-            {name: `bun`, message: `Bun (recommended)`, value: `bun`},
-            {name: `node`, message: `Node.js`, value: `node`}
           ],
           initial: 0
         },
@@ -215,12 +198,11 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       .catch(() => {
         throw new SetupCancelledError()
       })
-    if (!answers?.packageManager || !answers?.runtime || answers?.lmdb === undefined || answers?.workerThread === undefined || answers?.biome === undefined) {
+    if (!answers?.packageManager || answers?.lmdb === undefined || answers?.workerThread === undefined || answers?.biome === undefined) {
       throw new SetupCancelledError()
     }
     return {
       packageManager: answers.packageManager,
-      runtime: answers.runtime,
       lmdb: answers.lmdb as boolean,
       workerThread: answers.workerThread as boolean,
       biome: answers.biome as boolean
@@ -258,7 +240,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     const isTTY = process.stdin?.isTTY === true
     const hasAnyFlag = Boolean(cli && (this.hasAnyCliFlag() || cli.skipInstall !== undefined))
     const normalizedPm = cli?.packageManager !== undefined ? (String(cli!.packageManager).trim().toLowerCase() as IPackageManager) : undefined
-    const normalizedRuntime = cli?.runtime !== undefined ? (String(cli!.runtime).trim().toLowerCase() as IRuntime) : undefined
 
     if (!projectName) {
       if (!isTTY) {
@@ -283,14 +264,13 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     const hasCli = hasAnyFlag
     let config: {
       packageManager: IPackageManager
-      runtime: IRuntime
       lmdb: boolean
       workerThread: boolean
       biome: boolean
       skipInstall?: boolean
     }
     if (hasCli) {
-      validateCliOptions(normalizedPm, normalizedRuntime)
+      validateCliOptions(normalizedPm)
       const detectPackageManagerFallback = (): IPackageManager => {
         if (normalizedPm !== undefined) return normalizedPm
         const agent = (process.env.npm_config_user_agent ?? ``).toLowerCase()
@@ -307,7 +287,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       }
       const fallbackPm = detectPackageManagerFallback()
       const missing: string[] = []
-      if (normalizedRuntime === undefined) missing.push(`runtime`)
       if (cli?.lmdb === undefined) missing.push(`lmdb`)
       if (cli?.workerThread === undefined) missing.push(`workerThread`)
       if (cli?.biome === undefined) missing.push(`biome`)
@@ -318,7 +297,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
         const prompted = await this.promptForConfiguration()
         config = {
           packageManager: normalizedPm ?? fallbackPm,
-          runtime: normalizedRuntime ?? prompted.runtime,
           lmdb: cli?.lmdb ?? prompted.lmdb,
           workerThread: cli?.workerThread ?? prompted.workerThread,
           biome: cli?.biome ?? prompted.biome,
@@ -327,7 +305,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       } else {
         config = {
           packageManager: normalizedPm ?? fallbackPm,
-          runtime: normalizedRuntime ?? `bun`,
           lmdb: cli?.lmdb ?? true,
           workerThread: cli?.workerThread ?? true,
           biome: cli?.biome ?? true,
@@ -341,7 +318,7 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       config.skipInstall = this._cliOptions?.skipInstall === true
     }
 
-    const {packageManager, runtime, lmdb, workerThread, biome, skipInstall} = config
+    const {packageManager, lmdb, workerThread, biome, skipInstall} = config
 
     // Validation
     if (useCurrentDir) {
@@ -354,7 +331,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     log.info(`Project: ${projectName}`)
     log.info(`Location: ${projectPath}`)
     log.info(`Package Manager: ${packageManager}`)
-    log.info(`Runtime: ${runtime}`)
     log.info(`LMDB Storage: ${lmdb ? `Yes` : `No`}`)
     log.info(`Worker Thread: ${workerThread ? `Yes` : `No`}`)
     log.info(`Biome: ${biome ? `Yes` : `No`}`)
@@ -363,7 +339,6 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
       projectName,
       projectPath,
       packageManager,
-      runtime,
       setupBiome: biome,
       useLmdb: lmdb,
       useWorkerThread: workerThread,
@@ -376,13 +351,13 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
 
   hasAnyCliFlag(): boolean {
     const c = this._cliOptions
-    return !!(c && (c.packageManager !== undefined || c.runtime !== undefined || c.lmdb !== undefined || c.workerThread !== undefined || c.biome !== undefined))
+    return !!(c && (c.packageManager !== undefined || c.lmdb !== undefined || c.workerThread !== undefined || c.biome !== undefined))
   }
 
   // ── Project generation ──────────────────────────────────────────
 
   async executeProjectGeneration(config: IProjectConfig): Promise<void> {
-    const {projectName, projectPath, packageManager, runtime, setupBiome, useLmdb, useWorkerThread} = config
+    const {projectName, projectPath, packageManager, setupBiome, useLmdb, useWorkerThread} = config
     const skipInstall = config.skipInstall === true
     const commands = this.getPackageManagerCommands(packageManager)
     const variables = {
@@ -422,25 +397,9 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     // Task 4b: .gitignore (shipped as `gitignore` because npm never publishes .gitignore files)
     FsUt.normalizeGitignoreFile(projectPath)
 
-    // Task 5: Adjust scripts for Node runtime (the template defaults to bun commands)
-    const packageJsonPath = path.join(projectPath, `package.json`)
-    if (runtime !== `bun`) {
-      if (fs.existsSync(packageJsonPath)) {
-        const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {scripts?: Record<string, string>}
-        if (pkg.scripts) {
-          pkg.scripts = resolveRuntimeScripts(runtime, pkg.scripts)
-          writeJsonFileAtomic(packageJsonPath, pkg)
-        }
-      }
-      // The node build emits via tsc, so the template's noEmit must be off
-      const tsconfigJsonPath = path.join(projectPath, `tsconfig.json`)
-      if (fs.existsSync(tsconfigJsonPath)) {
-        writeTextFileAtomic(tsconfigJsonPath, setTsconfigCompilerOptions(fs.readFileSync(tsconfigJsonPath, `utf-8`), {noEmit: false}))
-      }
-    }
-
-    // Task 5b: Resolve workspace:* deps to concrete versions (scaffolded
+    // Task 5: Resolve workspace:* deps to concrete versions (scaffolded
     // projects are standalone — workspace:* only works inside the monorepo)
+    const packageJsonPath = path.join(projectPath, `package.json`)
     if (fs.existsSync(packageJsonPath)) {
       const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>; devDependencies?: Record<string, string>; peerDependencies?: Record<string, string>; optionalDependencies?: Record<string, string>}
       resolveWorkspaceDeps(pkg, this._version)

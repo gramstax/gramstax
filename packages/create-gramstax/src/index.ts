@@ -63,7 +63,6 @@ program
   .version(packageVersion)
   .argument(`[project-directory]`, `Directory to create the project in`)
   .addOption(new Option(`--pm <name>`, `Package manager (bun, npm, pnpm, yarn)`).choices([`bun`, `npm`, `pnpm`, `yarn`]).argParser((value: string) => value.trim().toLowerCase()))
-  .addOption(new Option(`--runtime <name>`, `Runtime (bun, node)`).choices([`bun`, `node`]).argParser((value: string) => value.trim().toLowerCase()))
   // No `true` default on these three, and that is the point. With a default,
 // `opts.lmdb` is always defined, so `cli?.lmdb ?? prompted.lmdb` in `Create`
 // resolved to the flag every time and a declined confirm was silently discarded —
@@ -78,14 +77,12 @@ program
   .addOption(new Option(`--no-biome`, `Skip Biome for linting & formatting`))
   .option(`--skip-install`, `Skip dependency installation`)
   .exitOverride()
-  .action(async (projectDirectory?: string, opts?: {pm?: string; runtime?: string; lmdb?: boolean; workerThread?: boolean; biome?: boolean; skipInstall?: boolean}) => {
+  .action(async (projectDirectory?: string, opts?: {pm?: string; lmdb?: boolean; workerThread?: boolean; biome?: boolean; skipInstall?: boolean}) => {
     try {
       const rawPm = opts?.pm !== undefined ? opts.pm.trim().toLowerCase() : undefined
-      const rawRuntime = opts?.runtime !== undefined ? opts.runtime.trim().toLowerCase() : undefined
-      validateCliOptions(rawPm, rawRuntime)
+      validateCliOptions(rawPm)
       const cliOptions: ICliOptions = {}
       cliOptions.packageManager = (rawPm as ICliOptions[`packageManager`]) ?? detectPackageManager()
-      if (rawRuntime !== undefined) cliOptions.runtime = rawRuntime as ICliOptions[`runtime`]
       if (opts?.lmdb !== undefined) cliOptions.lmdb = opts.lmdb
       if (opts?.workerThread !== undefined) cliOptions.workerThread = opts.workerThread
       if (opts?.biome !== undefined) cliOptions.biome = opts.biome

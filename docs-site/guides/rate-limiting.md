@@ -194,7 +194,7 @@ call that fails is retried; the file hydration is mounted by default so
 
 <Warning>
   `gramstax build --bundle` replaces `@grammyjs/transformer-throttler` with a stub
-  that throws on call. The throttler dependency graph reaches Node builtins through
+  that throws on call. The throttler dependency graph reaches built-in modules through
   dynamic `require()`, which workerd rejects, so the build fails loudly rather than
   shipping a bot that is silently unthrottled. Use the multi-file deploy output
   when `throttle` is required.

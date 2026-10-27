@@ -49,12 +49,14 @@ That is the scaffolded file from `create-gramstax`, verbatim. Every key is liste
 ## Scripts
 
 ```json
-"dev": "bun --bun gramstax start --watch",
-"start": "bun --bun gramstax start",
+"dev": "gramstax start --watch",
+"start": "gramstax start",
 "build:gramstax": "gramstax build"
 ```
 
-`bun --bun` is required: plain node cannot resolve TS paths or the `~` alias.
+Bun is required, but the published bin has a Bun shebang; no `bun --bun`
+prefix is needed. The CLI loads project-root `.env*` files automatically and
+resolves TypeScript paths and the `~` alias.
 
 ## Incorrect
 

@@ -70,8 +70,8 @@ Most scaffolders hand you a hello-world and an empty `tests/` folder, and then "
 
 ### 1. Prerequisites
 
-- **Node.js on `PATH`**: the published bin is `dist/src/index.js` with a `#!/usr/bin/env node` shebang, built by tsup with `platform: node`, `format: [cjs, esm]`, `target: esnext`. No `engines` field is declared. Bun works too (`bun src/index.ts`).
-- **A package manager** to install with: `bun`, `npm`, `pnpm` or `yarn`.
+- **Bun**: required for the generated project. Its `dev`, `start`, `test`, and `test:e2e` scripts run on Bun, and the `gramstax` CLI has a Bun shebang. The scaffolder itself is packaging-only and does not change the generated project's Bun runtime.
+- **A package manager** to install with: `bun`, `npm`, `pnpm` or `yarn`. The generated project still runs on Bun.
 - **A bot token** from [@BotFather](https://t.me/BotFather): needed to actually run the bot, not to scaffold it.
 
 ### 2. Run it
@@ -80,17 +80,16 @@ Most scaffolders hand you a hello-world and an empty `tests/` folder, and then "
 bunx create-gramstax@latest my-bot
 ```
 
-`npx create-gramstax my-bot` and `pnpm dlx create-gramstax my-bot` are equivalent. `my-bot` is a bare name, not a path: it must match `/^[a-z0-9-_]{1,100}$/i`.
+Use `bunx` to launch the scaffolder. `my-bot` is a bare name, not a path: it must match `/^[a-z0-9-_]{1,100}$/i`.
 
 ### 3. What happens
 
-The CLI prints its ASCII banner with the resolved version, resolves a base directory (`INIT_CWD` when set, which is what makes `bunx` land where you expect, otherwise `process.cwd()`), echoes a summary of all seven choices, then runs eight generation steps and one install:
+The CLI prints its ASCII banner with the resolved version, resolves a base directory (`INIT_CWD` when set, which is what makes `bunx` land where you expect, otherwise `process.cwd()`), echoes a summary of the resolved configuration, then runs the generation steps and one install:
 
 ```text
 [INFO] Project: my-bot
 [INFO] Location: /path/to/my-bot
 [INFO] Package Manager: bun
-[INFO] Runtime: bun
 [INFO] LMDB Storage: Yes
 [INFO] Worker Thread: Yes
 [INFO] Biome: Yes
@@ -121,7 +120,6 @@ program
   .version(packageVersion)
   .argument(`[project-directory]`, `Directory to create the project in`)
   .addOption(new Option(`--pm <name>`, `Package manager (bun, npm, pnpm, yarn)`).choices([`bun`, `npm`, `pnpm`, `yarn`]).argParser((value: string) => value.trim().toLowerCase()))
-  .addOption(new Option(`--runtime <name>`, `Runtime (bun, node)`).choices([`bun`, `node`]).argParser((value: string) => value.trim().toLowerCase()))
   .addOption(new Option(`--lmdb`, `Include @gramstax/lmdb (prompted when neither flag is given)`))
   .addOption(new Option(`--no-lmdb`, `Skip @gramstax/lmdb`))
   .addOption(new Option(`--worker-thread`, `Include @gramstax/worker-thread (prompted when neither flag is given)`))
@@ -136,7 +134,6 @@ program
 | :---------------------- | :-------------------- | :----------------------- | :------------------------------------------------------------------------- |
 | `[project-directory]`   | a project name        | prompted                | Bare name, not a path; validated against `/^[a-z0-9-_]{1,100}$/i`           |
 | `--pm <name>`           | `bun` `npm` `pnpm` `yarn` | detected, else `bun`  | Package manager used to install; also drives the README's printed commands |
-| `--runtime <name>`      | `bun` `node`          | `bun`                   | Target runtime; `node` rewrites the generated scripts (see below)          |
 | `--lmdb`                | _none_                | `true`                  | Keep `@gramstax/lmdb`, `src/db/`, `DB_PATH` and the `data/` ignore rule   |
 | `--worker-thread`       | _none_                | `true`                  | Keep `@gramstax/worker-thread` and `src/workers/`                          |
 | `--biome`               | _none_                | `true`                  | Keep `biome.json`, add `@biomejs/biome`, keep the `lint*`/`format*` scripts |
@@ -144,7 +141,7 @@ program
 | `-h, --help`            | _none_                | _none_                  | Commander's help text                                                      |
 | `-V, --version`         | _none_                | package version         | Falls back to `0.0.0` if `package.json` cannot be read or parsed            |
 
-`--pm` and `--runtime` are **case-insensitive and trimmed**: `--pm NPM` and `--pm "  pnpm  "` both work, because `.argParser` lowercases and trims before the action handler re-normalises. An unrecognised value fails in `validateCliOptions` with the value echoed back and the legal list: `Unsupported package manager "bogus". Supported: bun, npm, pnpm, yarn`.
+`--pm` is **case-insensitive and trimmed**: `--pm NPM` and `--pm "  pnpm  "` both work, because `.argParser` lowercases and trims before the action handler re-normalises. An unrecognised value fails in `validateCliOptions` with the value echoed back and the legal list: `Unsupported package manager "bogus". Supported: bun, npm, pnpm, yarn`.
 
 ### The prompts, in order
 
@@ -154,12 +151,11 @@ Two prompts live in [`src/create.ts`](./src/create.ts). Ctrl-C (or any enquirer 
 | :-- | :------------------------------------------------------------------------------------------------- | :------ | :------------ | :-------------------------------------------- |
 | 1 | `What is your project named?`                                                                      | input   | empty         | no positional **and** stdin is a TTY         |
 | 2 | `Which package manager would you like to use?`: `Bun (recommended)` / `npm` / `pnpm` / `Yarn`      | select  | `bun`         | not already supplied                         |
-| 3 | `Which runtime would you like to use?`: `Bun (recommended)` / `Node.js`                            | select  | `bun`         | not already supplied                         |
-| 4 | `Would you like to include @gramstax/lmdb for persistent storage? (recommended)`                    | confirm | `true`        | not already supplied                         |
-| 5 | `Would you like to include @gramstax/worker-thread for background jobs? (recommended)`              | confirm | `true`        | not already supplied                         |
-| 6 | `Would you like to use Biome for linting & formatting? (recommended)`                               | confirm | `true`        | not already supplied                         |
+| 3 | `Would you like to include @gramstax/lmdb for persistent storage? (recommended)`                    | confirm | `true`        | not already supplied                         |
+| 4 | `Would you like to include @gramstax/worker-thread for background jobs? (recommended)`              | confirm | `true`        | not already supplied                         |
+| 5 | `Would you like to use Biome for linting & formatting? (recommended)`                               | confirm | `true`        | not already supplied                         |
 
-Prompts 2–6 are submitted as a single enquirer array, so they appear in exactly that order. Answering prompt 1 with an empty string scaffolds **into the current directory** instead: the name is slugified from the directory basename via `sanitizeProjectName`, and the directory must be effectively empty (`.git`, `.gitignore`, `.gitkeep`, `.DS_Store` and `Thumbs.db` do not count as content).
+Prompts 2–5 are submitted as a single enquirer array, so they appear in exactly that order. Answering prompt 1 with an empty string scaffolds **into the current directory** instead: the name is slugified from the directory basename via `sanitizeProjectName`, and the directory must be effectively empty (`.git`, `.gitignore`, `.gitkeep`, `.DS_Store` and `Thumbs.db` do not count as content).
 
 ### Turning a feature on and off
 
@@ -177,7 +173,7 @@ So there are three ways to set a feature, and they compose:
 
 ```bash
 # fully non-interactive: every choice stated, nothing installed
-bunx create-gramstax@latest my-bot --runtime bun --pm bun --no-lmdb --no-worker-thread --no-biome --skip-install
+bunx create-gramstax@latest my-bot --pm bun --no-lmdb --no-worker-thread --no-biome --skip-install
 ```
 
 A flag that is neither given nor negated is reported by name in a non-TTY rather than guessed:
@@ -196,11 +192,11 @@ In a non-TTY (CI, a pipe, `npm init`-style scripting) nothing is guessed and not
 
 ```bash
 # every choice stated up front, nothing installed
-bunx create-gramstax@latest my-bot --runtime bun --skip-install --no-lmdb --no-worker-thread --no-biome
+bunx create-gramstax@latest my-bot --skip-install --no-lmdb --no-worker-thread --no-biome
 ```
 
 - No positional **and** no TTY → `Missing project name` (prefixed with `Project name is required when using CLI flags` when a flag was seen). Exit 2.
-- A flag missing **and** no TTY → `Missing required CLI options: runtime. Provide runtime flags or run interactively.` Exit 2.
+- A feature flag missing **and** no TTY → `Missing required CLI options: lmdb, workerThread, biome. Provide lmdb, workerThread, biome flags or run interactively.` Exit 2.
 
 `--pm` is the one value that does not need stating: `detectPackageManager` resolves it from the explicit flag, else `npm_config_user_agent` (`pnpm` is matched before `npm`, because the yarn/pnpm agent strings contain `npm`), else a lockfile in the base directory (`bun.lockb`, `bun.lock`, `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`), else `bun`.
 
@@ -210,21 +206,11 @@ bunx create-gramstax@latest my-bot --runtime bun --skip-install --no-lmdb --no-w
 - If the target directory already exists, the run stops with `Directory "my-bot" already exists` (exit 2). The CLI never merges into a populated directory.
 - With no positional and an empty answer, `FsUt.isDirectoryEffectivelyEmpty` inspects the top level plus one level of nesting, so a directory holding only `logs/.gitkeep` still counts as empty.
 
-### The node runtime
+### Runtime
 
-`--runtime node` rewrites the generated `package.json` through `resolveRuntimeScripts` and flips `noEmit` off in `tsconfig.json` (so `tsc` can emit). The rewrites are deliberately narrow:
-
-| Script                | Generated (`bun`)                     | Generated (`node`)         |
-| :-------------------- | :------------------------------------ | :------------------------- |
-| `dev`                 | `bun --bun gramstax start --watch`   | unchanged: stays on Bun   |
-| `start`               | `bun --bun gramstax start`            | unchanged: stays on Bun   |
-| `build:gramstax`      | `bun --bun gramstax build`            | `gramstax build`           |
-| `test`                | `bun test test/`                      | `node --test test/`        |
-| `test:e2e`            | `bun test e2e/`                       | `node --test e2e/`         |
-| `test:all`            | `bun test test/ e2e/`                 | `node --test test/ e2e/`   |
-| `typecheck`           | `tsc --noEmit`                        | unchanged                  |
-
-Any script whose value contains `gramstax start` is skipped by the rewriter, because the CLI boots TypeScript directly and plain node cannot resolve the `~` alias or TS paths. That is why `dev` and `start` keep their `bun --bun` prefix even in a node-runtime project.
+Generated projects are Bun-only. Every app, test, and build script runs through
+Bun, and the emitted `package.json` has no runtime switch. Bun must be installed
+for `gramstax start` / `gramstax build` and for the generated test scripts.
 
 ### Exit behaviour
 
@@ -240,7 +226,7 @@ Any script whose value contains `gramstax start` is skipped by the rewriter, bec
 
 A cancellation is a deliberate no-op, not a failure: exit `0` with `Setup cancelled`, so a Ctrl-C in an interactive shell does not look like a crash to a wrapper script.
 
-One wart worth knowing, since it will show up the first time you pipe the CLI: `--help` and `--version` also exit `2`. `.exitOverride()` stops commander from exiting itself, and the catch in `isMainModule` only treats a message containing `helpDisplayed` or `version` as success: commander's actual messages are `(outputHelp)` and the bare version string, so both fall through to `log.error` with code `2`. Verified on both Bun and Node, from source and from `dist/`.
+One wart worth knowing, since it will show up the first time you pipe the CLI: `--help` and `--version` also exit `2`. `.exitOverride()` stops commander from exiting itself, and the catch in `isMainModule` only treats a message containing `helpDisplayed` or `version` as success: commander's actual messages are `(outputHelp)` and the bare version string, so both fall through to `log.error` with code `2`. Verified from source and from `dist/`.
 
 ## 🔍 How it works
 
@@ -251,10 +237,10 @@ Two methods on `Create`, called from `createProject()`: [`gatherProjectConfig()`
 1. `printBanner()` writes the ASCII banner plus `v<version>`, where the version comes from walking up to ten directories for a `package.json` and falling back to `0.0.0` on any failure.
 2. `FsUt.resolveInitialWorkingDirectory()` prefers `INIT_CWD` over `process.cwd()`.
 3. The positional name is validated against `PROJECT_NAME_PATTERN` before anything else happens.
-4. `hasAnyCliFlag()` inspects `packageManager`, `runtime`, `lmdb`, `workerThread` and `biome`. `skipInstall` alone does not count, so `--skip-install` on its own still leaves the config prompts reachable.
+4. `hasAnyCliFlag()` inspects `packageManager`, `lmdb`, `workerThread` and `biome`. `skipInstall` alone does not count, so `--skip-install` on its own still leaves the config prompts reachable.
 5. `validateCliOptions` runs, then `missing` is computed as the fields that are still `undefined`. Non-empty `missing` in a TTY triggers `promptForConfiguration()` and the merge `cli.X ?? prompted.X`; non-empty `missing` without a TTY throws.
 6. Destination checks: `Directory "x" already exists`, or `Current directory is not empty` for the in-place case.
-7. The seven-line summary is printed: deliberately after validation, so you never see a cheerful summary for a run that is about to fail.
+7. The six-line summary is printed: deliberately after validation, so you never see a cheerful summary for a run that is about to fail.
 
 ### Generating
 
@@ -265,13 +251,12 @@ Two methods on `Create`, called from `createProject()`: [`gatherProjectConfig()`
 | 3 | `logs/` + `logs/.gitkeep` created | `executeProjectGeneration` |
 | 4 | `.env.example` → `.env`, or deleted if a `.env` already exists | `executeProjectGeneration` |
 | 4b | `gitignore` → `.gitignore`, or merged into an existing one | [`FsUt.normalizeGitignoreFile`](./src/utils/fs.ts) |
-| 5 | node-runtime script + `noEmit` rewrite | [`resolveRuntimeScripts`](./src/utils/project.ts) |
-| 5b | `workspace:*` → `^<version>` in every dep section | `resolveWorkspaceDeps` |
+| 5 | `workspace:*` → `^<version>` in every dep section | `resolveWorkspaceDeps` |
 | 6 | LMDB keep-or-prune | `executeProjectGeneration` |
 | 7 | worker-thread keep-or-prune | `executeProjectGeneration` |
 | _conditional_| `src/core/services.ts` regenerated for the surviving feature set | `buildServicesSource` |
-| 9 | Biome keep-or-prune (runs before the install) | `stripBiomeScripts`, `removeDependency` |
-| 8 | the single install | [`installDependencies`](./src/create.ts) |
+| 8 | Biome keep-or-prune (runs before the install) | `stripBiomeScripts`, `removeDependency` |
+| 9 | the single install | [`installDependencies`](./src/create.ts) |
 
 **Copying.** `copyDirectorySync` recurses, warns-and-skips symlinks, byte-copies anything that is not valid UTF-8 (a NUL byte or a fatal decode failure marks a file binary), preserves the source mode with `chmodSync`, and substitutes placeholders only in text files. Substitution goes through `replaceTemplateVariables`, which uses a replacer *function* so a `$&` or `$1` in a value is never reinterpreted as a replacement pattern.
 
@@ -281,7 +266,7 @@ Two methods on `Create`, called from `createProject()`: [`gatherProjectConfig()`
 
 **The service seam.** `buildServicesSource(useLmdb, useWorkerThread)` emits imports, `start()` bodies and `stop()` bodies to match. With neither feature it emits a no-op class that names neither pruned package, so nothing in the generated project can mention a directory that was deleted. The shipped template file is byte-identical to the both-on variant: asserted by [`test/generation.test.ts`](./test/generation.test.ts), so the template you read in this repo is the same code path a scaffold receives.
 
-**Installing.** `installDependencies` spawns `FsUt.resolvePackageManagerCommand(packageManager)` with `["install"]`, `cwd` set to the project, `stdio: "inherit"` so you watch it, and `shell: FsUt.resolveSpawnShell(packageManager)`: `true` for npm/pnpm/yarn on Windows, where Node refuses to spawn `.cmd` shims without a shell (`EINVAL`), and `false` for Bun, which is a real executable. It resolves `true` only on exit code `0`; anything else throws `Dependencies installation failed` rather than reporting success.
+**Installing.** `installDependencies` spawns `FsUt.resolvePackageManagerCommand(packageManager)` with `["install"]`, `cwd` set to the project, `stdio: "inherit"` so you watch it, and `shell: FsUt.resolveSpawnShell(packageManager)`: `true` for npm/pnpm/yarn on Windows, where `.cmd` shims need a shell (`EINVAL`), and `false` for Bun, which is a real executable. It resolves `true` only on exit code `0`; anything else throws `Dependencies installation failed` rather than reporting success.
 
 ## 🗂️ What gets generated
 
@@ -365,9 +350,9 @@ Straight from [`src/templates/package.json`](./src/templates/package.json):
 
 | Script           | Command                        | What it does                                                     |
 | :--------------- | :----------------------------- | :--------------------------------------------------------------- |
-| `dev`            | `bun --bun gramstax start --watch` | Boots the bot and watches for changes: your dev loop         |
-| `start`          | `bun --bun gramstax start`     | Production boot from the same config                             |
-| `build:gramstax` | `bun --bun gramstax build`     | Freezes `src/pages` into `.gramstax/` (`routes.json`, `manifest.js`, AOT `gen/`, `server/`) |
+| `dev`            | `gramstax start --watch`       | Boots the bot and watches for changes: your dev loop         |
+| `start`          | `gramstax start`               | Production boot from the same config                             |
+| `build:gramstax` | `gramstax build`               | Freezes `src/pages` into `.gramstax/` (`routes.json`, `manifest.js`, AOT `gen/`, `server/`) |
 | `typecheck`      | `tsc --noEmit`                 | Type-check only                                                   |
 | `lint`           | `biome lint`                   | Biome lint (removed with Biome)                                   |
 | `lint:fix`       | `biome lint --write --unsafe`  | Lint with autofix (removed with Biome)                           |
@@ -376,7 +361,7 @@ Straight from [`src/templates/package.json`](./src/templates/package.json):
 | `test:e2e`       | `bun test e2e/`                | The generated e2e suite, one file per page                        |
 | `test:all`       | `bun test test/ e2e/`          | Both                                                              |
 
-`bun --bun` is required on the boot scripts: plain node cannot resolve TS paths or the `~` alias. Dependencies come out as `gramstax`, `@gramstax/lmdb` and `@gramstax/worker-thread` at `^<create-gramstax version>`, `typescript` as a peer, `@types/bun` as a dev dependency, plus `@biomejs/biome` when Biome is kept.
+Bun is required for the boot scripts: the published `gramstax` binary has a Bun shebang, so no `bun --bun` prefix is needed, and Bun resolves the TypeScript paths and the `~` alias. The CLI also loads project-root `.env*` files automatically. Dependencies come out as `gramstax`, `@gramstax/lmdb` and `@gramstax/worker-thread` at `^<create-gramstax version>`, `typescript` as a peer, `@types/bun` as a dev dependency, plus `@biomejs/biome` when Biome is kept.
 
 ### `e2e/setup.ts` is the one boot that is different
 
@@ -470,13 +455,13 @@ packages/create-gramstax/
 │   ├── cli-contract.test.ts    # the CLI contract (see below)
 │   ├── create.test.ts          # banner, fs helpers, placeholders, template text
 │   ├── fs-utils.test.ts        # gitignore merge, empty-dir semantics, spawn shell
-│   ├── generation.test.ts      # end-to-end generation, per feature set and runtime
+│   ├── generation.test.ts      # end-to-end generation, per feature set
 │   └── prompts-config.test.ts  # prompt cancel/validation/partial-rejection semantics
 ├── tsup.config.ts       # bundles src/index.ts; copies templates into dist/src/templates
 └── package.json         # bin -> dist/src/index.js, cjs + esm, dts, minified
 ```
 
-The build (`tsup`, `platform: node`, `format: [cjs, esm]`) bundles `src/index.ts` and, in `onSuccess`, copies `src/templates` to `dist/src/templates`, pre-resolving the dist template's `workspace:*` dependencies to `^<version>` and stripping the `gramstax`/`@gramstax/lmdb` path mappings. Generation then applies the same rewrites again: belt and braces, since a scaffold must not depend on how the CLI happened to be built.
+The build (`tsup`, `format: [cjs, esm]`) bundles `src/index.ts` and, in `onSuccess`, copies `src/templates` to `dist/src/templates`, pre-resolving the dist template's `workspace:*` dependencies to `^<version>` and stripping the `gramstax`/`@gramstax/lmdb` path mappings. Generation then applies the same rewrites again: belt and braces, since a scaffold must not depend on how the CLI happened to be built.
 
 The scaffolded source is held to rules that are checked, not reviewed: [`test/generation.test.ts`](./test/generation.test.ts) fails on any `templates/src` file that exports a module-level function, calls `console.*`, or declares a `private` member without an underscore prefix. That is why every page, guard and service in the generated project is class-based, every log line goes through `LogHe`, and `Db._instance` / `Db._job` / `UserRepository._user` look the way they do.
 

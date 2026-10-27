@@ -125,6 +125,6 @@ The 16 fields are `media`, `poll`, `venue`, `dice`, `callbackAnswer`, `prechecko
 
 ## Notes
 
-- AOT artifacts are consumed only on manifest boot: `gen/manifest.js` is read and each template registered via `registerCompiled(key, template)`. Node deploys ignore `gen/` entirely; it exists for the edge.
+- AOT artifacts are consumed only on manifest boot: `gen/manifest.js` is read and each template registered via `registerCompiled(key, template)`. Polling/webhook deploys ignore `gen/` entirely; it exists for the edge.
 - `--bundle` stubs four edge-impossible graphs with fail-fast errors — see `deploy-build.md`.
-- `serverless` is the only deploy that auto-loads `.gramstax/`; on `polling`/`webhook` the build is inert, so a stale artifact cannot affect a Node deploy.
+- `serverless` is the only deploy that auto-loads `.gramstax/`; on `polling`/`webhook` the build is inert, so a stale artifact cannot affect that deploy.

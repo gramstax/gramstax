@@ -108,8 +108,9 @@ Freezes `src/pages` into `.gramstax/`: `routes.json`, `manifest.js`, AOT output
 under `gen/`, and a `server/` entry per target. AOT always runs. There is no
 `--aot` flag.
 
-Run it with `bun --bun` like the rest of the CLI; plain Node cannot resolve the
-TypeScript paths.
+Run it with `gramstax build`; the published bin uses Bun, which resolves the
+TypeScript paths. The CLI also loads project-root `.env*` files
+automatically before importing the config.
 
 ## Observability
 

@@ -170,15 +170,15 @@ None of these run a format check or a backtick check — `biome lint` only.
 
 - Target runtime is `esnext` with bundler module resolution.
 - Packages build into `packages/*/dist/src`.
-- `bun` is used for tests and some runtime paths (e.g., webhook server).
-- Keep Node compatibility unless a file explicitly uses Bun APIs.
+- `bun` is required for tests, app boot, the CLI, and Bun-API paths (e.g., the webhook server via `Bun.serve`).
+- Keep `node:` builtin imports where code is shared with `@gramstax/lmdb` / `@gramstax/worker-thread`; those standalone packages have their own runtime support, while the `gramstax` app runtime is Bun-only.
 
 ## Application Boot (v2.2.0)
 
 Applications are **config-driven**. There is no `src/index.ts` and no hand-written `new Gramstax({...})` entry.
 
 - Every project has a `gramstax.config.ts` at its root: default export, annotated `: GramstaxConfig` (a thin alias of `IGramstaxConfig`, all fields optional). This is the single composition point for token, deploy mode, caches, and runtime tuning.
-- `gramstax start [--deploy <mode>] [--watch]` loads it, discovers the `Gramstax` subclass at `src/core/bot.ts`, materializes each ref slot (`instanceof`-checked), then constructs it — construction *is* boot, no `.run()`. Run it as `bun --bun gramstax start`; plain node cannot resolve TS paths or the `~` alias.
+- `gramstax start [--deploy <mode>] [--watch]` loads it, discovers the `Gramstax` subclass at `src/core/bot.ts`, materializes each ref slot (`instanceof`-checked), then constructs it — construction *is* boot, no `.run()`. Run it as `gramstax start`; the published bin has a Bun shebang and loads project-root `.env*` files automatically. Bun resolves the TS paths and the `~` alias.
 - `gramstax build` freezes `src/pages` into `.gramstax/` (`routes.json`, `manifest.js`, AOT `gen/`, `server/` per target). Only `serverless` auto-loads it; other deploys run from the filesystem.
 - `deploy` selects the mode; `optionsDeploy` holds per-mode settings in **nested branches** — at most one non-empty branch, and it must equal `deploy`. `webhook` requires `url` + `secretToken`; `serverless` is keyed by adapter (`cloudflare-mod` | `aws-lambda-async`) and requires `url` + `secretToken`. The legacy `webhook:<url>` colon grammar throws.
 - Config files hold **refs and plain data, not instances**: `cacheSession: {store, ttlMs?, namespace?}`, `log: {override: {module, export?, args?}}`. A bare `{module}` ref without the `override` wrapper is rejected. `manifest` is a constructor param, not a config field.
