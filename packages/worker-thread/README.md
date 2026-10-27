@@ -26,8 +26,10 @@ be reachable, and call them as if they were local:
 
 ```ts
 
+import {EchoWorker} from "./echo-worker"
+
 const worker = await EchoWorker.launchWorker()
-console.log(await EchoWorker.mtdAdd(2, 3)) // 5. result from worker thread
+console.log(await EchoWorker.mtdAdd(2, 3)) // 5: an RPC into the worker
 ```
 
 The transport, the id matching, the timeout, the error propagation, and the
