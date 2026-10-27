@@ -4,6 +4,10 @@
 
 Realigns the `route-` render rules with the single-object render API. Every `render*` method now takes ONE params object; `mode: 'auto' | 'reply' | 'edit'` replaces the separate auto/edit method families, and `renderText` resolves plain vs rich `<g-message>` content itself — there is no rich variant to choose.
 
+### Added
+
+- `pages-structure.md` — documents the scaffold's shared `src/types/<domain>.ts` convention, with `user.ts`/`job.ts` pruned alongside their optional features.
+
 ### Folded
 
 - `renderChunked` is gone; long-text splitting is now the `chunkSize` field on `renderText`. It is documented as a `chunkSize` subsection under `renderText` in `route-render-api.md`: sequential reply chunks, the keyboard rides only the LAST chunk, the cut prefers `\n\n` → `\n` → a space, and the chunked path is a REPLY path, so `mode` does not apply. The picking-table row and the `AGBaseId`-required note are re-pointed.

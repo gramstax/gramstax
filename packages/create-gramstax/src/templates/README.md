@@ -74,6 +74,7 @@ Open Telegram, find your bot, and send `/start`.
 │   ├── guards/        # Access control and input validation
 │   ├── helpers/       # Domain helpers (logging, formatting)
 │   ├── pages/         # Bot screens: one file (or folder) per route
+│   ├── types/         # Shared types grouped by domain: user, job, page
 │   ├── utils/         # Pure generic utilities
 │   └── workers/       # Background jobs (if enabled)
 ├── e2e/               # End-to-end tests (mirrors src/pages/)
@@ -81,6 +82,10 @@ Open Telegram, find your bot, and send `/start`.
 ├── scripts/           # e2e mirror check + structure generator
 └── data/              # LMDB data files (created at runtime, if enabled)
 ```
+
+Keep shared interfaces in `src/types/<domain>.ts` rather than declaring them
+inline in a page or service. Optional type files are removed with their feature:
+`types/user.ts` goes with `--no-lmdb`, `types/job.ts` with `--no-worker-thread`.
 
 New page? Create `src/pages/my-page.ts` plus `e2e/my-page.test.ts`: the mirror is enforced by `scripts/check-e2e-mirror.ts`.
 

@@ -3,6 +3,7 @@
 
   <p>A typed LMDB layer for Bun and Node.js: declare a schema, register it once, and get a sub-database handle with indexes, transactions, queues, backups, and change capture already wired in.</p>
   <p>
+    <a href="https://github.com/gramstax/gramstax/actions/workflows/release.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/gramstax/gramstax/release.yml?branch=main&label=build&style=flat&logo=githubactions&logoColor=white"/></a>
     <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
     <img alt="Node" src="https://img.shields.io/badge/Node-%23333933.svg?style=flat&logo=nodedotjs&logoColor=white"/>
@@ -194,7 +195,7 @@ asynchronous, because LMDB batches them on the writer thread.
 - Put a service layer between the schema and your handlers: the schema owns
   storage, the service owns business logic.
 - Read the [storage guide](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/storage-lmdb.md)
-  for the full surface, or the [package skill](./skills/lmdb-best-practices/SKILL.md)
+  for the full surface, or the [package skill](https://github.com/gramstax/gramstax/blob/main/skills/lmdb-best-practices/SKILL.md)
   for the rules.
 
 ## 📖 Usage
@@ -707,11 +708,6 @@ packages/lmdb/
 ├── test/                    # 43 bun:test files + test-helpers.ts
 ├── example/                 # 23 runnable examples, one per feature area
 ├── bench/                   # 11 bench files + shared setup
-├── skills/
-│   └── lmdb-best-practices/
-│       ├── SKILL.md         # Router: when to apply, rule priority, start-here table
-│       ├── CHANGELOG.md
-│       └── references/      # 26 rule files + _sections.md index + _template.md
 ├── AGENTS.md                # Package conventions and architecture facts
 ├── tsup.config.ts           # Bundler: cjs + esm, dts
 └── package.json             # name: @gramstax/lmdb · license: Apache-2.0
@@ -1101,15 +1097,15 @@ form, alongside the framework guides that use this package.
 
 ### Agent skills
 
-Each package ships a rule-based skill consumed by coding agents, with
+The repository ships three rule-based skills consumed by coding agents, with
 `references/` holding one file per rule:
 
-- [`packages/lmdb/skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/lmdb/skills/lmdb-best-practices/SKILL.md):
+- [`skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/lmdb-best-practices/SKILL.md):
   query patterns, index declaration and maintenance, env sizing, schema
   design, transactions and queues, full-text search, change capture,
   migrations, differential sync, and mitata bench conventions.
-- [`packages/gramstax/skills/gramstax-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/gramstax/skills/gramstax-best-practices/SKILL.md)
-  and [`packages/worker-thread/skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/worker-thread/skills/worker-thread-best-practices/SKILL.md)
+- [`skills/gramstax-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/gramstax-best-practices/SKILL.md)
+  and [`skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/worker-thread-best-practices/SKILL.md)
   for the sibling packages.
 
 ### Examples

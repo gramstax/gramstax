@@ -465,6 +465,8 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     } else {
       log.info(`Removing @gramstax/lmdb files..`)
       if (fs.existsSync(dbPath)) fs.rmSync(dbPath, {recursive: true, force: true})
+      const userTypesPath = path.join(projectPath, `src`, `types`, `user.ts`)
+      if (fs.existsSync(userTypesPath)) fs.rmSync(userTypesPath, {force: true})
       if (fs.existsSync(packageJsonPath)) {
         const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>; devDependencies?: Record<string, string>; peerDependencies?: Record<string, string>; optionalDependencies?: Record<string, string>}
         removeDependency(pkg, `@gramstax/lmdb`)
@@ -482,6 +484,8 @@ $$ |  $$ |$$ |     $$  __$$ |$$ | $$ | $$ | \\____$$\\   $$ |$$\\ $$  __$$ | $$ 
     } else {
       log.info(`Removing @gramstax/worker-thread files..`)
 if (fs.existsSync(workerPath)) fs.rmSync(workerPath, {recursive: true, force: true})
+      const jobTypesPath = path.join(projectPath, `src`, `types`, `job.ts`)
+      if (fs.existsSync(jobTypesPath)) fs.rmSync(jobTypesPath, {force: true})
       if (fs.existsSync(packageJsonPath)) {
         const pkg = JSON.parse(fs.readFileSync(packageJsonPath, `utf-8`)) as {dependencies?: Record<string, string>; devDependencies?: Record<string, string>}
         removeDependency(pkg, `@gramstax/worker-thread`)

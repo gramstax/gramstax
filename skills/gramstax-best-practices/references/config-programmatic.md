@@ -1,6 +1,6 @@
 # config-programmatic
 
-`gramstax.config.ts` is the default entry, not the only one. Constructing `new BotCore({...})` yourself is fully supported in v2.2.0 — it is the **advanced** path for cases the config shape cannot express.
+`gramstax.config.ts` is the default entry, not the only one. Constructing `new BotCore({...})` yourself is fully supported — it is the **advanced** path for cases the config shape cannot express.
 
 ## Why
 
@@ -146,7 +146,7 @@ Worth being precise, because the two are easy to conflate.
 The main thread boots normally from the config, and workers launch from a **lifecycle hook**, not an entry file:
 
 ```typescript
-// src/core/bot.ts — the v2.2.0 way, no entry file needed
+// src/core/bot.ts — the config-driven way, no entry file needed
 export class BotCore extends Gramstax {
   async hookAfterStart() {
     await IncrementJob.launchWorker([5000]) // 5s interval

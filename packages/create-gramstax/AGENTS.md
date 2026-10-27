@@ -28,6 +28,7 @@ packages/create-gramstax/src/
 │   │   ├── db/repositories/user.ts
 │   │   ├── workers/job.ts     WorkerThreadInit subclass + JobWorker export (RPC surface + launchWorker/shutdown) (only when workers enabled)
 │   │   ├── pages/*            9 page templates (nested start/random)
+│   │   ├── types/             Shared types grouped by domain: user.ts (LMDB), job.ts (workers), page.ts (always kept)
 │   ├── test/.gitkeep
 │   ├── e2e/                   setup.ts + 8 test file templates (shared enUser/idUser fixtures, 4001/5001)
 │   └── scripts/               check-e2e-mirror.ts + generate-e2e-structure.ts (single-project e2e tooling)
@@ -41,8 +42,8 @@ packages/create-gramstax/src/
 4. Post-processes:
    - Renames `.env.example` → `.env` (preserves a pre-existing `.env`)
    - Strips every monorepo `tsconfig` `paths` entry — scaffolds are standalone, and a `gramstax` → `src` mapping breaks `gramstax start`'s `instanceof Gramstax` discovery (two copies of the package)
-   - Removes `src/db/` + `@gramstax/lmdb` deps when LMDB disabled
-   - Removes `src/workers/` + `@gramstax/worker-thread` dep when workers disabled
+   - Removes `src/db/` + `src/types/user.ts` + `@gramstax/lmdb` deps when LMDB disabled
+   - Removes `src/workers/` + `src/types/job.ts` + `@gramstax/worker-thread` dep when workers disabled
    - Regenerates `src/core/services.ts` from `buildServicesSource(useLmdb, useWorkerThread)` — `BotCore` calls `ServicesCore.start()`/`ServicesCore.stop()` unconditionally, so it must never statically reference a pruned directory
    - Adds `@biomejs/biome` to devDependencies when Biome enabled (installed with the rest); removes `biome.json` + `lint*`/`format*` scripts otherwise
    - For `--runtime node`: dev/start → `node`, build → `tsc --outDir dist` (kept), `test*` → `node --test`, template `noEmit` flipped off

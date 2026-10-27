@@ -231,7 +231,7 @@ cd packages/lmdb && bun run bench:all      # full suite (slow: decode defaults t
 
 ### Best practices
 
-`packages/lmdb/skills/lmdb-best-practices/` — rule-based skill synced with the
+`skills/lmdb-best-practices/` — rule-based skill synced with the
 current source: query patterns (point reads, range scans, keyset pagination,
 index reads, bulk writes), index declaration and maintenance, env sizing, schema
 design (enums, defaults, hooks, TTL), transactions and queues, full-text search,

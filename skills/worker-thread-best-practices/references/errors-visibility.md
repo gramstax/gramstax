@@ -160,9 +160,9 @@ await Job.mtdBoom() // right: surfaces in the per-instance listener AND stays co
 - **Reset semantics.** `setDefault(undefined)` and `resetDefault()` both
   restore the silent drop; use them in tests to avoid leaking a handler
   across cases, then re-install for the next suite.
-- **Migration note.** v2.2.0 replaced the removed free functions
+- **Migration note.** The removed free functions
   `setDefaultErrorHandler` / `resetDefaultErrorHandler` / `reportError`
-  with the static members `WorkerThreadErrorHandler.setDefault`,
+  were replaced by the static members `WorkerThreadErrorHandler.setDefault`,
   `resetDefault`, and `report`. The old names no longer exist.
 - **Keep handlers total.** Because `report()` swallows handler throws,
   validate the handler itself with a direct call in a unit test rather

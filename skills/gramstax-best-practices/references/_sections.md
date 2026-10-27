@@ -2,7 +2,7 @@
 
 Map of rule files by category prefix. Read only the files relevant to the task — each is self-contained.
 
-Aligned with **gramstax v2.2.0**.
+Aligned with the current `gramstax` source.
 
 ## config- (CRITICAL)
 
@@ -42,7 +42,7 @@ Aligned with **gramstax v2.2.0**.
 ## pages- (HIGH)
 
 - `pages-base-classes.md` — base-class policy: admin gate via `hookBeforeRoute`, cases beyond hooks, vs `GuardBase`
-- `pages-structure.md` — file order, `extends` choice, `g*` show/process contract, `static data`
+- `pages-structure.md` — file order, `extends` choice, shared `src/types` layout, `g*` show/process contract, `static data`
 - `pages-naming.md` — kebab-case files, parent-child routes, `sN` base ids
 - `pages-data.md` — `buildData` typings and `callbackQueryData` args
 

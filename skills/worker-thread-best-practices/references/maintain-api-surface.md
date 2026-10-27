@@ -6,28 +6,10 @@ types live in `src/types/`, and consumers import from the package root only —
 
 ## Why
 
-The utility API was reshaped: five free functions became class statics and every
-shared `I*` type moved into `src/types/`, mirroring `lmdb/src/types`. The old
-names were not aliases — they were deleted, so a stale import is a compile
-error, not a deprecation warning.
-
-**Check which side of the reshape you are on before changing anything.** The
-`package.json` version is `2.2.0`, but the `v2.2.0` tag was cut *before* the
-reshape landed, and `main` sits 12 commits ahead of it:
-
-| | `v2.2.0` tag (published) | `main` (unreleased) |
-|---|---|---|
-| path helper | `export function normalizeGatewayPath(path)` | `WorkerThreadGatewayPath.normalize(path)` |
-| size estimator | `export function estimatePayloadSize(v)` | `WorkerThreadRpc.estimatePayloadSize(v)` |
-| error routing | `export function setDefaultErrorHandler(fn)` | `WorkerThreadErrorHandler.setDefault(fn)` |
-| reset | `export function resetDefaultErrorHandler()` | `WorkerThreadErrorHandler.resetDefault()` |
-| report | `export function reportError(err)` | `WorkerThreadErrorHandler.report(err)` |
-| shared types | none — types sit in their source modules | `src/types/` (4 files, 9 types) |
-
-A consumer pinned to the published `v2.2.0` still uses the free functions and
-will see no error. Only code built from `main` (or whatever release ships the
-reshape) needs the class form. Since the package version did **not** change at
-the reshape commit, the version string alone cannot tell you which API you have.
+The utility API is class-static: five free functions are now static members of
+the class that owns them, and every shared `I*` type lives in `src/types/`,
+mirroring `lmdb/src/types`. The old names were not aliases — they were deleted,
+so a stale import is a compile error, not a deprecation warning.
 
 Putting a helper on its owning class is what makes the barrel honest:
 `src/index.ts` is nine `export *` lines plus nine `export type` lines, so what
@@ -36,10 +18,7 @@ owner and drifted; `normalizeGatewayPath` became
 `WorkerThreadGatewayPath.normalize` precisely so path rules live in one place
 that both the gateway server and client are forced to share.
 
-## Migration Table (landed on `main`, unreleased)
-
-Free function → class static. Applies when building from `main`; not yet needed
-for the published `v2.2.0`.
+## Removed free functions and their replacements
 
 | Removed export | Replacement | Owner |
 |----------------|-------------|-------|
@@ -57,10 +36,10 @@ Unchanged and still exported: `DEFAULT_MAX_MESSAGE_SIZE`,
 
 ## Wrong-vs-right import pair per renamed symbol
 
-One row per renamed symbol — the left column is the deleted `main`-era import,
-the right column is its replacement. Never mix columns in one file:
+One row per renamed symbol — the left column is the removed free-function
+import, the right column is its replacement. Never mix columns in one file:
 
-| # | Wrong (deleted on `main`) | Right (on `main`) |
+| # | Removed import | Current import |
 |---|---|---|
 | 1 | `import {normalizeGatewayPath} from "@gramstax/worker-thread"` | `import {WorkerThreadGatewayPath} from "@gramstax/worker-thread"` then `WorkerThreadGatewayPath.normalize(p)` |
 | 2 | `import {estimatePayloadSize} from "@gramstax/worker-thread"` | `import {WorkerThreadRpc} from "@gramstax/worker-thread"` then `WorkerThreadRpc.estimatePayloadSize(v)` |
@@ -127,28 +106,29 @@ Counts across `src/*.ts`: `launch.ts` 10 public / 0 internal, `rpc.ts` 14 / 5,
 `@internal` member directly — except `report` inside `onError`, which is the
 one intended exception.
 
-## Which API am I on — diagnostic checklist
+## Import troubleshooting
 
 Run this checklist before touching an import that will not resolve:
 
 1. Read the import error first: `has no exported member` naming a free
-   function means the file was written for the other side of the reshape.
-2. Check the checkout: does `src/types/` exist with 4 files? Present means
-   `main` (class statics); absent means published `v2.2.0` (free functions).
-3. Check the consumer: `from "gramstax"` is always wrong for this package —
-   seven `@example` blocks across `export.ts:58,214`, `init.ts:20`,
+   function means the file was written against the removed API — import the
+   owning class and call its static member instead.
+2. Confirm the module specifier: `from "gramstax"` is always wrong for this
+   package — seven `@example` blocks across `export.ts:58,214`, `init.ts:20`,
    `launch.ts:17,33,51`, `pool.ts:12` carry that stale path (and `init.ts:20`
    imports a `log` symbol this package does not export). Copy import lines
    from `README.md`, which is correct in all 8 import statements.
-4. Check the tail: a deep `dist/src/types/...` import means the type came from
-   build output — rewrite it as a barrel `import type`.
-5. Check the tag: if the symbol resolves but is `@internal`, route through the
+3. Confirm the package boundary: every symbol comes from the barrel
+   `@gramstax/worker-thread`, and types use `import type`. A deep
+   `dist/src/...` path means the type came from build output — rewrite it as a
+   barrel `import type`.
+4. Check the tag: if the symbol resolves but is `@internal`, route through the
    `@public` entry point in the decision table above instead.
 
 ## Incorrect
 
 ```typescript
-import {normalizeGatewayPath, estimatePayloadSize} from "@gramstax/worker-thread" // wrong: deleted on main, compile error
+import {normalizeGatewayPath, estimatePayloadSize} from "@gramstax/worker-thread" // wrong: removed free function, compile error
 import {setDefaultErrorHandler} from "@gramstax/worker-thread" // wrong: now WorkerThreadErrorHandler.setDefault
 import {reportError} from "@gramstax/worker-thread" // wrong: now WorkerThreadErrorHandler.report
 
@@ -195,7 +175,7 @@ class MyWorker extends WorkerThreadInit { // right: stateless helpers never inst
   }
 }
 
-export const Job = WorkerThreadExport.init({path: __filename, WTInit: MyWorker}) // right: class form on main
+export const Job = WorkerThreadExport.init({path: __filename, WTInit: MyWorker}) // right: current class form
 ```
 
 ## Notes

@@ -1,7 +1,7 @@
 ---
 name: gramstax-best-practices
-description: Best practices for gramstax v2.2.0 (declarative Telegram bot framework): config-driven boot from gramstax.config.ts, page base classes with hookBeforeRoute gates, page routing with mode-aware rendering and sessions, template authoring (g-* blocks, scopes, filters, AOT), keyboard reuse, E2E testing with E2eHelper, and deploy modes (polling/webhook/serverless/raw/test) with gramstax build. Use when writing, reviewing, auditing, or debugging gramstax config, pages, base classes, templates, keyboards, sessions, e2e tests, deploys, or bot startup — including when a boot fails, a render duplicates messages, a gate silently drops updates, sessions leak, or templates misbehave.
-compatibility: Bun + TypeScript + Nx monorepo; gramstax workspace (packages/gramstax); targets gramstax v2.2.0
+description: Best practices for gramstax (declarative Telegram bot framework): config-driven boot from gramstax.config.ts, page base classes with hookBeforeRoute gates, page routing with mode-aware rendering and sessions, template authoring (g-* blocks, scopes, filters, AOT), keyboard reuse, E2E testing with E2eHelper, and deploy modes (polling/webhook/serverless/raw/test) with gramstax build. Use when writing, reviewing, auditing, or debugging gramstax config, pages, base classes, templates, keyboards, sessions, e2e tests, deploys, or bot startup — including when a boot fails, a render duplicates messages, a gate silently drops updates, sessions leak, or templates misbehave.
+compatibility: Bun + TypeScript + Nx monorepo; gramstax workspace (packages/gramstax)
 metadata:
   author: gramstax
   organization: gramstax
@@ -12,7 +12,7 @@ metadata:
 
 Router for the `references/` rule files. Read `AGENTS.md` in `packages/gramstax` for API truth; this skill adds the judgment layer distilled from prior rule sets, the `create-gramstax` templates, and the `example/` projects.
 
-**Targets gramstax v2.2.0.** The config file is the default composition point and pages are gated by base classes — both are breaking changes from v2.1. A project with no `gramstax.config.ts` may still be valid if it constructs `BotCore` directly (cluster, multi-bot, custom lifecycle) — see `references/config-programmatic.md`.
+**Current behavior.** The config file is the default composition point and pages are gated by base classes. A project with no `gramstax.config.ts` may still be valid if it constructs `BotCore` directly (cluster, multi-bot, custom lifecycle) — see `references/config-programmatic.md`.
 
 ## When to Apply
 

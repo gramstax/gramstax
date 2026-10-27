@@ -1,6 +1,7 @@
 import {Gramstax} from "gramstax"
 import {UserGuard} from "~/guards/user"
 import {StatusPage} from "~/pages/status"
+import type {IErrorPageData} from "~/types/page"
 import type {CtxCore} from "./ctx"
 import {ServicesCore} from "./services"
 
@@ -14,7 +15,7 @@ export class BotCore extends Gramstax {
     return result === null ? false : true
   }
 
-  async hookErrorPage(ctx: CtxCore, data: NonNullable<Parameters<NonNullable<Gramstax[`hookErrorPage`]>>[1]>) {
+  async hookErrorPage(ctx: CtxCore, data: IErrorPageData) {
     await new StatusPage(ctx).gerror.show(`${data.listenerName}:hookErrorPage`, data.error)
   }
 

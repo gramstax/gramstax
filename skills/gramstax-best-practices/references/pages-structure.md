@@ -74,6 +74,18 @@ export class StartAdminPage extends PageAdminBase {
 
 Base classes are the right home for any family-wide concern, not only `hookBeforeRoute` — see `pages-base-classes.md` for the full pattern and the cases beyond access control.
 
+## Shared types
+
+Put an interface used by more than one file in `src/types/<domain>.ts`, not
+inline in a page, repository, or worker. Use one file per domain (`user.ts`,
+`job.ts`, `page.ts`), import it with `~/types/<domain>` and `import type`, and
+do not add a barrel in the scaffold: optional files must stay independently
+removable. Page-local types may stay in the page.
+
+In a scaffolded project, `types/user.ts` is pruned with LMDB, `types/job.ts`
+with worker threads, and `types/page.ts` is always kept. The template's
+`src/types/` is the reference example.
+
 ## Notes
 
 - Order: imports → `Base` → UPPER consts → Page (`static data` first, handlers, instance `helper = {}`, `g*` objects, `static template` last). Skip sections a file does not need — never leave empty class blocks. The static `Helper` class pattern is retired: page-local logic lives in instance `helper = {}` (no `ctx` parameter, captures `this`).

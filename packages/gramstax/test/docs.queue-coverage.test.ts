@@ -10,9 +10,9 @@ describe(`queue documentation covers both modes`, () => {
   const files = [
     `docs-site/guides/gramstax-start.md`,
     `docs-site/guides/gramstax-build.md`,
-    `packages/gramstax/skills/gramstax-best-practices/references/deploy-modes.md`,
-    `packages/gramstax/skills/gramstax-best-practices/references/deploy-runtime.md`,
-    `packages/gramstax/skills/gramstax-best-practices/references/config-boot.md`,
+    `skills/gramstax-best-practices/references/deploy-modes.md`,
+    `skills/gramstax-best-practices/references/deploy-runtime.md`,
+    `skills/gramstax-best-practices/references/config-boot.md`,
     `packages/gramstax/AGENTS.md`
   ]
 
@@ -49,7 +49,7 @@ describe(`queue documentation covers both modes`, () => {
     expect(fields).toContain(`workerCount`)
     expect(fields).toContain(`drainTimeoutMs`)
 
-    const tables = [`docs-site/guides/gramstax-start.md`, `packages/gramstax/skills/gramstax-best-practices/references/deploy-runtime.md`]
+    const tables = [`docs-site/guides/gramstax-start.md`, `skills/gramstax-best-practices/references/deploy-runtime.md`]
     for (const table of tables) {
       for (const field of fields) {
         expect(read(table)).toContain(`| \`${field}\` |`)

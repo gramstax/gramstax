@@ -3,6 +3,7 @@
 
   <p>Multi-runtime worker threads for Bun and Node.js: spawn a worker, call its methods like local async functions, and let workers talk to each other directly over a socket.</p>
   <p>
+    <a href="https://github.com/gramstax/gramstax/actions/workflows/release.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/gramstax/gramstax/release.yml?branch=main&label=build&style=flat&logo=githubactions&logoColor=white"/></a>
     <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
     <img alt="Node" src="https://img.shields.io/badge/Node-%23333933.svg?style=flat&logo=nodedotjs&logoColor=white"/>
@@ -461,11 +462,6 @@ packages/worker-thread/
 ├── test/                   # 11 bun:test files + a fixtures directory
 ├── example/                # 9 runnable clusters and integration fixtures
 ├── bench/                  # 5 bench files + shared setup and fixtures
-├── skills/
-│   └── worker-thread-best-practices/
-│       ├── SKILL.md        # Router: when to apply, rule priority, start-here table
-│       ├── CHANGELOG.md
-│       └── references/     # 16 rule files + _sections.md index + _template.md
 ├── AGENTS.md               # Package conventions and architecture facts
 ├── tsup.config.ts          # Bundler: cjs + esm, dts
 └── package.json            # name: @gramstax/worker-thread · license: Apache-2.0
@@ -972,15 +968,15 @@ form, alongside the framework guides that use this package.
 
 ### Agent skills
 
-Each package ships a rule-based skill consumed by coding agents, with
+The repository ships three rule-based skills consumed by coding agents, with
 `references/` holding one file per rule:
 
-- [`packages/worker-thread/skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/worker-thread/skills/worker-thread-best-practices/SKILL.md):
+- [`skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/worker-thread-best-practices/SKILL.md):
   the API surface, `mtd*` dispatch, lifecycle, gateway security and
   at-least-once reliability, cross-platform socket paths, error visibility
   against the silent-drop default, pool dispatch, and bench conventions.
-- [`packages/gramstax/skills/gramstax-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/gramstax/skills/gramstax-best-practices/SKILL.md)
-  and [`packages/lmdb/skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/lmdb/skills/lmdb-best-practices/SKILL.md)
+- [`skills/gramstax-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/gramstax-best-practices/SKILL.md)
+  and [`skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/lmdb-best-practices/SKILL.md)
   for the sibling packages.
 
 ### Examples

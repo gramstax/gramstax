@@ -1,7 +1,7 @@
 ---
 name: worker-thread-best-practices
 description: Best practices for @gramstax/worker-thread (Bun, Node.js >=18): the class-static API surface (WorkerThreadErrorHandler/WorkerThreadGatewayPath/WorkerThreadRpc) and src/types layout, mtd*-prefixed worker methods, launch-ready-request-shutdown lifecycle, RPC timeouts and payloads, gateway auth with at-least-once reliability, cross-platform socket paths (Windows named pipes, POSIX 104-char limit), error visibility against the silent-drop default, pool dispatch, and mitata benchmarks. Use when writing, reviewing, auditing, or debugging worker-thread code, or when an import fails to resolve, RPC calls hang, leak, double-execute, or reject unexpectedly, a worker dies with no log output, or a gateway works on Linux but not Windows.
-compatibility: Bun >= 1.0.0 or Node.js >= 18; @gramstax/worker-thread workspace (packages/worker-thread); targets worker-thread v2.2.0
+compatibility: Bun >= 1.0.0 or Node.js >= 18; @gramstax/worker-thread workspace (packages/worker-thread)
 metadata:
   author: gramstax
   organization: gramstax
@@ -15,20 +15,18 @@ Router for the `references/` rule files. Read `AGENTS.md` in
 distilled from the package's own audit, the `README.md` semantics sections, and
 the regression locks in `test/`.
 
-**Know which API you are on.** The package version reads `2.2.0`, but the
-`v2.2.0` tag predates the class-static reshape — `main` is 12 commits ahead of
-that tag. So the published `v2.2.0` still exports free functions
-(`normalizeGatewayPath`, `estimatePayloadSize`, `setDefaultErrorHandler`,
-`resetDefaultErrorHandler`, `reportError`) and has **no** `src/types/`, while
-`main` replaces them with `WorkerThreadGatewayPath.normalize`,
-`WorkerThreadRpc.estimatePayloadSize`, and the `WorkerThreadErrorHandler`
-statics. Both shapes are documented in
-`references/maintain-api-surface.md`; check which one you are importing before
-"fixing" a build.
+**The current API is class-static.** The helper functions are members of the
+class that owns them: `WorkerThreadGatewayPath.normalize`,
+`WorkerThreadRpc.estimatePayloadSize`, and the
+`WorkerThreadErrorHandler.setDefault` / `resetDefault` / `report` statics.
+Shared `I*` types live under `src/types/`. The old free functions are gone, so
+a stale import is a compile error, not a deprecation warning. See
+`references/maintain-api-surface.md` for the import and `@public` / `@internal`
+rules.
 
 ## When to Apply
 
-- Upgrading from v1.x, or reviewing an import that stopped resolving
+- Reviewing an import that stopped resolving
 - New worker class, gateway server/client, pool, or bench file
 - Access control: choosing `token`, `allowedMethods`, and what `register` may expose
 - Cross-platform: a gateway path that binds on Linux but not Windows, or a socket `ENOENT`
@@ -91,5 +89,5 @@ Each rule file contains:
 - `packages/worker-thread/README.md` — lifecycle, gateway semantics, pool, API table
 - `packages/worker-thread/bench/` — mitata suites proving the perf guidance
 - `packages/worker-thread/test/` — regression locks for the security/correctness rules
-- `references/maintain-api-surface.md` — the v2.2.0 migration table
-- `skills/worker-thread-best-practices/CHANGELOG.md` — what changed in this skill and why
+- `references/maintain-api-surface.md` — the current API surface and `@public` / `@internal` rules
+- `CHANGELOG.md` — what changed in this skill and why

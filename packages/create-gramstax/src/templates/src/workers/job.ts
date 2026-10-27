@@ -1,5 +1,6 @@
 import {WorkerThreadExport, WorkerThreadInit} from "@gramstax/worker-thread"
 import {LogHe} from "~/helpers/log"
+import type {ISummarizeResult, ISummarizeRow} from "~/types/job"
 
 /**
  * Background executor.
@@ -26,7 +27,7 @@ export class Worker extends WorkerThreadInit {
    * would stall every Telegram update if it ran inline. Throwing propagates to
    * the caller's `await`, so a failed job is visible instead of silent.
    */
-  async mtdSummarize(input: {label: string; amount: number}[]) {
+  async mtdSummarize(input: ISummarizeRow[]): Promise<ISummarizeResult> {
     const ranked = [...input].sort((a, b) => b.amount - a.amount)
     const total = ranked.reduce((sum, row) => sum + row.amount, 0)
     return {

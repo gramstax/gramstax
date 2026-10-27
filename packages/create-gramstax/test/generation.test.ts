@@ -603,6 +603,82 @@ describe(`atomic file writes`, () => {
   })
 })
 
+describe(`types scaffold`, () => {
+  const templateSrc = join(import.meta.dir, `..`, `src`, `templates`, `src`)
+
+  it(`ships the three type files and the consumers import them`, () => {
+    for (const name of [`user.ts`, `job.ts`, `page.ts`]) {
+      expect(existsSync(join(templateSrc, `types`, name))).toBe(true)
+    }
+    expect(readFileSync(join(templateSrc, `db`, `repositories`, `user.ts`), `utf-8`)).toContain(`from "~/types/user"`)
+    expect(readFileSync(join(templateSrc, `workers`, `job.ts`), `utf-8`)).toContain(`from "~/types/job"`)
+    expect(readFileSync(join(templateSrc, `core`, `bot.ts`), `utf-8`)).toContain(`from "~/types/page"`)
+    expect(readFileSync(join(templateSrc, `pages`, `sum-number.ts`), `utf-8`)).toContain(`from "~/types/page"`)
+  })
+
+  it(`keeps all three type files when both features are enabled`, async () => {
+    const root = makeTempRoot()
+    const projectPath = join(root, `proj`)
+    const seen = {calls: 0}
+    const creator = makeCreator(seen)
+    try {
+      await creator.executeProjectGeneration(baseConfig(projectPath))
+      for (const name of [`user.ts`, `job.ts`, `page.ts`]) {
+        expect(existsSync(join(projectPath, `src`, `types`, name))).toBe(true)
+      }
+    } finally {
+      rmSync(root, {recursive: true, force: true})
+    }
+  })
+
+  it(`prunes user types when lmdb is disabled`, async () => {
+    const root = makeTempRoot()
+    const projectPath = join(root, `proj`)
+    const seen = {calls: 0}
+    const creator = makeCreator(seen)
+    try {
+      await creator.executeProjectGeneration(baseConfig(projectPath, {useLmdb: false, useWorkerThread: true}))
+      expect(existsSync(join(projectPath, `src`, `types`, `user.ts`))).toBe(false)
+      expect(existsSync(join(projectPath, `src`, `types`, `job.ts`))).toBe(true)
+      expect(existsSync(join(projectPath, `src`, `types`, `page.ts`))).toBe(true)
+      expect(filesContaining(projectPath, `~/types/user`)).toEqual([])
+    } finally {
+      rmSync(root, {recursive: true, force: true})
+    }
+  })
+
+  it(`prunes job types when worker threads are disabled`, async () => {
+    const root = makeTempRoot()
+    const projectPath = join(root, `proj`)
+    const seen = {calls: 0}
+    const creator = makeCreator(seen)
+    try {
+      await creator.executeProjectGeneration(baseConfig(projectPath, {useLmdb: true, useWorkerThread: false}))
+      expect(existsSync(join(projectPath, `src`, `types`, `job.ts`))).toBe(false)
+      expect(existsSync(join(projectPath, `src`, `types`, `user.ts`))).toBe(true)
+      expect(existsSync(join(projectPath, `src`, `types`, `page.ts`))).toBe(true)
+      expect(filesContaining(projectPath, `~/types/job`)).toEqual([])
+    } finally {
+      rmSync(root, {recursive: true, force: true})
+    }
+  })
+
+  it(`keeps only page types when both features are disabled`, async () => {
+    const root = makeTempRoot()
+    const projectPath = join(root, `proj`)
+    const seen = {calls: 0}
+    const creator = makeCreator(seen)
+    try {
+      await creator.executeProjectGeneration(baseConfig(projectPath, {useLmdb: false, useWorkerThread: false}))
+      expect(readdirSync(join(projectPath, `src`, `types`))).toEqual([`page.ts`])
+      expect(filesContaining(projectPath, `~/types/user`)).toEqual([])
+      expect(filesContaining(projectPath, `~/types/job`)).toEqual([])
+    } finally {
+      rmSync(root, {recursive: true, force: true})
+    }
+  })
+})
+
 describe(`service seam`, () => {
   const servicesTemplatePath = join(import.meta.dir, `..`, `src`, `templates`, `src`, `core`, `services.ts`)
 

@@ -112,7 +112,7 @@ BENCH_FILTER="json echo single" bun run ./bench/gateway-roundtrip.bench.ts    # 
 
 ### Best practices
 
-`packages/worker-thread/skills/worker-thread-best-practices/` — rule-based
+`skills/worker-thread-best-practices/` — rule-based
 skill synced with the current source: the class-static API surface and
 `src/types/` layout, `mtd*` dispatch, lifecycle, gateway security and
 at-least-once reliability, cross-platform socket paths, error visibility

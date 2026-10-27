@@ -1,10 +1,11 @@
 import {PageBase} from "~/base/page"
+import type {ISumNumberSession, ISumNumberStep} from "~/types/page"
 import {StartPage} from "./start"
 
 class Base {
-  static left = `l`
-  static right = `r`
-  static success = `s`
+  static left: ISumNumberStep = `l`
+  static right: ISumNumberStep = `r`
+  static success: ISumNumberStep = `s`
 }
 
 export class SumNumberPage extends PageBase {
@@ -30,8 +31,8 @@ export class SumNumberPage extends PageBase {
   }
 
   helper = {
-    getSessionParams: () => {
-      return (this.temp.session?.params as {step?: (typeof Base)[keyof typeof Base]; left?: number} | undefined) ?? {}
+    getSessionParams: (): ISumNumberSession => {
+      return (this.temp.session?.params as ISumNumberSession | undefined) ?? {}
     },
     homeKeyboard: (AGBaseId: string) => {
       return this.inlineKeyboardT([StartPage], `1`, AGBaseId)

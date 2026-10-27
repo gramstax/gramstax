@@ -107,7 +107,7 @@ Use `{{ord}}` for anything a human reads (positions, "no. 1"). Never reach for `
 - `<g-switch value>` / `<g-case is>` mismatches render the `<g-default>` branch (or empty) — always provide one.
 - `<g-import/>` and `<g-space/>` are void: self-close them.
 - **`<g-script>` and every `{~~ ... ~~}` scope are AOT-blocked.** Both emit `with(`, forbidden in ESM strict mode, so `gramstax build` throws — for scopes this is unconditional, not only for conditionals. They work under `gramstax start` (JIT) and then fail the edge — the worst possible split. Use `<g-ifelse>` for conditionals, a page-class helper for computed values.
-- `ALLOWED_BLOCKS_PAGE` gained `<g-ifelse>` after v2.2.0 (28 → 29 blocks); the rest of the v2.2.0 release delta was config-driven boot and AOT.
+- `ALLOWED_BLOCKS_PAGE` includes the logic blocks `<g-script>`, `<g-ifelse>`, `<g-switch>`, `<g-case>`, `<g-default>`, `<g-map>`, and `<g-div>`; the validator owns the authoritative set.
 
 ## `<g-ifelse>`
 

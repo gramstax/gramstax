@@ -1,7 +1,6 @@
 import type {LmdbEnvSub} from "@gramstax/lmdb"
+import type {IUserProfile} from "~/types/user"
 import type {UserSchema, IVUser} from "../schema/user"
-
-export type IUserProfile = Pick<IVUser, `username` | `firstName` | `lastName` | `languageCode`>
 
 export class UserRepository {
   constructor(private readonly _user: LmdbEnvSub<typeof UserSchema>) {}

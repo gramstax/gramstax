@@ -4,6 +4,7 @@
 
   <p>A modern Telegram bot framework built around page-based routing and a powerful template system you never seen before.</p>
   <p>
+    <a href="https://github.com/gramstax/gramstax/actions/workflows/release.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/gramstax/gramstax/release.yml?branch=main&label=build&style=flat&logo=githubactions&logoColor=white"/></a>
     <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
     <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
     <img alt="Telegram" src="https://img.shields.io/badge/Telegram-26A5E4.svg?style=flat&logo=telegram&logoColor=white"/>
@@ -897,11 +898,6 @@ packages/gramstax/
 ├── docs/                   # generated API reference, versioned
 │   ├── extractor/          # api-extractor report (etc/) + temp rollup
 │   └── yaml/               # api-documenter yaml reference
-├── skills/
-│   └── gramstax-best-practices/
-│       ├── SKILL.md        # Router: when to apply, rule priority, start-here table
-│       ├── CHANGELOG.md
-│       └── references/     # 32 rule files + _sections.md index + _template.md
 ├── scripts/
 │   ├── build-manifest.ts   # generate(pagesDir, outDir, {aot}): the raw fs-less generator
 │   ├── aot-emit.ts         # AOT module emitter
@@ -1127,11 +1123,11 @@ Regenerate with `bun run build:docs` from the repository root.
 
 ### Agent skills
 
-Each package ships a rule-based skill consumed by coding agents, with `references/` holding one file per rule:
+The repository ships three rule-based skills consumed by coding agents, with `references/` holding one file per rule:
 
-- [`packages/gramstax/skills/gramstax-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/gramstax/skills/gramstax-best-practices/SKILL.md): ten priority categories, `config-` through `cache-`
-- [`packages/lmdb/skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/lmdb/skills/lmdb-best-practices/SKILL.md)
-- [`packages/worker-thread/skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/worker-thread/skills/worker-thread-best-practices/SKILL.md)
+- [`skills/gramstax-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/gramstax-best-practices/SKILL.md): ten priority categories, `config-` through `cache-`
+- [`skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/lmdb-best-practices/SKILL.md)
+- [`skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/worker-thread-best-practices/SKILL.md)
 
 ### Domain docs
 

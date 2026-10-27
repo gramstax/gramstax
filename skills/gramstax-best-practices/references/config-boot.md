@@ -4,7 +4,7 @@ Every project boots from a typed `gramstax.config.ts` default export plus `src/c
 
 ## Why
 
-v2.2.0 made the config file the single composition point. One file holds the token, deploy mode, caches, and runtime tuning as *data*, and the CLI builds the instances from it. That removes a whole class of boot bugs — a stale constructor call in an entry file cannot drift from `.env` — but it means an incorrect config is the first thing that breaks, and it breaks before any page loads.
+The config file is the single composition point. One file holds the token, deploy mode, caches, and runtime tuning as *data*, and the CLI builds the instances from it. That removes a whole class of boot bugs — a stale constructor call in an entry file cannot drift from `.env` — but it means an incorrect config is the first thing that breaks, and it breaks before any page loads.
 
 ## Shape
 
@@ -59,7 +59,7 @@ That is the scaffolded file from `create-gramstax`, verbatim. Every key is liste
 ## Incorrect
 
 ```typescript
-// src/index.ts — removed in v2.2.0; nothing discovers it
+// src/index.ts — not discovered; the config file is the entry point
 import {Gramstax} from "gramstax"
 
 const bot = new Gramstax({token: process.env.BOT_TOKEN, deploy: `webhook:https://x/hook`, templateManager})

@@ -4,12 +4,12 @@ Guard production traffic (`rateLimit`, `throttle`, `sessionLock`) and observe it
 
 ## Why
 
-Telegram enforces per-bot rate limits — one viral hour without throttling means 429s and dropped updates. Concurrent updates for the same user race session state unless serialized. An operator-blind bot cannot be paged. These are top-level config fields in v2.2.0, so a production deployment that omits them fails open, not loudly.
+Telegram enforces per-bot rate limits — one viral hour without throttling means 429s and dropped updates. Concurrent updates for the same user race session state unless serialized. An operator-blind bot cannot be paged. These are top-level config fields, so a production deployment that omits them fails open, not loudly.
 
 ## Incorrect
 
 ```typescript
-// constructor form — removed in v2.2.0; nothing reads this
+// constructor form — no longer read; the config file is the entry point
 const bot = new Gramstax({token, deploy: `webhook:https://x/hook`, templateManager, rateLimit, log: false})
 ```
 

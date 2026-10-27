@@ -953,11 +953,10 @@ gramstax/
 │   │   │   ├── types/       # 11 public type modules (bot, ctx, template, config, manifest, …)
 │   │   │   └── index.ts     # the public barrel: named exports only
 │   │   ├── docs/            # api-extractor report + api-documenter yaml reference
-│   │   ├── skills/          # gramstax-best-practices: router + references/
 │   │   ├── test/            # 118 bun:test files
 │   │   └── security-poc/    # standalone template-engine breakout/injection/RCE PoCs
 │   ├── create-gramstax/     # scaffolding CLI + src/templates/: the generated project
-│   ├── lmdb/                # @gramstax/lmdb: typed LMDB layer, its own README and skill
+│   ├── lmdb/                # @gramstax/lmdb: typed LMDB layer, its own README
 │   └── worker-thread/       # @gramstax/worker-thread: RPC, pools, socket gateway
 ├── example/                 # 11 workspace members, 1-complex → 11-cloudflare-worker
 ├── real-projects/           # production-vip-content-bot: standalone, own lockfile, NOT a workspace member
@@ -965,6 +964,7 @@ gramstax/
 ├── docs/                    # agent guides, capacity model, research notes
 ├── plans/                   # 40 numbered implementation plans
 ├── prompts/                 # PROMPT.md, PROMPT_WITH_VALUE.md: agent prompts
+├── skills/                  # three agent skills: gramstax, lmdb, worker-thread
 ├── scripts/                 # link-workspace-bins.ts + e2e-mirror tooling + docs/mintlify audits
 ├── AGENTS.md                # repo-wide agent guidance
 ├── CONTEXT-MAP.md           # domain docs map, one CONTEXT.md per context
@@ -1180,11 +1180,11 @@ Regenerate with `bun run build:docs` from the repository root.
 
 ### Agent skills
 
-Each package ships a rule-based skill consumed by coding agents, with `references/` holding one file per rule:
+The repository ships three rule-based skills consumed by coding agents, with `references/` holding one file per rule:
 
-- [`packages/gramstax/skills/gramstax-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/gramstax/skills/gramstax-best-practices/SKILL.md): ten priority categories, `config-` through `cache-`
-- [`packages/lmdb/skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/lmdb/skills/lmdb-best-practices/SKILL.md)
-- [`packages/worker-thread/skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/packages/worker-thread/skills/worker-thread-best-practices/SKILL.md)
+- [`skills/gramstax-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/gramstax-best-practices/SKILL.md): ten priority categories, `config-` through `cache-`
+- [`skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/lmdb-best-practices/SKILL.md)
+- [`skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/worker-thread-best-practices/SKILL.md)
 
 ### Domain docs
 

@@ -4,14 +4,12 @@ Read only the rule your task needs.
 
 ## API Surface (read first when an import will not resolve)
 
-- `maintain-api-surface.md` — the utility reshape: five free functions
-  became class statics (`WorkerThreadErrorHandler.setDefault/resetDefault/report`,
+- `maintain-api-surface.md` — the current API surface: five class-static helpers
+  (`WorkerThreadErrorHandler.setDefault/resetDefault/report`,
   `WorkerThreadGatewayPath.normalize`, `WorkerThreadRpc.estimatePayloadSize`);
-  shared `I*` types moved to `src/types/`; deep imports are unsupported; the two
+  shared `I*` types live in `src/types/`; deep imports are unsupported; the two
   independent deny-lists (`DENIED_RPC_METHODS` dispatcher vs module-private
-  `DENIED_RPC_PROPS` proxy); `@public` vs `@internal` discipline. Includes a
-  side-by-side of the published `v2.2.0` tag against `main`, because the package
-  version does not distinguish them.
+  `DENIED_RPC_PROPS` proxy); `@public` vs `@internal` discipline.
 
 ## Lifecycle
 

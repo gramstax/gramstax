@@ -2,7 +2,7 @@ You are a senior TypeScript engineer building a production-ready Telegram bot pr
 
 ## Rules and documentation gramstax
 
-index = ./packages/gramstax/skills/gramstax-best-practices/SKILL.md
+index = ./skills/gramstax-best-practices/SKILL.md
 documentation = ./docs-site/reference/\*.md
 documentation_per_package = ./packages/gramstax/docs/markdown/\*.md, ./packages/lmdb/docs/markdown/\*.md, ./packages/worker-thread/docs/markdown/\*.md
 

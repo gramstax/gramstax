@@ -65,14 +65,14 @@ Scaffolding. Reach for it at the start of a project.
 
 ## Skills for agents
 
-Three of the four packages ship a rule-based skill that a coding agent can
-load, each with a `references/` directory holding one file per rule:
+The repository ships three rule-based skills that a coding agent can load,
+each with a `references/` directory holding one file per rule:
 
-- `packages/gramstax/skills/gramstax-best-practices/SKILL.md`
-- `packages/lmdb/skills/lmdb-best-practices/SKILL.md`
-- `packages/worker-thread/skills/worker-thread-best-practices/SKILL.md`
+- `skills/gramstax-best-practices/SKILL.md`
+- `skills/lmdb-best-practices/SKILL.md`
+- `skills/worker-thread-best-practices/SKILL.md`
 
-`create-gramstax` ships no skill of its own.
+`create-gramstax` has no skill of its own.
 
 ## Where to go next
 

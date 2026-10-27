@@ -18,7 +18,7 @@
 - `packages/*/test`: Bun unit tests (currently only in `gramstax`, `lmdb`, `worker-thread`).
 - `packages/create-gramstax/src/templates`: template project files for the CLI.
 - `example/`: sample projects (1-complex through 10-http-request, ordinally named).
-- `packages/gramstax/skills/`: agent skills (`gramstax-best-practices` router + `references/` rules); `lmdb` and `worker-thread` ship their own skills.
+- `skills/`: repository-level agent skills (`gramstax-best-practices`, `lmdb-best-practices`, `worker-thread-best-practices`, each a router + `references/` rules).
 - `docs/`: documentation and API reference.
 - `docs/AGENTS.md`: API reference; not repo-wide agent guidance.
 - `real-projects/`: standalone (non-workspace) sample apps — currently `production-vip-content-bot` (own `bun.lock`).
@@ -36,7 +36,7 @@ Deep per-area guidance lives in child files — read the one matching your task 
 
 - `packages/gramstax/AGENTS.md`, `packages/lmdb/AGENTS.md`, `packages/worker-thread/AGENTS.md`, `packages/create-gramstax/AGENTS.md` — package internals, patterns, build/test commands, anti-patterns.
 - `example/AGENTS.md` — sample projects: didactic progression, shared `src/` skeleton, e2e harness, build-before-run rule.
-- `packages/gramstax/skills/gramstax-best-practices/SKILL.md` — rule sets governing generated Gramstax projects (pages, e2e, deploy, guards, cache).
+- `skills/gramstax-best-practices/SKILL.md` — rule sets governing generated Gramstax projects (pages, e2e, deploy, guards, cache).
 - `real-projects/AGENTS.md` — standalone, non-workspace sample apps.
 - `docs/AGENTS.md` — API reference (production params, endpoints, lifecycle).
 
