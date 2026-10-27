@@ -1,6 +1,6 @@
 ---
 name: worker-thread-best-practices
-description: Best practices for @gramstax/worker-thread (Bun, Node.js >=18): the class-static API surface (WorkerThreadErrorHandler/WorkerThreadGatewayPath/WorkerThreadRpc) and src/types layout, mtd*-prefixed worker methods, launch-ready-request-shutdown lifecycle, RPC timeouts and payloads, gateway auth with at-least-once reliability, cross-platform socket paths (Windows named pipes, POSIX 104-char limit), error visibility against the silent-drop default, pool dispatch, and mitata benchmarks. Use when writing, reviewing, auditing, or debugging worker-thread code, or when an import fails to resolve, RPC calls hang, leak, double-execute, or reject unexpectedly, a worker dies with no log output, or a gateway works on Linux but not Windows.
+description: Best practices for @gramstax/worker-thread (Bun, Node.js >=18): the class-static API surface (WorkerThreadErrorHandler/WorkerThreadGatewayPath/WorkerThreadRpc) and src/types layout, mtd*-prefixed worker methods, launch-ready-request-shutdown lifecycle, RPC timeouts and payloads, gateway auth with at-least-once reliability, cross-platform socket paths (Windows named pipes, POSIX 104-char limit), error visibility against the silent-drop default, pool dispatch (typed pool.mtdX round-robin/broadcast/settled), and mitata benchmarks. Use when writing, reviewing, auditing, or debugging worker-thread code, or when an import fails to resolve, RPC calls hang, leak, double-execute, or reject unexpectedly, a worker dies with no log output, or a gateway works on Linux but not Windows.
 compatibility: Bun >= 1.0.0 or Node.js >= 18; @gramstax/worker-thread workspace (packages/worker-thread)
 metadata:
   author: gramstax
@@ -28,6 +28,7 @@ rules.
 
 - Reviewing an import that stopped resolving
 - New worker class, gateway server/client, pool, or bench file
+- Calling a pooled worker's `mtd*` method — choosing round-robin, broadcast, or settled
 - Access control: choosing `token`, `allowedMethods`, and what `register` may expose
 - Cross-platform: a gateway path that binds on Linux but not Windows, or a socket `ENOENT`
 - Debugging: hang, leak, double execution, auth rejection, `not found`, **or a silent failure with no output**
@@ -61,6 +62,7 @@ rules.
 | Deciding what a socket peer may call | `references/gateway-security.md` |
 | Handler ran twice for one call | `references/gateway-reliability.md` |
 | Spawn, ready, shutdown, or timeout behavior | `references/lifecycle-lifecycle.md`, `references/lifecycle-timeouts.md` |
+| Calling one worker method across a pool | `references/pool-dispatch.md` |
 | Choosing hub vs mesh | `references/gateway-topology.md` |
 | Writing or running a benchmark | `references/bench-writing.md`, `references/bench-runner.md` |
 

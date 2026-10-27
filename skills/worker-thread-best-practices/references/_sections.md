@@ -58,10 +58,13 @@ Read only the rule your task needs.
 
 ## Pool
 
-- `pool-dispatch.md` — `execute` round-robin, `broadcastRequest` fail-fast vs
-  `broadcastSettled`, empty-pool throw, timeout forwarding.
-- `pool-membership.md` — no double-`add`, `kill`/`killAll` semantics,
-  `threadCount` live-only, exit-listener cleanup, SIGINT/SIGTERM.
+- `pool-dispatch.md` — typed `pool.mtdX(…)` dispatch; worker-class inference
+  from `launchWorker()` handles; no-options round-robin, `{mode: "broadcast"}`
+  fail-fast vs `{mode: "settled"}`; trailing options object rules; timeout
+  forwarding; empty-pool throw.
+- `pool-membership.md` — no double-`add`; `add`/`addMany` return ids; async
+  `kill`/`killAll`; `threadCount` live-only; exit-listener cleanup;
+  SIGINT/SIGTERM.
 
 ## Bench & Maintain
 

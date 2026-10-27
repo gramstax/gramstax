@@ -15,10 +15,10 @@ and resets the cursor. Process SIGINT/SIGTERM handlers are removed on
 
 ## The two-step duplicate check
 
-`add(instance)` at `pool.ts:89` compares by identity first, then by id — the
+`add(instance)` at `pool.ts:193` compares by identity first, then by id — the
 distinction is the whole point, so read the table before guessing:
 
-| What you pass | Check at `:91` | Check at `:94` | Effect |
+| What you pass | Check at `:194` | Check at `:198` | Effect |
 | --- | --- | --- | --- |
 | same object already registered | `known === instance` hits | skipped | no-op return — no recount, no second listener |
 | DIFFERENT object, same `threadId` | misses | `known !== undefined` hits | old listener detached, entry replaced, count unchanged |
@@ -27,7 +27,9 @@ distinction is the whole point, so read the table before guessing:
 Re-adding the same object is a no-op. A different object carrying an
 already-registered `threadId` **replaces** the entry — the old exit listener is
 detached first and `threadCount` is left unchanged, so a swap can never
-double-count. Only a genuinely new `threadId` increments it.
+double-count. Only a genuinely new `threadId` increments it. `add()` returns the
+`threadId` it registered under (the same id on the no-op path); `addMany()`
+returns the ids in input order.
 Both paths are locked by
 `regression: re-add guard (no count inflation, no listener leak)` in
 `test/pool.test.ts`, and the detach path by
@@ -41,12 +43,13 @@ add / addMany → live → exit-removes → kill → gone
 
 | Transition | Where | What happens |
 | --- | --- | --- |
-| `addMany(instance[])` (`:120`) | construction / scale-up | fans out to `add()` per worker — same guards, no fast path |
-| live | `thread: Map` (`:38`) | `threadCount` (`:46`) reflects LIVE workers only |
+| `add(instance)` (`:193`) | scale-up | registers one worker; returns its `threadId`; duplicate rules above |
+| `addMany(instance[])` (`:225`) | construction / scale-up | fans out to `add()` per worker — same guards, no fast path; returns the ids in order |
+| live | `thread: ReadonlyMap` (`:158`) | `threadCount` (`:168`) reflects LIVE workers only |
 | worker exits on its own | `exit` listener at registration | `_onWorkerExit` removes the entry only if the stored instance still matches, then detaches the listener |
-| `kill(threadId)` (`:158`) | explicit removal | unknown id returns `undefined` (never throws); known id detaches the listener, terminates, deletes, decrements |
-| `getInstance(threadId)` (`:141`) | lookup | live handle or `undefined` — presence-check before a pinned call |
-| `killAll()` (`:211`) | teardown | snapshots keys, kills every worker, collects failures into one `AggregateError`, resets the round-robin cursor |
+| `kill(threadId)` (`:261`) | explicit removal | async; unknown id resolves `undefined` (never throws); known id detaches the listener, terminates, deletes, decrements |
+| `getInstance(threadId)` (`:244`) | lookup | live handle or `undefined` — presence-check before a pinned call |
+| `killAll()` (`:287`) | teardown | async; snapshots keys, kills every worker, collects failures into one `AggregateError`, resets the round-robin cursor |
 
 `killAll` never aborts on the first error — one stuck worker cannot strand
 the rest. The snapshot matters: removals during the loop cannot skip workers.
@@ -56,14 +59,14 @@ the rest. The snapshot matters: removals during the loop cannot skip workers.
 Every registration installs exactly one `exit` handler, and every removal
 path detaches it — audit a change against all four:
 
-- `add()` stores the bound handler in `_exitHandlers` (`:103`) and the
-  duplicate-replace path detaches the old one first (`:95`).
-- `kill()` detaches before terminating (`:161`), so a late exit from the
+- `add()` stores the bound handler in `_exitHandlers` (`:206-209`) and the
+  duplicate-replace path detaches the old one first (`:199`).
+- `kill()` detaches before terminating (`:264`), so a late exit from the
   dying worker finds no listener and cannot double-decrement.
-- `_onWorkerExit` detaches as it removes (`:188`) — self-cleaning, no polling.
+- `_onWorkerExit` detaches as it removes (`:126`) — self-cleaning, no polling.
 - Per-worker SIGINT/SIGTERM handlers live on the `launch` side
-  (`launch.ts:119`) and are removed on `kill`/`exit` (`launch.ts:266`) —
-  locked by `(d) kill() removes SIGINT/SIGTERM listeners` in
+  (registered at `launch.ts:292-293`, removed at `launch.ts:116-128`) —
+  locked by `(d) kill() removes SIGINT/SIGTERM listeners (no pool leak)` in
   `test/launch.test.ts`, so pools never trip `MaxListenersExceededWarning`.
 
 ## Incorrect
@@ -86,15 +89,17 @@ await dead.request(`mtdPing`, []) // wrong: `TypeError` on `undefined`, not the 
 ## Correct
 
 ```typescript
-const pool = new WorkerThreadPool<Worker>(workers) // addMany once
-// ... dispatch ...
+const pool = new WorkerThreadPool(
+  await Promise.all([1, 2, 3].map(() => EchoWorker.launchWorker()))
+) // addMany once; the worker class is inferred from the handles
+// ... dispatch via pool.mtdX(…) ...
 await pool.killAll() // every worker terminated, errors aggregated not aborted
 pool.threadCount // live workers only
 ```
 
 ```typescript
-// correct: explicit kill per id, unknown ids surface as `undefined`
-const killed = pool.kill(threadId) // correct: `threadId` or `undefined`, never throws
+// correct: explicit async kill per id, unknown ids surface as `undefined`
+const killed = await pool.kill(threadId) // correct: `threadId` or `undefined`, never throws
 if (killed === undefined) console.warn(`already gone: ${threadId}`) // correct: branch the miss
 ```
 
@@ -108,8 +113,13 @@ await pool.request(threadId, `mtdWork`, [job]) // correct: throws `unknown threa
 ## Notes
 
 - Exited workers remove themselves via the stored exit handler — no polling.
+- `kill()` and `killAll()` are async — `await` them. `kill()` resolves the id
+  (or `undefined` on a miss); `killAll()` rejects with `AggregateError` after
+  attempting every worker.
 - `getInstance(threadId)` returns the live handle or `undefined`; `request`
   on it throws for unknown ids (see `pool-dispatch`).
+- Construction is `new WorkerThreadPool(await Promise.all(…launchWorker()))` —
+  membership only registers handles; the `mtd*` call surface is `pool-dispatch`.
 - Mock-based pool tests prove accounting; real-worker tests prove dispatch.
 - `killAll` resets the round-robin cursor — post-teardown `execute` order
   restarts from index 0 (see `pool-dispatch`).

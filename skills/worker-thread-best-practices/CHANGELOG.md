@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased — pool dispatch realigned
+
+Typed `pool.mtdX(...)` dispatch landed in `9ed351ac`
+(`feat(worker-thread)!: typed mtd dispatch for WorkerThreadPool`) and was never
+propagated to the pool rules: `references/pool-dispatch.md` still documented
+only the string form (`execute` / `broadcastRequest` / `broadcastSettled`), and
+`references/pool-membership.md` still showed `kill()` as synchronous. Fixed:
+
+- `pool-dispatch.md` — leads with `pool.mtdX(...)`; construction and
+  worker-class inference from `launchWorker()` handles; no-options
+  round-robin, `{mode: "broadcast"}` fail-fast, `{mode: "settled"}` per-worker
+  envelopes; trailing options-object rules (always last, literal mode,
+  `timeoutMs: 0` opt-out, `mode`/`timeoutMs` key collision); empty-pool throws;
+  current `pool.ts` line citations.
+- `pool-membership.md` — inferred construction, `add`/`addMany` return ids,
+  async `kill`/`killAll`, current line citations.
+- `_sections.md` / `SKILL.md` — pool router entries name the typed dispatch
+  surface.
+
+Skill-only change; package source is untouched.
+
 ## 3.1.0
 
 No change to this package. `nx release` moves all four workspace packages as one fixed release group, so `worker-thread` reaches `3.1.0` alongside the breaking changes in `@gramstax/lmdb` — `LmdbBackup.start()` is now croner-backed and takes a cron `pattern` instead of `intervalMs`, and `croner` is a new runtime dependency of `@gramstax/lmdb`. The worker API is unchanged from `3.0.0`, so reading `3.1.0` here as a delta would overstate it.
