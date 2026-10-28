@@ -374,14 +374,14 @@ test command rather than surviving as an untested route.
 
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
-| `Received "sendRichMessage"` when you expected `sendMessage` | The page renders a rich template | Assert `sendRichMessage`, or use `extractText` for the payload |
+| The failure output reports `sendRichMessage` when you expected `sendMessage` | The page renders a rich template | Assert `sendRichMessage`, or use `extractText` for the payload |
 | `[]` / zero calls | Guard denied the update, the intent did not match, or a session step was not armed | Inspect `e2e.calls`, the user fixture, and the preceding step |
 | Extra `sendMessage` calls | `clearCalls()` is missing between steps, or the page renders twice | Clear between steps and assert the method set |
 | `answerCallbackQuery` is absent | The page did not call `renderCallbackAnswer` | Do not expect it; only callback-answer blocks produce it |
 | `test:e2e:check` reports a missing row | A new `handle*` has no ledger row | Add a row with the test file and the concrete assertion |
 | `test:e2e:check` reports an orphan test | A test file has no page counterpart | Delete it, or add it to `EXTRA_TESTS` if it is a harness test |
 | The suite passes but `test:e2e:check` fails | The mirror/ledger gate is separate from execution | Run `bun run test:e2e:check` and fix the inventory |
-| A ledger row passes but the behavior is untested | The `Asserts` cell is too weak (`length > 0`) | Name the method, text, keyboard, media, or call count |
+| A ledger row passes but the behavior is untested | The ledger's assertion column is too weak (`length > 0`) | Name the method, text, keyboard, media, or call count |
 
 `e2e.calls` is the full ordered log. `e2e.lastCall(method)` is the last matching
 call. `e2e.bodyOf<T>(call)` narrows a payload when you need a method-specific
@@ -442,7 +442,7 @@ The scaffold ships two checks, and they answer different questions:
   test file, and that no orphan test has lost its page.
 - `check-e2e-handlers.ts` proves every `handle*` in the page tree has a row in
   `e2e/COVERAGE.md` naming a test file, and that every test file is referenced by
-  at least one row. It does not read the test body; the row's `Asserts` cell is
+  at least one row. It does not read the test body; the row's assertion cell is
   the concrete-proof contract.
 
 The mirror alone cannot stop coverage rot: a mirrored stub that only asserts page
