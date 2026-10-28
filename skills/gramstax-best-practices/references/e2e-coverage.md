@@ -51,7 +51,7 @@ Run these from the project root before writing tests. The output is the coverage
 ```bash
 # every handler the page tree can dispatch (includes inherited base-class handlers when
 # you also scan src/base and src/core)
-rg -n --no-heading "^\s+(async\s+)?handle[A-Za-z0-9_]*\s*\(" src/pages src/base src/core
+rg -n --no-heading "^\s+(async\s+)?handle[A-Za-z0-9_]*\s*(\(|=)" src/pages src/base src/core
 
 # every declared intent and arg builder
 rg -n --no-heading "static\s+data\s*=|buildData\(|intentCallbackQueryData|intentText|intentCommandText" src/pages
