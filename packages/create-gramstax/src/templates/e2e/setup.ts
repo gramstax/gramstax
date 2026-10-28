@@ -8,7 +8,6 @@ export const bot = new BotCore({
   deploy: `test`,
   token: `test`,
   log: false,
-  stream: true,
   autoRetry: true,
   templateManager: new TemplateManager({
     path: [join(import.meta.dir, `../src/pages`)]

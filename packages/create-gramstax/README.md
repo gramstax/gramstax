@@ -373,7 +373,6 @@ export const bot = new BotCore({
   deploy: `test`,
   token: `test`,
   log: false,
-  stream: true,
   autoRetry: true,
   templateManager: new TemplateManager({
     path: [join(import.meta.dir, `../src/pages`)]
@@ -386,9 +385,11 @@ export const idUser = {user: {id: 5001, username: `pengguna`, language_code: `id
 
 - **`deploy: "test"`** replaces `gramstax.config.ts`: no network, no listener, no token lookup.
 - **`token: "test"`** and **`log: false`** keep the run hermetic and quiet.
-- **`stream: true`** and **`autoRetry: true`** make the bot process updates inline so a test can assert on what it *would* have sent.
+- **`autoRetry: true`** keeps the production retry plugin mounted; retries never reach the capture layer.
 - **An explicit `TemplateManager`** pointed at `../src/pages`, because nothing else has pointed it there yet.
 - **Shared fixtures** `enUser` / `idUser`, ids `4001` and `5001`, matching the `example/` workspaces. `username` is present because the template user guard requires it; `chat` is omitted since sessions key off the user id.
+
+Streaming needs no flag: `Gramstax` mounts `@grammyjs/stream` unconditionally, so `replyWithStream` and the draft API methods are available in every mode.
 
 Every e2e file imports `{bot}` or `{e2e, enUser, idUser}` from `./setup` (or `../setup`, `../../setup` at depth) and clears calls in `beforeEach`, so files sharing a user id cannot leak pending-input sessions into each other, which is exactly why `sum-number.test.ts` deliberately recovers with valid input at the end of its re-prompt test.
 
