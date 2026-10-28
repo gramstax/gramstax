@@ -139,6 +139,14 @@ jobs:
             bun run build:packages
           fi
 
+      # The `skills-version` job folds the released version into every
+      # SKILL.md after a successful release. This gate refuses to version a
+      # tree where that sync never landed, so a published release cannot ship
+      # skills that advertise an older version. It runs on the final tip,
+      # before any manifest is touched.
+      - name: Check skill metadata versions
+        run: bun run skills:version:check
+
       - name: Record pre-release tag
         run: |
           TAG_BEFORE=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
@@ -310,3 +318,61 @@ jobs:
           exit 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # `nx release` bumps the four package manifests and tags the commit, but the
+  # five skills/*/SKILL.md files advertise their own `metadata.version`. This
+  # job folds the released version into them, so the skills never lag a
+  # published release.
+  #
+  # A separate job, not a step in `release`, on purpose: the revert step above
+  # is scoped to the release job's `if: failure()`, so a failure here cannot
+  # delete the tag of an already-published release. A stale sync is recoverable
+  # and loud — the `Check skill metadata versions` gate refuses to version the
+  # next tree until it is fixed.
+  skills-version:
+    name: sync skill metadata versions
+    needs: [release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      # The sync script is dependency-free ESM, so this job needs Node only —
+      # no Bun install, no build.
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Sync skill metadata versions
+        run: node scripts/skills/sync-version.mjs
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add skills
+          if git diff --cached --quiet; then
+            echo "Skill metadata already matches the released version — nothing to commit."
+            exit 0
+          fi
+          VERSION=$(node -p "require('./packages/gramstax/package.json').version")
+          git commit -m "chore(skills): sync metadata version to $VERSION [skip ci]"
+          # This run holds the `main-writer` concurrency group, but a maintainer
+          # can still push at any moment. A bare push would lose that race, so
+          # replay the commit on the tip and retry, exactly like docs.yml does.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if git rebase --empty=drop origin/main && git push origin HEAD:main; then
+              exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((attempt * 5))
+          done
+          echo "Could not push the skill version sync after 3 attempts." >&2
+          echo "Repair locally: bun run skills:version:sync, then commit and push skills/." >&2
+          exit 1
