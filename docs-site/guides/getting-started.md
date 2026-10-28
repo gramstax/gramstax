@@ -218,7 +218,7 @@ export class StartPage extends Ctx {
 bun run test:packages
 # or target this package's tests directly
 bun test ./packages/gramstax/test
-bun test --filter "TemplateEngine"
+bun test -t "TemplateEngine"
 
 # Type-check + lint (the CI gate)
 bun run ci:check:packages

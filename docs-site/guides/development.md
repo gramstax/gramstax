@@ -119,7 +119,7 @@ Tests use **`bun:test`** (no jest/vitest, per `AGENTS.md`). Test files live in `
 | Type         | Location                           | Command                              |
 | ------------ | ---------------------------------- | ------------------------------------ |
 | Unit         | `packages/gramstax/test/*.test.ts` | `bun test ./packages/gramstax/test`  |
-| Filtered     | `test/*.test.ts`                   | `bun test --filter "TemplateEngine"` |
+| Filtered     | `test/*.test.ts`                   | `bun test -t "TemplateEngine"` |
 | All packages | `packages/*`                       | `bun run test:packages`              |
 
 ```bash
@@ -130,7 +130,7 @@ bun test packages/gramstax/test/template.engine.test.ts
 bun test ./packages/gramstax/test
 
 # Filter by suite name (e.g. TemplateManager)
-bun test --filter "TemplateManager"
+bun test -t "TemplateManager"
 ```
 
 The in-process E2E harness (`E2eHelper`, active with `deploy:"test"`) lets tests assert on captured Bot API calls (`e2e.calls`, `e2e.lastCall("sendMessage")`, `e2e.extractText`, `e2e.extractButtonLabels`) without any HTTP server.

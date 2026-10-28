@@ -102,7 +102,7 @@ Make surgical changes only in these files.
 ```
 nx build gramstax          # tsup → dist/src/{index.js,index.mjs,index.d.ts}
 bun test packages/gramstax/test/
-bun test --filter "TemplateEngine"
+bun test -t "TemplateEngine"
 ```
 
 ## Agent skills

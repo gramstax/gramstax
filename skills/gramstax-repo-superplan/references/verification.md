@@ -58,7 +58,7 @@ Use a single file when iterating:
 
 ```bash
 bun test packages/gramstax/test/cli.env.test.ts
-bun test --filter "TemplateEngine"
+bun test -t "TemplateEngine"
 ```
 
 ### Build and docs

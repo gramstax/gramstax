@@ -89,10 +89,10 @@ None of these run a format check or a backtick check — `biome lint` only.
 - `bun run test:packages` (test only `./packages`)
 - `bun run test:example` (test only `./example`)
 - `bun test packages/gramstax/test/<file>.ts` (single test file)
-- `bun test --filter "TemplateEngine"` (single test by name)
+- `bun test -t "TemplateEngine"` (single test by name)
 - `bun test packages/gramstax/test/core.bot.test.ts`
 - `bun test packages/gramstax/test/template.engine.test.ts`
-- `bun test --filter "TemplateManager"`
+- `bun test -t "TemplateManager"`
 - `bun test --watch` (optional local dev)
 
 ## CI / Pre-push
@@ -266,7 +266,7 @@ To add a new PAGE value validator: extend `_PAGE_ATTR_VALUE_VALIDATORS[tagName]`
 - Path alias `~/*` maps to `packages/gramstax/src/*` (from `packages/gramstax/tsconfig.json`).
 - Build with `nx build gramstax` (tsup config in `packages/gramstax/tsup.config.ts`).
 - Output artifacts live in `packages/gramstax/dist/src`.
-- Run a single test with `bun test packages/gramstax/test/<file>.ts` or filter via `bun test --filter "Name"`.
+- Run a single test with `bun test packages/gramstax/test/<file>.ts` or filter via `bun test -t "Name"`.
 
 ## Package: lmdb
 

@@ -864,7 +864,7 @@ Inside `packages/gramstax`:
 bun run build               # tsup: ./src/index.ts + ./src/cli/gramstax.ts, cjs + esm, dts
 bun run build:docs          # api-extractor + api-documenter → docs/markdown + docs/yaml (staging only)
 bun test test/              # the unit suite
-bun test --filter TemplateEngine
+bun test -t TemplateEngine
 bun bench/bench.ts run      # users-per-second benchmark (k6 + MockTelegramServer)
 ```
 
