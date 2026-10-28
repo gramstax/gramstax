@@ -169,6 +169,8 @@ Commands (shipped in generated projects and in the repo root):
 ```bash
 bun run scripts/check-e2e-mirror.ts --path .   # fail on missing/orphan
 bun run scripts/check-e2e-mirror.ts --path . --fix  # scaffold missing stubs
+bun run scripts/check-e2e-handlers.ts --path . # ledger audit
+bun run test:e2e:check                          # both, as test:all runs them
 bun run scripts/generate-e2e-structure.ts      # bulk-generate stubs
 ```
 

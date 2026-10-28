@@ -256,70 +256,44 @@ Rules for the ledger:
 
 ## Machine audit
 
-Two checks, both deterministic:
+Three checks, all deterministic:
 
 ```bash
-bun run scripts/check-e2e-mirror.ts --path .
-bun test e2e/
+bun run scripts/check-e2e-mirror.ts --path .   # layer 1
+bun run scripts/check-e2e-handlers.ts --path . # layer 2 + ledger integrity
+bun test e2e/                                  # execution
 ```
 
-The mirror check proves layer 1. For layer 2, add a small audit (generated projects can ship it as `scripts/check-e2e-handlers.ts`):
+`check-e2e-handlers.ts` is shipped in the generated project (and at the repo root
+for `--path` runs). It parses `e2e/COVERAGE.md` and fails when:
 
-```typescript
-import {readFileSync, readdirSync} from "node:fs"
-import {join, relative} from "node:path"
+- a `handle*` defined under `src/pages` has no ledger row for its page;
+- a handler row names no test file;
+- a referenced test file does not exist;
+- an `e2e/*.test.ts` file is not referenced by any row.
 
-const root = process.argv[2] ?? `.`
-const pagesDir = join(root, `src`, `pages`)
-const e2eDir = join(root, `e2e`)
+The audit is a floor: it proves the handler has a ledger row and that the row
+names a real test file. It does not read the test body, so the row's `Asserts`
+cell is what records the concrete method, text, keyboard, media, or call-count
+proof. A row that says `length > 0` is still a failure of this contract.
 
-function walk(dir: string): string[] {
-  return readdirSync(dir, {withFileTypes: true}).flatMap((entry) => {
-    const full = join(dir, entry.name)
-    return entry.isDirectory() ? walk(full) : /\.(ts|js)$/.test(entry.name) && !/\.test\.(ts|js)$/.test(entry.name) ? [full] : []
-  })
-}
+It scans `src/pages`; a handler inherited from `src/base` is not in a page file,
+so cover it through a concrete page and list it in the ledger. The regex covers
+method declarations and class-field handlers (`handleX = async () => {}`).
 
-let failed = false
-for (const page of walk(pagesDir)) {
-  const handlers = [...readFileSync(page, `utf8`).matchAll(/^\s+(?:async\s+)?(handle[A-Za-z0-9_]+)\s*\(/gm)].map((match) => match[1]!)
-  if (handlers.length === 0) continue
-  const test = join(e2eDir, `${relative(pagesDir, page).replace(/\.(ts|js)$/, ``)}.test.ts`)
-  let source = ``
-  try {
-    source = readFileSync(test, `utf8`)
-  } catch {
-    console.error(`${relative(root, page)}: missing mirrored test ${relative(root, test)}`)
-    failed = true
-    continue
-  }
-  for (const handler of handlers) {
-    if (!source.includes(handler)) {
-      console.error(`${relative(root, page)}: ${handler} has no mention in ${relative(root, test)}`)
-      failed = true
-    }
-  }
-}
-if (failed) process.exit(1)
-```
+## No exception rows
 
-The audit is a floor: it proves the handler is *named* in the mirrored test. A named handler still needs a real trigger and a real assertion — that is the ledger's job. It scans `src/pages`; a handler inherited from `src/base` is not in a page file, so list it in the ledger and cover it through a concrete page. The regex covers method declarations; a class-field handler (`handleX = async () => {}`) needs the corresponding `handleX\s*=` pattern or a manual ledger row.
-
-## Exceptions
-
-An exception is allowed only when the behavior cannot be observed through an update. Record it in `e2e/COVERAGE.md` with a reason:
-
-```markdown
-| Page | Handler | Reason not covered |
-| --- | --- | --- |
-| legacy | handleOldFlow | unreachable: no route registers it; delete in the next cleanup |
-```
-
-"Hard to test", "needs a real token", and "the mock does not support it" are not exceptions. Use `e2e.handleUpdate()` to construct the missing update shape, or move the behavior behind a page the helper can reach.
+The gate does not accept an "uncovered" row. A handler that cannot be observed
+through an update is either dead code (delete it) or missing a reachable trigger
+(add the page/route that exercises it). "Hard to test", "needs a real token", and
+"the mock does not support it" are not exceptions: use `e2e.handleUpdate()` to
+construct the missing update shape, or move the behavior behind a page the helper
+can reach.
 
 ## Definition of done
 
 - [ ] `check-e2e-mirror` exits 0 (no missing, no orphan tests).
+- [ ] `check-e2e-handlers` exits 0, and every ledger row names a concrete assertion.
 - [ ] Every `handle*` in the page tree appears in the ledger and in a test.
 - [ ] Every mapped intent (`intentTextMap` / `intentCommandTextMap`) and every rendered button is exercised.
 - [ ] Every `render*` call has a method-level assertion on the intended route.

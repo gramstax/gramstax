@@ -55,7 +55,7 @@ Router for the `references/` rule files. Read `AGENTS.md` in `packages/gramstax`
 
 ## How to Use
 
-Read individual rule files for explanations with incorrect vs correct examples:
+Read individual rule files for a verdict, the failure mode behind it, and examples; most files pair incorrect and correct code, while the e2e files use checklists and recipes:
 
 ```
 references/config-boot.md
@@ -64,13 +64,11 @@ references/route-hooks.md
 references/_sections.md
 ```
 
-Each rule file contains:
-
-- One-line verdict first
-- Why it matters (cost model or failure mode)
-- Incorrect code with explanation
-- Correct code with explanation
-- Gramstax-specific notes (deviations and exceptions)
+Each rule file starts with a one-line verdict and explains why it matters (the
+cost model or failure mode). Most then pair incorrect and correct code with an
+explanation; the e2e files use a coverage matrix, assertion recipes, and
+checklists instead. Files include Gramstax-specific notes (deviations and
+exceptions), often in a final `Notes` section.
 
 ## References
 

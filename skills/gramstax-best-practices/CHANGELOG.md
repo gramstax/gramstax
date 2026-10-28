@@ -2,6 +2,7 @@
 
 ## 2026-10-28
 
+- Shipped the e2e coverage gate: `scripts/check-e2e-handlers.ts` now checks `e2e/COVERAGE.md` against every `handle*` in `src/pages` and every `e2e/*.test.ts` in generated projects and at the repo root. `test:e2e:check` runs mirror + ledger; generated `test:all` runs it before the suites.
 - Rebuilt the e2e guidance as a completeness gate. Added `references/e2e-coverage.md`: seven coverage layers, a full handler-dispatch matrix (static, args, caption, session, free, chat-member, custom routes), state/guard/locale/fallback obligations, a committed coverage ledger, a handler-audit script, and a definition of done.
 - Rewrote `references/e2e-setup.md`: exact `BotCore` harness contract, `bot.ready`/`_ensureInit`/`reset` lifecycle, fixture-id and three-layer isolation rules, mirror-checker behavior, and anti-patterns.
 - Rewrote `references/e2e-validation.md`: method-level route assertions, template-derived text/keyboard/media checks, stream/broadcast/multi-call validation, and assertion anti-patterns.
