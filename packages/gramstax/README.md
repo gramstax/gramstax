@@ -1136,11 +1136,14 @@ Regenerate with `bun run build:docs` from the repository root.
 
 ### Agent skills
 
-The repository ships three rule-based skills consumed by coding agents, with `references/` holding one file per rule:
+The repository ships three rule-based skills plus two plan lifecycle skills consumed by coding agents, each with `references/` holding one file per rule or protocol:
 
 - [`skills/gramstax-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/gramstax-best-practices/SKILL.md): ten priority categories, `config-` through `cache-`
 - [`skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/lmdb-best-practices/SKILL.md)
 - [`skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/worker-thread-best-practices/SKILL.md)
+- [`skills/gramstax-superplan/`](https://github.com/gramstax/gramstax/blob/main/skills/gramstax-superplan/SKILL.md): portable app plan lifecycle for projects built on the Gramstax ecosystem, including greenfield `create-gramstax` scaffolds and best-practice routing
+
+App teams can copy `skills/gramstax-superplan/` plus the three best-practice skills into their project's `skills/` directory.
 
 ### Domain docs
 

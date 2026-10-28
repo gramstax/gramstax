@@ -1110,6 +1110,10 @@ The repository ships three rule-based skills consumed by coding agents, with
   and [`skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/worker-thread-best-practices/SKILL.md)
   for the sibling packages.
 
+The repository also ships
+[`skills/gramstax-superplan/`](https://github.com/gramstax/gramstax/blob/main/skills/gramstax-superplan/SKILL.md)
+for app-level plan lifecycle work.
+
 ### Examples
 
 Twenty-three runnable files under

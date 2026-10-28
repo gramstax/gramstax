@@ -983,6 +983,10 @@ The repository ships three rule-based skills consumed by coding agents, with
   and [`skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/lmdb-best-practices/SKILL.md)
   for the sibling packages.
 
+The repository also ships
+[`skills/gramstax-superplan/`](https://github.com/gramstax/gramstax/blob/main/skills/gramstax-superplan/SKILL.md)
+for app-level plan lifecycle work.
+
 ### Examples
 
 Nine runnable files under

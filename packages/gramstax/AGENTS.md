@@ -71,7 +71,7 @@ Config-driven. There is no `src/index.ts` and no hand-written `new Gramstax({...
 - `optionsDeploy.polling.queue` and `optionsDeploy.webhook.queue` configure the **same** class, `UpdateQueue` (`src/update/queue.ts`), each mode keeping its own instance. The queue is **opt-in** (`enabled` defaults to `false`): with it absent, `deploy: "polling"` drains sequentially exactly as it did before the queue existed. Turning it on is neutral funder saturation: see `bench/bench.ts`. At a 600 users/s target the sequential drain fell to 377 users/s at p95 1828 ms, while the queue sustained 601 users/s at p95 124 ms. `WebhookQueue` / `IWebhookQueueConfig` remain as deprecated aliases in the barrel — never delete them. Live state: `getWebhookQueueStats()` / `getPollingQueueStats()`, both `null` while their queue is disabled.
 - e2e is the one exception to config-driven boot — `e2e/setup.ts` constructs `BotCore` directly to inject `deploy: "test"`, `token: "test"`, `stream`, `autoRetry`, `log: false`.
 
-Docs: `docs-site/guides/gramstax-start.md`, `docs-site/guides/gramstax-build.md`, `docs-site/guides/serverless-deploy.md`, `docs-site/guides/aot-contract.md`. Agent skill: `skills/gramstax-best-practices/`.
+Docs: `docs-site/guides/gramstax-start.md`, `docs-site/guides/gramstax-build.md`, `docs-site/guides/serverless-deploy.md`, `docs-site/guides/aot-contract.md`. Agent skill: `skills/gramstax-best-practices/`. App superplan: `skills/gramstax-superplan/`. Framework superplan: `skills/gramstax-repo-superplan/`.
 
 ## Patterns
 
@@ -118,6 +118,11 @@ Default vocabulary: needs-triage, needs-info, ready-for-agent, ready-for-human, 
 ### Domain docs
 
 Context docs: `CONTEXT.md` + ADRs in `docs-site/guides/adr/`; map + consumer rules in root `CONTEXT-MAP.md` / `docs/agents/domain.md`.
+
+### Superplan
+
+- **Framework repo:** use `skills/gramstax-repo-superplan/SKILL.md` for plan creation, revision, review, resume, reconciliation, and superbuild handoff.
+- **Apps built on Gramstax:** use `skills/gramstax-superplan/SKILL.md`; copy that directory into the app's `skills/` directory. It plans greenfield `create-gramstax` scaffolds and routes to the matching best-practice skill.
 
 ## Anti-Patterns
 

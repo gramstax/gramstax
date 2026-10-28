@@ -73,7 +73,20 @@ each with a `references/` directory holding one file per rule:
 - `skills/lmdb-best-practices/SKILL.md`
 - `skills/worker-thread-best-practices/SKILL.md`
 
-`create-gramstax` has no skill of its own.
+It also ships two plan lifecycle skills:
+
+- `skills/gramstax-superplan/SKILL.md` — portable planning for apps built on
+  the Gramstax ecosystem, including greenfield `create-gramstax` scaffolds,
+  generated projects, and standalone apps. It routes page/template/config work
+  to `gramstax-best-practices` and LMDB/worker work to the matching package
+  skill. Copy the folder into the app's `skills/` directory.
+- `skills/gramstax-repo-superplan/SKILL.md` — planning for the Gramstax
+  framework monorepo itself, including packages and generated documentation.
+
+`create-gramstax` has no package-specific skill of its own. App teams should
+copy `gramstax-superplan` plus the three best-practice skills into their
+project; framework work uses `gramstax-repo-superplan` and the matching package
+`AGENTS.md`.
 
 ## Where to go next
 

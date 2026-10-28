@@ -18,11 +18,11 @@
 - `packages/*/test`: Bun unit tests (currently only in `gramstax`, `lmdb`, `worker-thread`).
 - `packages/create-gramstax/src/templates`: template project files for the CLI.
 - `example/`: sample projects (1-complex through 10-http-request, ordinally named).
-- `skills/`: repository-level agent skills (`gramstax-best-practices`, `lmdb-best-practices`, `worker-thread-best-practices`, each a router + `references/` rules).
+- `skills/`: repository-level agent skills (`gramstax-best-practices`, `lmdb-best-practices`, `worker-thread-best-practices` rule routers, plus `gramstax-superplan` for apps built on Gramstax and `gramstax-repo-superplan` for this framework repo; each a router + `references/`).
 - `docs/`: documentation and API reference.
 - `docs/AGENTS.md`: API reference; not repo-wide agent guidance.
 - `real-projects/`: standalone (non-workspace) sample apps — currently `production-vip-content-bot` (own `bun.lock`).
-- `plans/`: numbered implementation plans (`001-` through `007-`, each a `plan.md`).
+- `plans/`: numbered implementation plans (`plans/NNN-feature-slug/plan.md`, gitignored; see `skills/gramstax-repo-superplan` for framework work and `skills/gramstax-superplan` for app work).
 - `prompts/`: AI agent prompt templates (`PROMPT.md`, `PROMPT_WITH_VALUE.md`) — consume the gramstax skill router.
 - `scripts/`: root e2e-mirror tooling (`generate-e2e-structure.ts`, `check-e2e-mirror.ts`); mirrored into create-gramstax templates.
 - `biome.json`, `tsconfig.json`, `nx.json`: global tooling config.
@@ -37,6 +37,8 @@ Deep per-area guidance lives in child files — read the one matching your task 
 - `packages/gramstax/AGENTS.md`, `packages/lmdb/AGENTS.md`, `packages/worker-thread/AGENTS.md`, `packages/create-gramstax/AGENTS.md` — package internals, patterns, build/test commands, anti-patterns.
 - `example/AGENTS.md` — sample projects: didactic progression, shared `src/` skeleton, e2e harness, build-before-run rule.
 - `skills/gramstax-best-practices/SKILL.md` — rule sets governing generated Gramstax projects (pages, e2e, deploy, guards, cache).
+- `skills/gramstax-superplan/SKILL.md` — portable plan lifecycle for apps that consume the Gramstax ecosystem, including greenfield `create-gramstax` scaffolds; routes to the best-practice skills; copy it into the app's `skills/` directory.
+- `skills/gramstax-repo-superplan/SKILL.md` — plan lifecycle for the Gramstax framework monorepo: packages, docs-site, generated docs, and repo commands.
 - `real-projects/AGENTS.md` — standalone, non-workspace sample apps.
 - `docs/AGENTS.md` — API reference (production params, endpoints, lifecycle).
 
@@ -331,6 +333,11 @@ Line counts are `wc -l` (2026-10-19), a dated snapshot rather than an invariant.
 - **No `Makefile`** or `Dockerfile`.
 - **Type suppression in tests** is common (`as any`, `as unknown as`); acceptable in test files.
 - **`deploy: "raw"`** is the official way to run a bare grammY bot (no pages, no templates, no Gramstax routing). The legacy `templateManager: {} as any` exception was removed — use `deploy: "raw"` instead.
+
+### Superplan
+
+- **Framework repo:** use `skills/gramstax-repo-superplan/SKILL.md` for plan creation, revision, review, resume, reconciliation, and superbuild handoff across `packages/*`, `example/*`, and `docs-site`.
+- **Apps built on Gramstax:** use `skills/gramstax-superplan/SKILL.md`; copy that directory into the app's `skills/` directory and plan app-owned files only. It supports greenfield `create-gramstax` scaffolds and routes page/template/config work to `gramstax-best-practices`, LMDB work to `lmdb-best-practices`, and worker work to `worker-thread-best-practices`.
 
 ## Cursor/Copilot Rules
 

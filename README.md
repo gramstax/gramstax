@@ -975,9 +975,9 @@ gramstax/
 ├── real-projects/           # production-vip-content-bot: standalone, own lockfile, NOT a workspace member
 ├── docs-site/               # the Mintlify site: concepts, guides, ADR, generated reference
 ├── docs/                    # agent guides, capacity model, research notes
-├── plans/                   # 40 numbered implementation plans
+├── plans/                   # numbered implementation plans
 ├── prompts/                 # PROMPT.md, PROMPT_WITH_VALUE.md: agent prompts
-├── skills/                  # three agent skills: gramstax, lmdb, worker-thread
+├── skills/                  # five agent skills: three rule routers + app superplan + repo superplan
 ├── scripts/                 # link-workspace-bins.ts + e2e-mirror tooling + docs/mintlify audits
 ├── AGENTS.md                # repo-wide agent guidance
 ├── CONTEXT-MAP.md           # domain docs map, one CONTEXT.md per context
@@ -1193,11 +1193,15 @@ Regenerate with `bun run build:docs` from the repository root.
 
 ### Agent skills
 
-The repository ships three rule-based skills consumed by coding agents, with `references/` holding one file per rule:
+The repository ships three rule-based skills plus two plan lifecycle skills consumed by coding agents, each with `references/` holding one file per rule or protocol:
 
 - [`skills/gramstax-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/gramstax-best-practices/SKILL.md): ten priority categories, `config-` through `cache-`
 - [`skills/lmdb-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/lmdb-best-practices/SKILL.md)
 - [`skills/worker-thread-best-practices/`](https://github.com/gramstax/gramstax/blob/main/skills/worker-thread-best-practices/SKILL.md)
+- [`skills/gramstax-superplan/`](https://github.com/gramstax/gramstax/blob/main/skills/gramstax-superplan/SKILL.md): portable app plan lifecycle for projects built on the Gramstax ecosystem, including greenfield `create-gramstax` scaffolds and routing to the best-practice skills
+- [`skills/gramstax-repo-superplan/`](https://github.com/gramstax/gramstax/blob/main/skills/gramstax-repo-superplan/SKILL.md): framework-monorepo plan lifecycle for package and docs-site work
+
+App teams can copy `skills/gramstax-superplan/` plus the three best-practice skills into their project's `skills/` directory; framework work uses `skills/gramstax-repo-superplan/`.
 
 ### Domain docs
 
