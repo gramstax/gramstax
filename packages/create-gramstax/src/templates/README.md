@@ -67,6 +67,7 @@ Open Telegram, find your bot, and send `/start`.
 ## Project Structure
 
 ```
+├── AGENTS.md          # agent instructions for this generated app
 ├── gramstax.config.ts # Bot composition (token env name, deploy, caches): `gramstax start` boots from this file, no `src/index.ts`
 ├── src/
 │   ├── base/          # Shared base classes (PageBase, GuardBase)
@@ -116,6 +117,10 @@ E2E tests drive the real bot in-process (`deploy: test`) and assert every Telegr
 - **Development**: `BOT_DEPLOY=polling`, then `bun run dev`.
 - **Production (webhook)**: set `BOT_DEPLOY=webhook` and put your public URL in `optionsDeploy` in `gramstax.config.ts`, then run `bun run start` behind a process manager.
 - **Serverless**: set `deploy` to `serverless` with `optionsDeploy` (`adapter` + `url`), run `bun run build:gramstax`, and deploy `.gramstax/server/` per the Gramstax serverless guide.
+
+## Planning with agents
+
+If your agent supports project skills, copy the portable `gramstax-superplan` skill from the Gramstax repository into this project's `skills/` directory. It plans app work under `plans/NNN-feature-slug/plan.md`, reads this project's `package.json` scripts, and never edits `node_modules` or `.gramstax/`. For full coverage, also copy `gramstax-best-practices`, `lmdb-best-practices`, and `worker-thread-best-practices`; the planner routes to them.
 
 ## Tech Stack
 

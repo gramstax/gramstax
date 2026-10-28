@@ -228,6 +228,26 @@ describe(`leftover template placeholders`, () => {
   })
 })
 
+describe(`generated agent guidance`, () => {
+  it(`copies AGENTS.md into the generated project`, async () => {
+    const root = makeTempRoot()
+    const projectPath = join(root, `proj`)
+    const creator = makeCreator({calls: 0})
+    try {
+      await creator.executeProjectGeneration(baseConfig(projectPath, {skipInstall: true}))
+      const agentsPath = join(projectPath, `AGENTS.md`)
+      expect(existsSync(agentsPath)).toBe(true)
+      const content = readFileSync(agentsPath, `utf-8`)
+      expect(content).toContain(`gramstax.config.ts`)
+      expect(content).toContain(`src/core/bot.ts`)
+      expect(content).toContain(`src/db/`)
+      expect(content).toContain(`src/workers/`)
+    } finally {
+      rmSync(root, {recursive: true, force: true})
+    }
+  })
+})
+
 describe(`packageName lowercasing`, () => {
   it(`uses the lowercased project name for package.json name`, async () => {
     const root = makeTempRoot()

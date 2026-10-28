@@ -275,6 +275,7 @@ The complete [`src/templates/`](./src/templates) tree, as shipped:
 ```text
 src/templates/
 ├── .env.example                  # becomes .env; DB_PATH appended when LMDB is kept
+├── AGENTS.md                     # the generated project's agent instructions
 ├── LICENSE                       # MIT notice, matching the template package.json and README badge
 ├── README.md                     # the generated project's own docs
 ├── biome.json                    # removed unless Biome is enabled
@@ -438,6 +439,10 @@ bun run scripts/check-e2e-mirror.ts --path ./other-app
 Wiring it into CI (as a step, or as part of your test command) is the reader's job, and it is the step that converts "remember to add a test" into a failing pipeline.
 
 The repository keeps its own pair at the repo root under `scripts/` for the `example/*` workspaces: same algorithm, but the default mode iterates every example project and `EXTRA_TESTS` is populated (`11-cloudflare-worker`). `--path` behaves identically in both.
+
+## Agent planning
+
+The generated project is designed to be planned with the portable `gramstax-superplan` skill from the Gramstax repository. Copy `skills/gramstax-superplan/` into the generated project's `skills/` directory (or the skill directory your agent uses). The skill reads the project's own `package.json`, `gramstax.config.ts`, source, and e2e suite; it writes plans under `plans/NNN-slug/plan.md`. It can also plan a greenfield app from an empty directory by making `create-gramstax` the first phase. For full coverage, copy `gramstax-best-practices`, `lmdb-best-practices`, and `worker-thread-best-practices` alongside it; the planner routes to them.
 
 ## 🏗️ Architecture
 

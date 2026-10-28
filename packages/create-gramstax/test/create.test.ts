@@ -328,6 +328,22 @@ describe(`template README`, () => {
   })
 })
 
+describe(`template AGENTS`, () => {
+  const agentsPath = join(import.meta.dir, `..`, `src`, `templates`, `AGENTS.md`)
+
+  it(`ships accurate guidance for the generated app`, () => {
+    expect(existsSync(agentsPath)).toBe(true)
+    const content = readFileSync(agentsPath, `utf-8`)
+    expect(content).toContain(`gramstax.config.ts`)
+    expect(content).toContain(`src/core/bot.ts`)
+    expect(content).toContain(`src/db/`)
+    expect(content).toContain(`src/workers/`)
+    expect(content).toContain(`bun run test:all`)
+    expect(content).not.toContain(`gramstax-repo-superplan`)
+    expect(content).not.toContain(`.env.example`)
+  })
+})
+
 describe(`create-gramstax package.json`, () => {
   const pkgPath = join(import.meta.dir, `..`, `package.json`)
 

@@ -11,7 +11,7 @@ packages/create-gramstax/src/
 ├── utils/fs.ts        Filesystem helpers, package-manager command resolution
 ├── utils/log.ts       Logger singleton
 ├── templates/         All scaffolded project files (copied verbatim, then processed)
-│   ├── package.json, tsconfig.json, biome.json, .gitignore, .env.example, LICENSE, README.md
+│   ├── package.json, tsconfig.json, biome.json, gitignore, .env.example, LICENSE, README.md, AGENTS.md
 │   ├── gramstax.config.ts  Typed composition (default export `: GramstaxConfig`) — the boot entry
 │   ├── src/
 │   │   ├── base/page.ts       PageBase template
@@ -30,7 +30,7 @@ packages/create-gramstax/src/
 │   │   ├── pages/*            9 page templates (nested start/random)
 │   │   ├── types/             Shared types grouped by domain: user.ts (LMDB), job.ts (workers), page.ts (always kept)
 │   ├── test/.gitkeep
-│   ├── e2e/                   setup.ts + 8 test file templates (shared enUser/idUser fixtures, 4001/5001)
+│   ├── e2e/                   setup.ts + 9 test file templates (shared enUser/idUser fixtures, 4001/5001)
 │   └── scripts/               check-e2e-mirror.ts + generate-e2e-structure.ts (single-project e2e tooling)
 ```
 
@@ -94,7 +94,7 @@ bun test packages/create-gramstax/test/
 - Do not add new runtime dependencies — CLI already has `commander`, `enquirer`, `logging-pretty`.
 - Template files use backtick strings to match repo lint rules.
 - When adding new template files, update `create.ts` copy/post-processing logic.
-- Never let a template file import an optional module (`~/db`, `~/workers/job`) unless that file is itself pruned with it. The single exception is `src/core/hooks.ts`, which `buildHooksSource` rewrites per feature combination — keep it byte-identical to `buildHooksSource(true, true)`, which `test/generation.test.ts` asserts.
+- Never let a template file import an optional module (`~/db`, `~/workers/job`) unless that file is itself pruned with it. The single exception is `src/core/services.ts`, which `buildServicesSource` rewrites per feature combination — keep it byte-identical to `buildServicesSource(true, true)`, which `test/generation.test.ts` asserts.
 - Keep each optional feature self-contained: its lifecycle lives inside the directory that gets pruned (`Db.start`/`Db.stop`; the worker is driven through `JobWorker.launchWorker()`/`shutdown()`), and `services.ts` only dispatches. This is what keeps `--lmdb` and `--worker-thread` independently combinable.
 - **Scaffolded source is class-based only.** No module-level `export function` and no `export const x = async () => …` under `templates/src/` — put the behaviour on a class (static members are fine, and are how the lifecycle is exposed). `test/generation.test.ts` walks `templates/src` and fails on any offender, so this is enforced, not merely reviewed.
 - **No `console.*` under `templates/src/`.** Route everything through `LogHe` from `~/helpers/log`, so output honours the log destination configured in `gramstax.config.ts` (`log.override`). `warn` for diagnostics, `info` for progress, `errorMake(err, Class, fn)` for failures. Enforced by a test.
