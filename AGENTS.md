@@ -24,7 +24,7 @@
 - `real-projects/`: standalone (non-workspace) sample apps — currently `production-vip-content-bot` (own `bun.lock`).
 - `plans/`: numbered implementation plans (`plans/NNN-feature-slug/plan.md`, gitignored; see `skills/gramstax-repo-superplan` for framework work and `skills/gramstax-superplan` for app work).
 - `prompts/`: AI agent prompt templates (`PROMPT.md`, `PROMPT_WITH_VALUE.md`) — consume the gramstax skill router.
-- `scripts/`: root e2e-mirror tooling (`generate-e2e-structure.ts`, `check-e2e-mirror.ts`, `check-e2e-handlers.ts`); mirrored into create-gramstax templates.
+- `scripts/`: root tooling — e2e mirror (`generate-e2e-structure.ts`, `check-e2e-mirror.ts`, `check-e2e-handlers.ts`, mirrored into create-gramstax templates), prose audits (`docs/audit-docs.mjs`, `docs/audit-templates.mjs`), Mintlify generation (`mintlify/`), and skill version sync (`skills/sync-version.mjs`).
 - `biome.json`, `tsconfig.json`, `nx.json`: global tooling config.
 - `bunfig.toml`: Bun runtime config.
 - `packages/gramstax/security-poc/`: standalone numbered security PoC scripts (template-engine breakout/injection/RCE).
@@ -77,7 +77,7 @@ There is no backtick/quote lint script. `lint:quotes` and the `biome-backtick.gr
 
 ## Typecheck + Lint Commands (ci:check)
 
-- `bun run ci:check` (tsc for the repo root plus `gramstax`, `create-gramstax`, `lmdb`, `worker-thread`, then `biome lint`)
+- `bun run ci:check` (tsc for the repo root plus `gramstax`, `create-gramstax`, `lmdb`, `worker-thread`, then `biome lint`, then the skill metadata version check)
 - `bun run ci:check:packages` (tsc for `./packages` + `biome lint ./packages`)
 - `bun run ci:check:example` (`biome lint ./example`)
 
@@ -110,6 +110,8 @@ None of these run a format check or a backtick check — `biome lint` only.
 - `bun run release:major`
 - `bun run dry-run`
 - `bun run publish:all`
+- `bun run skills:version:sync` (write the released version into every `skills/*/SKILL.md`; CI does this after a successful release)
+- `bun run skills:version:check` (exit 1 on drift; part of `ci:check` and a release-job gate)
 
 ## Formatting & Linting Rules
 
@@ -319,6 +321,7 @@ Line counts are `wc -l` (2026-10-19), a dated snapshot rather than an invariant.
 
 - Two workflows, both on push to `main`: `.github/workflows/release.yml` and `.github/workflows/docs.yml`.
 - Release job runs `ci:test:packages` + `build`, then `nx release`.
+- Skill metadata versions are not hand-maintained. The `skills-version` job in `release.yml` runs after the `release` job, copies the package version into the five `skills/*/SKILL.md` `metadata.version` fields, and commits with `[skip ci]`. `bun run skills:version:check` (part of `ci:check`, and a step in the release job before versioning) fails on drift, so a stale tree cannot be versioned. A failed release skips the sync — it may have bumped manifests without publishing them.
 - Failure handler is unusual: checks npm for existing version, may delete tag/release and force-push.
 - Root `prepush` script does `ci:test` + `build` + a manual safety echo.
 - **The API reference is generated in CI, never by hand.** `docs.yml` runs the root `build:docs`, then `mintlify validate` + `mintlify broken-links --check-anchors`, then commits `docs-site/` with `[skip ci]`. Validation runs *before* the commit, so a failed generation produces no commit and Git sync has nothing to deploy.
