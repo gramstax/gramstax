@@ -29,5 +29,5 @@ await ctx.renderText({keyboard: ctx.bottomKeyboard((k) => k.text(`Near me`).text
 ## Notes
 
 - Bottom buttons carry text only (no `callback_data`); validate with `extractBottomLabels` + `resize_keyboard: true`.
-- Inline buttons need non-empty `callback_data` and an `answerCallbackQuery` first response.
+- Inline buttons need non-empty `callback_data`. A callback handler answers the tap with `renderCallbackAnswer` when the UI needs an acknowledgment or alert; the framework does **not** answer automatically, and an edit/send already counts as the routed response.
 - Dynamic labels/counts always go through template data into the builders (see `keyboard-reuse.md`).
