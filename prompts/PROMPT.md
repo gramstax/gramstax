@@ -213,7 +213,7 @@ Add tests that prove the bot works from the user’s point of view and that extr
 - Drive the bot in-process with `deploy: "test"` — no `MockTelegramServer`, no ports, no polling, no `beforeAll` server waits. Shape (see generated `e2e/setup.ts`):
 
 ```typescript
-export const bot = new BotCore({deploy: `test`, token: `test`, log: false, stream: true, autoRetry: true, templateManager})
+export const bot = new BotCore({deploy: `test`, token: `test`, log: false, autoRetry: true, templateManager})
 export const e2e = bot.e2e!
 beforeEach(() => e2e.clearCalls())
 ```
@@ -221,7 +221,7 @@ beforeEach(() => e2e.clearCalls())
 - Cover the primary happy path from `/start` through the main inline keyboard flow described by `PRIMARY_USER_JOURNEY`.
 - Cover each important callback action from `INLINE_KEYBOARD_ACTIONS`, including navigation back to the start page when applicable.
 - Cover each free-text step from `FREE_TEXT_STEPS`, including the session state that accepts the answer and the resulting confirmation or validation message.
-- Validate every Telegram call, not just the last: methods order (`answerCallbackQuery` first), message text via `e2e.gmsg()`, labels via `e2e.gkb()`, media via `e2e.gmedia()`; edits via `e2e.lastCall("editMessageText")`.
+- Validate every Telegram call, not just the last: assert the method set and the absence of the wrong method, message text via `e2e.gmsg(page, baseId)`, labels via `e2e.gkb(page, baseId)`, media via `e2e.gmedia(page, baseId)`, and edits via `e2e.lastCall("editMessageText")`. `answerCallbackQuery` is only present when the page calls `renderCallbackAnswer`; never assume it is automatic.
 - Assert user-visible outcomes, not implementation details: message text contains stable headings/content, inline keyboards contain expected labels, and Telegram requests contain expected payload fields.
 - Use distinct private user IDs for stateful tests so session data does not leak between scenarios.
 - Cover fallback (unknown callback/command/text → StatusPage), session reset on `/start`, and language variants when applicable.
