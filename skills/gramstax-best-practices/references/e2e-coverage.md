@@ -80,6 +80,8 @@ Trigger each handler with the update shape its name implies. `intent` is `Page.d
 | custom route (`registerCustomRoute`) | Inject the underlying event with `e2e.handleUpdate(...)` | The custom handler is dispatched by the built-in listener for that event. |
 | session variants (`handleSession*`) | Enter the state first, then send the matching update | Never dispatched by `handleFree*`; only reachable while `session.method` points at them. |
 
+**Exhaustive family rule.** `handleFree*`, `handleSession*`, and `handleChatMember*` are large generated families. The authoritative runtime lists are `bot.pages.listRouteDynamicSpesific`, `bot.pages.listRouteStaticSession`, and `bot.pages.routeChatMember`; every handler a page defines gets a ledger row and its matching update shape. Do not stop at the common examples above.
+
 ### Handler rules
 
 - **Exact and args are different routes.** `handleCommandText` needs `/cmd` with no args; `handleCommandArgsText` needs `/cmd arg`. Test both when both exist.
