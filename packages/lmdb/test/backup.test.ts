@@ -125,7 +125,8 @@ describe(`LmdbBackup`, () => {
       // deterministic victim, but which is NOT creation order. Wait for the
       // clock to advance so this asserts the oldest-first ordering it is named
       // for. Without it the test passes or fails on how fast the machine is.
-      const stampA = Number(basename(a).split(`-`)[0])
+      const stampA = Number(basename(a).split(`-`)[1])
+      expect(Number.isFinite(stampA)).toBe(true)
       while (Date.now() <= stampA) await new Promise(resolve => setTimeout(resolve, 1))
       const b = await LmdbBackup.backup(env, base, 5)
       const entries = LmdbBackup.list(base)
