@@ -1,6 +1,6 @@
 ---
 name: gramstax-best-practices
-description: Best practices for gramstax (declarative Telegram bot framework): config-driven boot from gramstax.config.ts, page base classes with hookBeforeRoute gates, page routing with mode-aware rendering and sessions, template authoring (g-* blocks, scopes, filters, AOT), keyboard reuse, E2E testing with E2eHelper, and deploy modes (polling/webhook/serverless/raw/test) with gramstax build. Use when writing, reviewing, auditing, or debugging gramstax config, pages, base classes, templates, keyboards, sessions, e2e tests, deploys, or bot startup — including when a boot fails, a render duplicates messages, a gate silently drops updates, sessions leak, or templates misbehave.
+description: Best practices for gramstax (declarative Telegram bot framework): config-driven boot from gramstax.config.ts, page base classes with hookBeforeRoute gates, page routing with mode-aware rendering and sessions, template authoring (g-* blocks, scopes, filters, AOT), keyboard reuse, exhaustive E2E coverage with E2eHelper (handler matrix, route assertions, guards, locales, fallbacks), and deploy modes (polling/webhook/serverless/raw/test) with gramstax build. Use when writing, reviewing, auditing, or debugging gramstax config, pages, base classes, templates, keyboards, sessions, e2e tests, deploys, or bot startup — including when a boot fails, a render duplicates messages, a gate silently drops updates, sessions leak, or templates misbehave.
 compatibility: Bun + TypeScript + Nx monorepo; gramstax workspace (packages/gramstax)
 metadata:
   version: 6.0.4
@@ -14,6 +14,8 @@ metadata:
 Router for the `references/` rule files. Read `AGENTS.md` in `packages/gramstax` for API truth; this skill adds the judgment layer distilled from prior rule sets, the `create-gramstax` templates, and the `example/` projects.
 
 **Current behavior.** The config file is the default composition point and pages are gated by base classes. A project with no `gramstax.config.ts` may still be valid if it constructs `BotCore` directly (cluster, multi-bot, custom lifecycle) — see `references/config-programmatic.md`.
+
+**E2E is a completion gate.** A page change is not done until its mirrored test and `e2e/COVERAGE.md` ledger row exist. `references/e2e-coverage.md` defines the seven layers, the handler dispatch matrix, and the machine audit that make "no gaps" checkable; the other e2e files are the how-to.
 
 ## When to Apply
 
@@ -33,7 +35,7 @@ Router for the `references/` rule files. Read `AGENTS.md` in `packages/gramstax`
 | 4 | Template authoring | HIGH | `template-` |
 | 5 | Pages, base classes & structure | HIGH | `pages-` |
 | 6 | Keyboards | HIGH | `keyboard-` |
-| 7 | E2E testing | MEDIUM-HIGH | `e2e-` |
+| 7 | E2E coverage & testing | MEDIUM-HIGH | `e2e-` |
 | 8 | Deploy modes, build & runtime | MEDIUM | `deploy-` |
 | 9 | Guards | MEDIUM | `guard-` |
 | 10 | Session cache store | MEDIUM | `cache-` |
@@ -47,6 +49,7 @@ Router for the `references/` rule files. Read `AGENTS.md` in `packages/gramstax`
 | Gating pages behind admin/role/KYC | `references/pages-base-classes.md`, then `references/route-hooks.md` |
 | Deploying to Workers or Lambda | `references/deploy-build.md`, then `references/deploy-modes.md` |
 | Writing a new page | `references/pages-structure.md`, `references/pages-base-classes.md` |
+| Writing, auditing, or fixing e2e tests | `references/e2e-coverage.md`, then `e2e-setup.md`, `e2e-validation.md`, `e2e-flows.md` |
 | Long text, caption edit, or keyboard-only edit | `references/route-render-api.md` |
 | Anything touching untrusted input | `references/security-trust-boundary.md` |
 

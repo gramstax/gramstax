@@ -48,9 +48,10 @@ Aligned with the current `gramstax` source.
 
 ## e2e- (MEDIUM-HIGH)
 
-- `e2e-setup.md` — `setup.ts` harness (constructor, not config file), mirror layout, isolation
-- `e2e-validation.md` — message/keyboard/media/edit/multi-call/stream assertions, reading captured payloads
-- `e2e-flows.md` — fallback pages, session isolation, access-denial paths, language variants
+- `e2e-coverage.md` — **read first**: the completeness contract (seven layers), full handler dispatch matrix, per-state/guard/locale/fallback obligations, coverage ledger, machine audit, definition of done
+- `e2e-setup.md` — `setup.ts` harness (constructor, not config file), lifecycle, fixtures/isolation, mirror layout and checker behavior
+- `e2e-validation.md` — method-level route assertions, template-derived text/keyboard/media checks, stream/broadcast/multi-call validation, anti-patterns
+- `e2e-flows.md` — session start/step/invalid/cancel/isolation, gate allow+deny, fallback recovery, locale variants, args/media/worker/LMDB/HTTP flows
 
 ## deploy- (MEDIUM)
 
