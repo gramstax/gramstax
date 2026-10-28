@@ -3,7 +3,7 @@ name: gramstax-repo-superplan
 description: Plan lifecycle for the Gramstax framework monorepo: create, revise, review, resume, reconcile, and hand off plans that touch packages/gramstax, create-gramstax, lmdb, worker-thread, example, and docs-site. Uses grill-me design-tree interviews, numbered plans/ files, parallel write lanes, and Gramstax/Bun verification commands. Use only when working on the framework repository; for downstream apps built on Gramstax, use gramstax-superplan.
 compatibility: Bun + TypeScript + Nx monorepo; framework repository (packages/*, example/, docs-site/, skills/)
 metadata:
-  version: 6.0.4
+  version: 6.1.0
   author: gramstax
   organization: gramstax
   scope: repository

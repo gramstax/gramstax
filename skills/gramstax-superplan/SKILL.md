@@ -3,7 +3,7 @@ name: gramstax-superplan
 description: Plan lifecycle for apps built on the Gramstax ecosystem, including greenfield Gramstax scaffolds, create-gramstax projects, standalone apps, and real-projects. Creates and revises plans under plans/NNN-slug/plan.md, uses grill-me design-tree interviews, app-specific write lanes, and the project's own Bun scripts. Routes page/template/config work to gramstax-best-practices and LMDB/worker work to the matching package skill. Use when planning a new Gramstax app from an empty project, an app feature, page, template, config/deploy change, LMDB/worker integration, e2e suite, or app-level refactor. For the Gramstax framework monorepo itself, use gramstax-repo-superplan.
 compatibility: Bun + TypeScript; app projects depending on gramstax and optionally @gramstax/lmdb or @gramstax/worker-thread
 metadata:
-  version: 6.0.4
+  version: 6.1.0
   author: gramstax
   organization: gramstax
   scope: consumer-apps

@@ -3,7 +3,7 @@ name: gramstax-best-practices
 description: Best practices for gramstax (declarative Telegram bot framework): config-driven boot from gramstax.config.ts, page base classes with hookBeforeRoute gates, page routing with mode-aware rendering and sessions, template authoring (g-* blocks, scopes, filters, AOT), keyboard reuse, exhaustive E2E coverage with E2eHelper (handler matrix, route assertions, guards, locales, fallbacks), and deploy modes (polling/webhook/serverless/raw/test) with gramstax build. Use when writing, reviewing, auditing, or debugging gramstax config, pages, base classes, templates, keyboards, sessions, e2e tests, deploys, or bot startup — including when a boot fails, a render duplicates messages, a gate silently drops updates, sessions leak, or templates misbehave.
 compatibility: Bun + TypeScript + Nx monorepo; gramstax workspace (packages/gramstax)
 metadata:
-  version: 6.0.4
+  version: 6.1.0
   author: gramstax
   organization: gramstax
   scope: packages/gramstax
