@@ -62,7 +62,8 @@ Open Telegram, find your bot, and send `/start`.
 | `format`        | Format with Biome                        |
 | `test`          | Run unit tests in `test/`                |
 | `test:e2e`      | Run end-to-end tests in `e2e/`           |
-| `test:all`      | Run unit + e2e tests                     |
+| `test:e2e:check`| Run the mirror check + coverage ledger audit |
+| `test:all`      | Run the e2e checks, then unit + e2e tests |
 
 ## Project Structure
 
@@ -80,9 +81,9 @@ Open Telegram, find your bot, and send `/start`.
 │   ├── types/         # Shared types grouped by domain: user, job, page
 │   ├── utils/         # Pure generic utilities
 │   └── workers/       # Background jobs (if enabled)
-├── e2e/               # End-to-end tests (mirrors src/pages/)
+├── e2e/               # End-to-end tests (mirrors src/pages/) + COVERAGE.md ledger
 ├── test/              # Unit tests for pure logic
-├── scripts/           # e2e mirror check + structure generator
+├── scripts/           # e2e mirror check + handler/ledger audit + structure generator
 └── data/              # LMDB data files (created at runtime, if enabled)
 ```
 
@@ -90,7 +91,7 @@ Keep shared interfaces in `src/types/<domain>.ts` rather than declaring them
 inline in a page or service. Optional type files are removed with their feature:
 `types/user.ts` goes with `--no-lmdb`, `types/job.ts` with `--no-worker-thread`.
 
-New page? Create `src/pages/my-page.ts` plus `e2e/my-page.test.ts`: the mirror is enforced by `scripts/check-e2e-mirror.ts`.
+New page? Create `src/pages/my-page.ts`, `e2e/my-page.test.ts`, and a row for every handler in `e2e/COVERAGE.md`. The mirror is enforced by `scripts/check-e2e-mirror.ts`; the handler/test ledger is enforced by `scripts/check-e2e-handlers.ts`.
 
 ## Configuration
 
@@ -105,12 +106,13 @@ All settings live in `.env` and are wired through `gramstax.config.ts` (`token` 
 ## Testing
 
 ```bash
-bun run test       # fast unit tests for helpers, stores, validation
-bun run test:e2e   # full user journeys: /start → callbacks → free text
-bun run test:all   # everything, as CI runs it
+bun run test            # fast unit tests for helpers, stores, validation
+bun run test:e2e        # full user journeys: /start → callbacks → free text
+bun run test:e2e:check  # mirror check + every handler/test accounted for in e2e/COVERAGE.md
+bun run test:all        # the checks, then everything, as CI runs it
 ```
 
-E2E tests drive the real bot in-process (`deploy: test`) and assert every Telegram API call: message text, keyboards, media, edits, and call order.
+E2E tests drive the real bot in-process (`deploy: test`) and assert every Telegram API call: message text, keyboards, media, edits, and call order. `e2e/COVERAGE.md` is the ledger: one row per handler, state, or hook-driven page, pointing at the test that proves it. The audit fails when a page handler or test file has no row.
 
 ## Deployment
 

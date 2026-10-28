@@ -21,7 +21,25 @@ describe(`E2E: StatusPage`, () => {
     const replyId = responsesId[0]!
     expect(reply).toBeDefined()
     expect(replyId).toBeDefined()
+    expect(reply.method).toBe(`editMessageText`)
+    expect(replyId.method).toBe(`editMessageText`)
     expect(reply.body?.text).toBe(e2e.gmsg(intent, `nf`))
     expect(replyId.body?.text).toBe(e2e.gmsg(intent, `nf`, {}, `id`))
+  })
+
+  it(`show 'Route not found' for an unknown command`, async () => {
+    const responses = await e2e.sendText(`/does-not-exist`, {user: {id: 93001, username: `unknowncommand`, language_code: `en`}})
+
+    expect(responses.length).toBeGreaterThan(0)
+    expect(responses[0]!.method).toBe(`sendMessage`)
+    expect(e2e.extractText(responses[0]!)).toBe(e2e.gmsg(intent, `nf`))
+  })
+
+  it(`show 'Route not found' for unknown free text`, async () => {
+    const responses = await e2e.sendText(`hello`, {user: {id: 93002, username: `unknownText`, language_code: `en`}})
+
+    expect(responses.length).toBeGreaterThan(0)
+    expect(responses[0]!.method).toBe(`sendMessage`)
+    expect(e2e.extractText(responses[0]!)).toBe(e2e.gmsg(intent, `nf`))
   })
 })

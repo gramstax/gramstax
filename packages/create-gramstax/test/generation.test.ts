@@ -248,6 +248,25 @@ describe(`generated agent guidance`, () => {
   })
 })
 
+describe(`generated e2e coverage gate`, () => {
+  it(`ships the ledger and the handler audit wired into test:all`, async () => {
+    const root = makeTempRoot()
+    const projectPath = join(root, `proj`)
+    const creator = makeCreator({calls: 0})
+    try {
+      await creator.executeProjectGeneration(baseConfig(projectPath, {skipInstall: true}))
+      expect(existsSync(join(projectPath, `e2e`, `COVERAGE.md`))).toBe(true)
+      expect(existsSync(join(projectPath, `scripts`, `check-e2e-handlers.ts`))).toBe(true)
+      const pkg = JSON.parse(readFileSync(join(projectPath, `package.json`), `utf-8`)) as {scripts?: Record<string, string>}
+      expect(pkg.scripts?.["test:e2e:check"]).toContain(`check-e2e-mirror.ts`)
+      expect(pkg.scripts?.["test:e2e:check"]).toContain(`check-e2e-handlers.ts`)
+      expect(pkg.scripts?.["test:all"]).toContain(`test:e2e:check`)
+    } finally {
+      rmSync(root, {recursive: true, force: true})
+    }
+  })
+})
+
 describe(`packageName lowercasing`, () => {
   it(`uses the lowercased project name for package.json name`, async () => {
     const root = makeTempRoot()

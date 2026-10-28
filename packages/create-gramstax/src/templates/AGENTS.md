@@ -22,6 +22,7 @@ bun run build:gramstax
 bun run typecheck
 bun run test
 bun run test:e2e
+bun run test:e2e:check
 bun run test:all
 ```
 
@@ -53,7 +54,8 @@ If `biome.json` is absent, do not assume `lint` or `format` exists.
 - `src/blocks/g-keyboard.ts` contains the reusable keyboard builders. Prefer the shared `KeyboardGBlock` helpers over duplicating labels or keyboard structures.
 - The scaffold's `UserGuard.ensureUsername()` rejects users without a Telegram username. That is a product decision; change it deliberately if this bot should allow them.
 - Add or rename a page under `src/pages/` and update its mirror at the same relative path under `e2e/`. For example, `src/pages/foo.ts` pairs with `e2e/foo.test.ts`, and `src/pages/start/index.ts` pairs with `e2e/start/index.test.ts`.
-- Run `bun run scripts/check-e2e-mirror.ts` after adding or renaming pages. The mirror script is bidirectional and reports orphan tests as well as missing tests.
+- `e2e/COVERAGE.md` is the handler/test ledger. Every `handle*` the page defines needs a row that names the test proving it; every test file needs to be referenced. `bun run scripts/check-e2e-handlers.ts` fails when either side is missing.
+- Run `bun run test:e2e:check` after adding, renaming, or removing a page or handler. It runs the bidirectional mirror check and the ledger audit.
 - `g-*` template blocks, filters, keyboards, and AOT constraints are governed by the Gramstax best-practice rules. Prefer page classes and framework helpers over hand-written Telegram API calls.
 - `optionsPage.shortCallbackQueryData` is enabled. Use page classes and keyboard helpers instead of hard-coded callback strings.
 - `gramstax build` writes `.gramstax/`. Change the page or config source and rebuild; never hand-edit that tree.
@@ -115,8 +117,7 @@ A change is complete only when the relevant current commands pass and their outp
 
 ```bash
 bun run typecheck
-bun run test:all
-bun run scripts/check-e2e-mirror.ts
+bun run test:all        # includes test:e2e:check (mirror + coverage ledger)
 bun run build:gramstax
 bun run start -- --help
 bun run lint                  # only when biome.json exists
@@ -130,6 +131,6 @@ For a page change, exercise the real Telegram flow with `bun run dev` and record
 - Do not add a Node runtime, Jest, or Vitest.
 - Do not edit `node_modules`, installed package source, or `.gramstax/` output.
 - Do not commit `.env`, tokens, runtime data, logs, or generated build output.
-- Do not add or rename a page without its `e2e/` mirror.
+- Do not add or rename a page without its `e2e/` mirror and its `e2e/COVERAGE.md` rows.
 - Do not assume LMDB or worker directories exist; check `package.json` and the tree first.
 - Do not replace the scaffold's page/template wiring with raw Telegram API calls without a specific reason.

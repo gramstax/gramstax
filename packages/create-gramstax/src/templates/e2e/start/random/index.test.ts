@@ -26,4 +26,12 @@ describe(`E2E: StartRandomPage (hub)`, () => {
     expect(e2e.extractButtonLabels(edit)).toEqual(e2e.gkb(intent, `default`, `inline`, {}))
     expect(e2e.extractButtonLabels(editId)).toEqual(e2e.gkb(intent, `default`, `inline`, {}, `id`))
   })
+
+  it(`answers the /start/random command`, async () => {
+    const responses = await e2e.sendText(`/start/random`, enUser)
+    expect(responses.length).toBeGreaterThan(0)
+    expect(responses[0]!.method).toBe(`sendMessage`)
+    expect(e2e.extractText(responses[0]!)).toBe(e2e.gmsg(intent, `default`, {}))
+    expect(e2e.extractButtonLabels(responses[0]!)).toEqual(e2e.gkb(intent, `default`, `inline`, {}))
+  })
 })

@@ -24,7 +24,8 @@
     "format": "biome format --write .",
     "test": "bun test test/",
     "test:e2e": "bun test e2e/",
-    "test:all": "bun test test/ e2e/"
+    "test:e2e:check": "bun run scripts/check-e2e-mirror.ts && bun run scripts/check-e2e-handlers.ts",
+    "test:all": "bun run test:e2e:check && bun test test/ e2e/"
   },
   "dependencies": {
     "@gramstax/lmdb": "workspace:*",

@@ -5,9 +5,9 @@
  * Bisa digunakan untuk project mana pun, tidak terbatas pada example/.
  *
  * Konvensi:
- *   pages/foo.ts       → e2e/foo.ts        (sama persis path & filename)
- *   pages/foo/bar.ts   → e2e/foo/bar.ts    (sama persis)
- *   pages/foo/index.ts → e2e/foo/index.ts  (sama persis)
+ *   src/pages/foo.ts       → e2e/foo.test.ts        (path relatif sama)
+ *   src/pages/foo/bar.ts   → e2e/foo/bar.test.ts    (path relatif sama)
+ *   src/pages/foo/index.ts → e2e/foo/index.test.ts  (path relatif sama)
  *
  * Dicek dua arah:
  *   - pages/ → e2e/ : setiap page punya test (--fix bisa membuatkannya)

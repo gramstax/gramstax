@@ -22,6 +22,8 @@ describe(`E2E: StartRandomNumberPage`, () => {
     expect(responsesId.length).toBeGreaterThan(0)
     const edit = responses[0]!
     const editId = responsesId[0]!
+    expect(edit.method).toBe(`editMessageText`)
+    expect(editId.method).toBe(`editMessageText`)
     expect(edit.body?.text).toContain(`Random Number`)
     expect(editId.body?.text).toContain(`Angka Acak`)
     expect(e2e.extractButtonLabels(edit)).toEqual(e2e.gkb(intent, `default`, `inline`, {}))

@@ -19,9 +19,9 @@
 
 Most scaffolders hand you a hello-world and an empty `tests/` folder, and then "add a test for the page you just added" is a thing you have to remember. This one is opinionated about that.
 
-**No test suite to bootstrap.** The generated project ships nine pages and the nine e2e tests that cover them, wired into `bun run test:e2e`. You can clone a scaffold, set a token, and watch it pass before you have edited anything.
+**No test suite to bootstrap.** The generated project ships nine pages and nine e2e test files that cover them, wired into `bun run test:e2e`. You can clone a scaffold, set a token, and watch it pass before you have edited anything.
 
-**No "did I remember?" step.** `scripts/check-e2e-mirror.ts` compares the two trees in *both* directions (a page with no test is a `MISSING`, a test with no page is an `ORPHAN`), and exits non-zero. That turns a convention into a build failure, which is the only version of the convention that survives contact with a deadline. The script is generated; hooking it into CI is one line you add yourself (see **The e2e mirror** below).
+**No "did I remember?" step.** `scripts/check-e2e-mirror.ts` compares the two trees in *both* directions (a page with no test is a `MISSING`, a test with no page is an `ORPHAN`), and exits non-zero. That turns a convention into a build failure, which is the only version of the convention that survives contact with a deadline. It is wired into `test:e2e:check`, and the generated `test:all` runs that before the suite.
 
 **No hand-written `new Gramstax({...})`.** Generated projects have no `src/index.ts`. `gramstax.config.ts` is the single composition point (token, deploy mode, session cache, log override), and `gramstax start` discovers the `Gramstax` subclass at `src/core/bot.ts`, materialises each ref slot, and constructs it. Construction *is* boot.
 
@@ -285,19 +285,21 @@ src/templates/
 ├── tsconfig.json                 # ~/* kept; gramstax + @gramstax/* mappings stripped
 ├── e2e/                          # mirrors src/pages/ exactly
 │   ├── setup.ts                  # the ONLY place BotCore is constructed directly
-│   ├── blank.test.ts             # page registered?          (structural)
-│   ├── help.test.ts              # /start -> Help, en + id   (message + keyboard)
+│   ├── COVERAGE.md               # handler/test ledger checked by check-e2e-handlers.ts
+│   ├── blank.test.ts             # page registered? + callback answer
+│   ├── help.test.ts              # callback + /help, en + id       (message + keyboard)
 │   ├── status.test.ts            # unknown callback -> not-found page
-│   ├── sum-number.test.ts        # the two-step session flow, plus the re-prompt
+│   ├── sum-number.test.ts        # callback, /sum-number, the two-step session flow
 │   ├── username-notfound.test.ts # a user with no username is blocked
 │   └── start/
-│       ├── index.test.ts         # /start, and e2e.calls capture
+│       ├── index.test.ts         # /start + callback, and e2e.calls capture
 │       └── random/
-│           ├── index.test.ts     # hub navigation, editMessageText asserted
+│           ├── index.test.ts     # hub navigation + /start/random, editMessageText asserted
 │           ├── number.test.ts    # nested leaf, 3 levels deep
 │           └── text.test.ts      # nested leaf, language-dependent output
 ├── scripts/
-│   ├── check-e2e-mirror.ts       # bidirectional drift check (no npm script: see below)
+│   ├── check-e2e-mirror.ts       # bidirectional drift check (test:e2e:check)
+│   ├── check-e2e-handlers.ts     # handler + test ledger audit (test:e2e:check)
 │   └── generate-e2e-structure.ts # creates the e2e files you did not
 ├── src/
 │   ├── base/
@@ -360,7 +362,8 @@ Straight from [`src/templates/package.json`](./src/templates/package.json):
 | `format`         | `biome format --write .`       | Format (removed with Biome)                                       |
 | `test`           | `bun test test/`               | Unit tests: the slot that ships empty                           |
 | `test:e2e`       | `bun test e2e/`                | The generated e2e suite, one file per page                        |
-| `test:all`       | `bun test test/ e2e/`          | Both                                                              |
+| `test:e2e:check` | `bun run scripts/check-e2e-mirror.ts && bun run scripts/check-e2e-handlers.ts` | Mirror + coverage ledger gate |
+| `test:all`       | `bun run test:e2e:check && bun test test/ e2e/` | Checks, then unit + e2e tests |
 
 Bun is required for the boot scripts: the published `gramstax` binary has a Bun shebang, so no `bun --bun` prefix is needed, and Bun resolves the TypeScript paths and the `~` alias. The CLI also loads project-root `.env*` files automatically. Dependencies come out as `gramstax`, `@gramstax/lmdb` and `@gramstax/worker-thread` at `^<create-gramstax version>`, `typescript` as a peer, `@types/bun` as a dev dependency, plus `@biomejs/biome` when Biome is kept.
 
@@ -399,7 +402,7 @@ Every e2e file imports `{bot}` or `{e2e, enUser, idUser}` from `./setup` (or `..
 
 ## 🔍 The e2e mirror
 
-Two scripts ship in `scripts/`, with the same convention:
+Three scripts ship in `scripts/`, with the same convention:
 
 ```text
 src/pages/foo.ts        →  e2e/foo.test.ts
@@ -429,17 +432,26 @@ Runs the same walk in **both directions**:
 
 A missing `src/pages` or `e2e` directory is `⏭️` and treated as OK rather than an error, so the script is safe to point at a half-built tree. Clean run prints `✅ <label>: N pages, all mirrored` then `All OK!` and exits `0`; any mismatch prints a remediation hint and exits `1`.
 
-**The honest fact:** `check-e2e-mirror.ts` is generated but **attached to no npm script**. `package.json` has no `e2e:check`, `lint:e2e`, or similar, and nothing in the generated project runs it for you. Until you add it, it is a tool you invoke by hand:
+### `check-e2e-handlers.ts`: fail when behavior is not accounted for
+
+The mirror proves a page is *registered*, not that any handler is tested. This script reads `e2e/COVERAGE.md` and fails when:
+
+- a `handle*` defined under `src/pages` has no ledger row for its page;
+- a handler row names no test file;
+- a referenced test file does not exist;
+- an `e2e/*.test.ts` file is not referenced by any row.
+
+The ledger page cell is the route name (`src/pages/start/index.ts` → `start`), and the test cell is relative to `e2e/`. Run it alone or through the check script:
 
 ```bash
-bun run scripts/check-e2e-mirror.ts            # this project
-bun run scripts/check-e2e-mirror.ts --fix      # create the missing tests
-bun run scripts/check-e2e-mirror.ts --path ./other-app
+bun run scripts/check-e2e-handlers.ts
+bun run scripts/check-e2e-handlers.ts --path ./other-app
+bun run test:e2e:check                 # mirror + ledger for this project
 ```
 
-Wiring it into CI (as a step, or as part of your test command) is the reader's job, and it is the step that converts "remember to add a test" into a failing pipeline.
+`test:all` now runs `test:e2e:check` before the tests, so a page handler or test file that is missing from the ledger fails the generated project's normal test command.
 
-The repository keeps its own pair at the repo root under `scripts/` for the `example/*` workspaces: same algorithm, but the default mode iterates every example project and `EXTRA_TESTS` is populated (`11-cloudflare-worker`). `--path` behaves identically in both.
+The repository keeps its own copies at the repo root under `scripts/` for the `example/*` workspaces: the mirror script's default mode iterates every example project and its `EXTRA_TESTS` is populated (`11-cloudflare-worker`). The handler script is identical and takes `--path`; add a ledger only where the project opts into the coverage gate.
 
 ## Agent planning
 

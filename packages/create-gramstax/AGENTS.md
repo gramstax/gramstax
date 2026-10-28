@@ -30,8 +30,8 @@ packages/create-gramstax/src/
 │   │   ├── pages/*            9 page templates (nested start/random)
 │   │   ├── types/             Shared types grouped by domain: user.ts (LMDB), job.ts (workers), page.ts (always kept)
 │   ├── test/.gitkeep
-│   ├── e2e/                   setup.ts + 9 test file templates (shared enUser/idUser fixtures, 4001/5001)
-│   └── scripts/               check-e2e-mirror.ts + generate-e2e-structure.ts (single-project e2e tooling)
+│   ├── e2e/                   setup.ts + COVERAGE.md ledger + 9 test file templates (shared enUser/idUser fixtures, 4001/5001)
+│   └── scripts/               check-e2e-mirror.ts + check-e2e-handlers.ts + generate-e2e-structure.ts (single-project e2e tooling)
 ```
 
 ## How It Works
@@ -104,3 +104,5 @@ bun test packages/create-gramstax/test/
 - Template `biome.json` mirrors the root config with environment conditioning: `root: true` (standalone projects — `root: false` would silently disable the config when no parent config exists), project-specific excludes (`dist`, `database`, `experiments`, `logs`, `data`), and a test/e2e override for `noExplicitAny`.
 - The root `biome.json` excludes `packages/create-gramstax/src/templates` (a nested `root: true` config conflicts with the monorepo root). Lint/format templates with their own config: `bunx biome lint packages/create-gramstax/src/templates` works from inside the templates dir, or `bunx biome lint --config-path=packages/create-gramstax/src/templates/biome.json <path>`.
 - The generated project is Biome-only.
+- `templates/scripts/check-e2e-handlers.ts` must stay byte-identical to the repo-root `scripts/check-e2e-handlers.ts`; it is the generated project's coverage gate.
+- A new page template needs its mirrored `e2e/*.test.ts` **and** a row for every handler in `templates/e2e/COVERAGE.md`; `test:all` in the generated project runs both checks.

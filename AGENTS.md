@@ -24,7 +24,7 @@
 - `real-projects/`: standalone (non-workspace) sample apps — currently `production-vip-content-bot` (own `bun.lock`).
 - `plans/`: numbered implementation plans (`plans/NNN-feature-slug/plan.md`, gitignored; see `skills/gramstax-repo-superplan` for framework work and `skills/gramstax-superplan` for app work).
 - `prompts/`: AI agent prompt templates (`PROMPT.md`, `PROMPT_WITH_VALUE.md`) — consume the gramstax skill router.
-- `scripts/`: root e2e-mirror tooling (`generate-e2e-structure.ts`, `check-e2e-mirror.ts`); mirrored into create-gramstax templates.
+- `scripts/`: root e2e-mirror tooling (`generate-e2e-structure.ts`, `check-e2e-mirror.ts`, `check-e2e-handlers.ts`); mirrored into create-gramstax templates.
 - `biome.json`, `tsconfig.json`, `nx.json`: global tooling config.
 - `bunfig.toml`: Bun runtime config.
 - `packages/gramstax/security-poc/`: standalone numbered security PoC scripts (template-engine breakout/injection/RCE).
