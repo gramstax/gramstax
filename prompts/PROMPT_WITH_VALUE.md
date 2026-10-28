@@ -300,7 +300,8 @@ Add tests that prove the bot works from the user’s point of view and that extr
 
 ### E2E testing
 
-- Mirror the pages tree: `src/pages/<name>.ts` → `e2e/<name>.test.ts` (verify with `bun run scripts/check-e2e-mirror.ts`).
+- Mirror the pages tree: `src/pages/<name>.ts` → `e2e/<name>.test.ts` (verify with `bun run test:e2e:check`).
+- Maintain `e2e/COVERAGE.md`: one row per `handle*`, interactive state, or hook-driven page, naming the test and the concrete assertion. `scripts/check-e2e-handlers.ts` fails on a missing row, a row without a test file, or an unreferenced test file.
 - Use `bun:test` with `describe`, `it`, `expect`, and `beforeEach`.
 - Drive the bot in-process with `deploy: "test"` via `e2e/setup.ts` (`bot.e2e!`) — no `MockTelegramServer`, no ports, no polling, no `beforeAll` server waits; `beforeEach(() => e2e.clearCalls())`.
 - Validate every Telegram call, not just the last: methods order, message text via `e2e.gmsg()`, labels via `e2e.gkb()`, media via `e2e.gmedia()`; edits via `e2e.lastCall("editMessageText")`.
@@ -524,13 +525,13 @@ Blockers for next phase: <none or explicit list>
 
 #### Objectives
 
-- [ ] Wire delivery, admin, broadcast, and scheduler together; confirm `e2e/` mirrors `src/pages/` with `bun run scripts/check-e2e-mirror.ts`.
+- [ ] Wire delivery, admin, broadcast, and scheduler together; confirm `e2e/` mirrors `src/pages/` and every handler is recorded in `e2e/COVERAGE.md` with `bun run test:e2e:check`.
 - [ ] Run the generated project's quality checks in order: install, lint or lint:fix, typecheck, tests, build.
 - [ ] Fix issues caused by your changes and re-run the relevant checks until green.
 
 #### Definition of Done
 
-- [ ] E2E mirror check passes; full e2e and unit suites pass.
+- [ ] E2E mirror and coverage ledger checks pass; full e2e and unit suites pass.
 - [ ] Lint, typecheck, and build commands available in the generated project pass; unavailable commands reported with evidence.
 - [ ] No secrets committed or embedded; env names match `ENVIRONMENT_VARIABLES`.
 

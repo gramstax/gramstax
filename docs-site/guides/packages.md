@@ -60,7 +60,7 @@ where the user waits for it.
 Scaffolding. Reach for it at the start of a project.
 
 - It copies a template tree, substitutes the generator placeholders, and prunes whatever the selected feature set does not include.
-- The generated project ships pages and an e2e suite that mirrors the page tree, and `scripts/check-e2e-mirror.ts` compares the two trees in both directions.
+- The generated project ships pages and an e2e suite that mirrors the page tree, with `e2e/COVERAGE.md` as the handler ledger. `test:e2e:check` runs both the bidirectional mirror check and the ledger audit.
 - `--lmdb`, `--worker-thread`, and `--biome` decide which parts survive.
 - Generated projects are Bun-only: every app, test, and build script runs through Bun.
 

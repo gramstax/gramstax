@@ -21,8 +21,8 @@ directly, so the project runs under Bun.
     The generator writes a complete project: `gramstax.config.ts`, a `Gramstax`
     subclass at `src/core/bot.ts`, nine pages under `src/pages`, base classes in
     `src/base`, a guard in `src/guards`, an LMDB layer in `src/db`, a worker job
-    in `src/workers`, `.env` (copied from the template's `.env.example`), and
-    nine e2e tests under `e2e/`.
+    in `src/workers`, `.env` (copied from the template's `.env.example`), nine e2e
+    test files under `e2e/`, and the `e2e/COVERAGE.md` handler ledger.
   </Step>
 
   <Step title="Give it a token">

@@ -208,7 +208,9 @@ Add tests that prove the bot works from the user’s point of view and that extr
 
 ### E2E testing
 
-- Mirror the pages tree: `src/pages/foo/bar.ts` → `e2e/foo/bar.test.ts` (plus `e2e/setup.ts` harness, never a page test). Verify with `bun run scripts/check-e2e-mirror.ts`.
+- Mirror the pages tree: `src/pages/foo/bar.ts` → `e2e/foo/bar.test.ts` (plus `e2e/setup.ts` harness, never a page test). Verify with `bun run test:e2e:check`.
+- Maintain `e2e/COVERAGE.md` as the handler ledger: one row per `handle*`, interactive state, or hook-driven page, naming the test that proves it and the concrete assertion (method, text, keyboard, media, or call count). `scripts/check-e2e-handlers.ts` fails on a missing row, a row without a test file, or an unreferenced test file.
+- Cover all seven layers: mirror, every entry point (`handleCallbackQueryData`, `handleCommandText`, `handleSessionFreeText`, `handleInlineQuery`, …), every `render*` route, every `show`/`process` state including invalid input and cancel, every guard direction (allow + deny with distinct users), every declared `lang`, and fallback recovery for unknown callback/command/text.
 - Use `bun:test` with `describe`, `it`, `expect`, and `beforeEach`.
 - Drive the bot in-process with `deploy: "test"` — no `MockTelegramServer`, no ports, no polling, no `beforeAll` server waits. Shape (see generated `e2e/setup.ts`):
 
@@ -225,6 +227,7 @@ beforeEach(() => e2e.clearCalls())
 - Assert user-visible outcomes, not implementation details: message text contains stable headings/content, inline keyboards contain expected labels, and Telegram requests contain expected payload fields.
 - Use distinct private user IDs for stateful tests so session data does not leak between scenarios.
 - Cover fallback (unknown callback/command/text → StatusPage), session reset on `/start`, and language variants when applicable.
+- Run `bun run test:e2e:check` and `bun run test:e2e` after adding or changing a page; the generated `test:all` runs both checks before the suite.
 
 ### Unit testing
 
@@ -245,10 +248,10 @@ The finished project MUST ship a `README.md` at the project root that documents 
 4. `## Usage`: each user flow with LITERAL message texts copied from the templates — verify against `static template` sources, never paraphrase inside code fences (include follow-up lines such as retry hints when the template has them). An admin panel table (`Section` | `What you can do`) matching the actual pages. State the EXACT command that opens each entry point — verify routing in code (`/start` vs `/admin`), never assume the panel lives on `/start`.
 5. `## How it works`: `PRIMARY_USER_JOURNEY` as a mermaid `flowchart` where every node traces to a real handler, plus prose naming exact files/functions for ban checks, registration, gate/membership checks (including cache TTLs), code validation, media delivery (spoiler, view counting, cleanup bookkeeping), and upload-to-code flow. Document edge behavior found in code: empty-gate-config pass-through, duplicate-event suppression, per-user cleanup on pass.
 6. `## Scripts`: a table of EVERY `package.json` script with descriptions verified against what each script actually runs.
-7. `## Project Structure`: an ASCII tree matching the real tree, with a one-line note per directory/file. Include `e2e/`, `test/`, runtime dirs, and helper scripts. Add the `New page?` convention line used by the scaffold.
+7. `## Project Structure`: an ASCII tree matching the real tree, with a one-line note per directory/file. Include `e2e/`, `e2e/COVERAGE.md`, `test/`, runtime dirs, and helper scripts. Add the `New page?` convention line used by the scaffold.
 8. `## Configuration`: a table (`Variable` | `Required` | `Default` | `Description`) of EVERY environment variable the code reads — cross-check against the env module so none are missing, and copy each default exactly. Call out JSON-array shapes and single-writer/single-file semantics (e.g. one env file, index-parallel arrays) where they exist.
 9. `## Architecture`: the request-flow line (`Update` → guard → `Page (show/process)` → repository → API), background worker jobs (what each owns, RPC patterns with timeout notes), the exact shutdown order from the shutdown owner, and a data-model table (`Schema` | `Key` | `Value` | `Notes`) matching every registered schema (key types, unique/index markers, counters, retention/prune rules, list caps). State the enforced code rules (keyset pagination, sync transaction callbacks, `{limit}` on fan-out reads, `count()` over manual totals) only if the code actually enforces them.
-10. `## Testing`: `bun run test` / `test:e2e` / `test:all` with REAL counts from actual test runs (re-run to confirm before writing), one-file examples pointing at real files (`test/` paths for unit, `e2e/` paths for e2e), and one paragraph on what the e2e harness asserts.
+10. `## Testing`: `bun run test` / `test:e2e` / `test:e2e:check` / `test:all` with REAL counts from actual test runs (re-run to confirm before writing), one-file examples pointing at real files (`test/` paths for unit, `e2e/` paths for e2e), the `e2e/COVERAGE.md` ledger rule, and one paragraph on what the e2e harness asserts.
 11. `## Deployment`: development (polling), production (webhook behind a process manager), serverless (only per the framework's documented pattern — never claim the entrypoint exports a handler when it boots directly), backup/restore matching ACTUAL library capabilities (live snapshot vs stop-the-world, multi-process read support vs single-writer rule), DB inspection script usage verified against its `--help`/behavior, and log behavior verified in code (stdout by default; file output only when the logger's file option is configured — never claim logs land in `logs/` unless something writes there).
 12. `## Troubleshooting`: a symptom table (`Symptom` | `Likely cause` | `Fix`) where every cause/fix is verified against code or observed errors — never generic guesses.
 13. `## Tech Stack`: each dependency with the MAJOR version from `package.json`, plus runtime/test/lint toolchain as configured. Never claim configs that do not exist (e.g. `.vscode/settings.json`).
@@ -424,13 +427,13 @@ Blockers for next phase: <none or explicit list>
 
 #### Objectives
 
-- [ ] Wire all flows together; confirm `e2e/` mirrors `src/pages/` with `bun run scripts/check-e2e-mirror.ts`.
+- [ ] Wire all flows together; confirm `e2e/` mirrors `src/pages/` and every handler is recorded in `e2e/COVERAGE.md` with `bun run test:e2e:check`.
 - [ ] Run the generated project's quality checks in order: install, lint or lint:fix, typecheck, tests, build.
 - [ ] Fix issues caused by your changes and re-run the relevant checks until green.
 
 #### Definition of Done
 
-- [ ] E2E mirror check passes; full e2e and unit suites pass.
+- [ ] E2E mirror and coverage ledger checks pass; full e2e and unit suites pass.
 - [ ] Lint, typecheck, and build commands available in the generated project pass; unavailable commands reported with evidence.
 - [ ] No secrets committed or embedded; env names match `ENVIRONMENT_VARIABLES`.
 
@@ -500,7 +503,7 @@ For pure helpers, stores, repositories, and services, Steps 1–4 use unit tests
 - The app contains a working `start.ts` entry flow and the required inline/session-driven interactions.
 - Page files follow Gramstax class order, template, keyboard, base block, and naming rules.
 - User-facing text is production-ready, not placeholder text.
-- `e2e/` mirrors `src/pages/` and covers the primary `/start`, callback navigation, free-text, and Telegram request behavior for the requested flow when testing is supported.
+- `e2e/` mirrors `src/pages/`, `e2e/COVERAGE.md` accounts for every handler and test file, and the suite covers the primary `/start`, callback navigation, free-text, guard, locale, fallback, and Telegram request behavior for the requested flow when testing is supported.
 - Unit tests under `test/` cover extracted helpers/stores/services, or the final response explicitly explains why no unit-testable pure logic was added.
 - Secrets are not committed or embedded.
 - Environment variables from `ENVIRONMENT_VARIABLES` are documented when provided.

@@ -13,7 +13,7 @@ output.
 <Note>
   E2E is the one place that does not boot through `gramstax.config.ts`. The setup
   constructs the bot class directly so it can inject `deploy: "test"`, a dummy
-  token, and the stream and retry behaviour a test wants.
+  token, and the retry behaviour a test wants.
 </Note>
 
 ## The setup exports
@@ -31,10 +31,31 @@ The user fixtures matter more than they look. The template suite ships both so a
 test can prove a language actually switched rather than asserting against the
 only string it happened to have.
 
+## Mirroring is not coverage
+
+A mirrored test file proves a page is *registered*. It does not prove that any
+handler on that page runs, that a declined tap is denied, or that the Indonesian
+message exists. A complete suite covers seven layers:
+
+| Layer | What it proves |
+| --- | --- |
+| Mirror | Every `src/pages` file has an `e2e/*.test.ts` counterpart |
+| Entry points | Every `handle*` on the page is triggered by a real update shape |
+| Render routes | Every `render*` call produces the intended Bot API method |
+| States | Every `show`/`process` branch, including invalid input and cancel |
+| Guards | Both allow and deny behave as designed |
+| Locales | Every declared `lang` variant renders |
+| Fallbacks | Unknown callbacks, commands, text, and media land somewhere safe |
+
+The scaffold ships `e2e/COVERAGE.md` as the ledger: one row per handler, state,
+or hook-driven page, naming the test that proves it. `check-e2e-handlers.ts`
+fails when a handler under `src/pages` has no row, a row names a missing test,
+or a test file is not referenced at all.
+
 ## Writing a test
 
 A `send*` call returns the array of API calls the update produced. Clear between
-tests, then assert on element zero:
+tests, then assert the method, the payload, and the absence of the wrong route:
 
 ```ts
 import {beforeEach, describe, expect, it} from "bun:test"
@@ -47,14 +68,43 @@ beforeEach(() => {
 describe("StartPage", () => {
   it("greets in the user's language", async () => {
     const responses = await e2e.sendText(`/start`, enUser)
-    expect(responses[0]?.body?.rich_message.html).toContain(`Welcome`)
+    const reply = responses[0]!
+
+    expect(responses.length).toBeGreaterThan(0)
+    expect(e2e.extractText(reply)).toBe(e2e.gmsg(`start`, `default`, {userName: `testuser`}))
+    expect(e2e.extractButtonLabels(reply)).toEqual(e2e.gkb(`start`, `default`, `inline`, {}))
   })
 })
 ```
 
+A callback renders through `editMessageText` (with an `html` payload for rich
+templates); a plain message sends a new one. `answerCallbackQuery` is **not**
+automatic: it appears only when the page calls `renderCallbackAnswer`. When the
+route itself is the behavior under test, assert the method set and the absence of
+the wrong method (`sendMessage` vs `editMessageText`).
+
 `clearCalls()` empties the captured calls. `reset()` does that *and* rewinds the
 update and message id counters, which is what you want when a test asserts on
 idempotency rather than on output.
+
+## Deny is silent by default
+
+A page-level `hookBeforeRoute` that returns `false` renders nothing unless the
+hook renders the denial itself. Both contracts are valid; assert the one the
+page implements:
+
+```ts
+// A) silent deny
+const denied = await e2e.sendText(`/admin`, plainUser)
+expect(denied).toHaveLength(0)
+
+// B) deny-and-explain
+expect(e2e.lastCall(`answerCallbackQuery`)?.body?.text).toBe(`Forbidden`)
+expect(e2e.calls.map((call) => call.method)).not.toContain(`editMessageText`)
+```
+
+Use one allowed user and one denied user. A single fixture makes the test pass
+for the wrong reason.
 
 <Warning>
   `extractText` and `extractButtonLabels` take the captured call as their
@@ -107,8 +157,15 @@ do not return.
 ## Running them
 
 ```bash
-bun test e2e/
+bun test e2e/            # the suite
+bun run test:e2e:check   # mirror + coverage ledger
+bun run test:all         # checks, then unit + e2e
 ```
+
+`test:e2e:check` runs `scripts/check-e2e-mirror.ts` and
+`scripts/check-e2e-handlers.ts`. The generated `test:all` runs it first, so a
+page or handler that is missing from `e2e/COVERAGE.md` fails the project's normal
+test command rather than surviving as an untested route.
 
 <Check>
   Tests are hermetic. There is no Telegram call, so they do not need a token, are
@@ -148,9 +205,18 @@ see.
 
 ## Keep the mirror honest
 
-The scaffold ships a mirror check that verifies every page under `src/pages` has a
-corresponding test. A page added without one fails the check, so coverage cannot
-quietly rot as the page tree grows.
+The scaffold ships two checks, and they answer different questions:
+
+- `check-e2e-mirror.ts` proves every page under `src/pages` has a corresponding
+  test file, and that no orphan test has lost its page.
+- `check-e2e-handlers.ts` proves every `handle*` in the page tree has a row in
+  `e2e/COVERAGE.md` naming the test that exercises it, and that every test file
+  is referenced by at least one row.
+
+The mirror alone cannot stop coverage rot: a mirrored stub that only asserts page
+registration passes it. The ledger is what makes *behavior* coverage checkable.
+For a new page, add the mirrored test and one row per handler; run
+`bun run test:e2e:check` before claiming the page is done.
 
 ## Related
 
