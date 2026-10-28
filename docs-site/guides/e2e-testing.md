@@ -312,6 +312,10 @@ language:
 e2e.gkb(`start`, `default`, `inline`, {}, `id`) // Indonesian variant
 ```
 
+Missing base/message blocks are not loud: `gmsg`/`gkb` return empty values and
+`gmedia` throws. Assert non-empty text or labels when the block itself is part of
+the contract.
+
 ## The send family
 
 One method per update shape. All of them funnel into `handleUpdate` and return the

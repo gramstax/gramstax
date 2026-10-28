@@ -61,7 +61,7 @@ Why each field:
 | `deploy: "test"` | Attaches `bot.e2e`, injects updates in-process, skips polling/webhook/serverless |
 | `token: "test"` | grammY requires a token; no network call is made |
 | `log: false` | Keeps test output readable and prevents logger I/O from masking ordering bugs |
-| `autoRetry: true` | Exercises the production retry wrapper; retries are invisible to call capture |
+| `autoRetry: true` | Mounts the production retry wrapper; the in-process interceptor answers success, so no retry traffic is generated |
 | `templateManager` | Points at `src/pages`; without it, no pages or templates load |
 
 Streaming is **not** a constructor flag. `Gramstax` mounts `@grammyjs/stream` unconditionally, so `replyWithStream` and the draft API methods are always available. `stream` is not part of `IGramstaxParams`; do not add `stream: true` to a harness.

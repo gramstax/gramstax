@@ -68,7 +68,7 @@ expect(e2e.extractText(reply)).toBe(e2e.gmsg(intent, `default`, {}))
 ```
 
 - `e2e.extractText(call)` reads `rich_message.html` → `rich_message.markdown` → `text` → `caption`, in that order. Use it instead of guessing which field the render path produced.
-- `e2e.gmsg(page, AGBaseId, data?, lang?)` takes the page key, the `<g-base id>` (usually `default`), the same data the page passed, and the language. It falls back to the `default` block when that language block is absent and returns an empty string when the base/message does not exist — assert the expected text is non-empty when the block itself is part of the contract.
+- `e2e.gmsg(page, AGBaseId, data?, lang?)` takes the page key, the `<g-base id>` (usually `default`), the same data the page passed, and the language. It falls back to the `default` block when that language block is absent. A missing base/message block is not loud: `gmsg`/`gkb` return empty values and `gmedia` throws — assert non-empty text/labels when the block itself is part of the contract.
 - When the page passes a computed value (`{name: this.from.first_name}`), pass the same literal in the test: `gmsg(intent, 'default', {name: 'Test'})`.
 - Dynamic values (timestamps, generated ids, order numbers) cannot use `toBe`. Assert the stable frame with `toContain` / `toStartWith`, and assert one computed fragment with a regex.
 
