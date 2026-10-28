@@ -14,11 +14,11 @@ it(`starts clean after a pending step`, async () => {
   e2e.clearCalls()
 
   const restarted = await e2e.sendText(`/start`, enUser)
-  expect(restarted[0]!.body?.text).toBe(e2e.gmsg(`start`, `default`, {userName: `testuser`}))
+  expect(e2e.extractText(restarted[0]!)).toBe(e2e.gmsg(`start`, `default`, {userName: `testuser`}))
 
   e2e.clearCalls()
   const next = await e2e.sendText(`10`, enUser) // must NOT continue the old flow
-  expect(next[0]!.body?.text).not.toBe(e2e.gmsg(`sum-number`, `r`, {}))
+  expect(e2e.extractText(next[0]!)).not.toBe(e2e.gmsg(`sum-number`, `r`, {}))
 })
 ```
 
@@ -43,31 +43,32 @@ describe(`E2E: CheckoutPage`, () => {
   it(`rejects empty input and re-prompts`, async () => {
     await enterCheckout(enUser)
     const retry = await e2e.sendText(``, enUser)
-    expect(retry[0]!.body?.text).toBe(e2e.gmsg(`checkout`, `retry`, {}))
+    expect(e2e.extractText(retry[0]!)).toBe(e2e.gmsg(`checkout`, `retry`, {}))
   })
 
   it(`rejects invalid input without losing the step`, async () => {
     await enterCheckout(enUser)
     const retry = await e2e.sendText(`not-an-address`, enUser)
-    expect(retry[0]!.body?.text).toBe(e2e.gmsg(`checkout`, `retry`, {}))
+    expect(e2e.extractText(retry[0]!)).toBe(e2e.gmsg(`checkout`, `retry`, {}))
   })
 
   it(`advances on valid input`, async () => {
     await enterCheckout(enUser)
     const next = await e2e.sendText(`Jl. Merdeka 1`, enUser)
-    expect(next[0]!.body?.text).toBe(e2e.gmsg(`checkout`, `confirm`, {address: `Jl. Merdeka 1`}))
+    expect(e2e.extractText(next[0]!)).toBe(e2e.gmsg(`checkout`, `confirm`, {address: `Jl. Merdeka 1`}))
   })
 
   it(`cancels and clears the step`, async () => {
     await enterCheckout(enUser)
     const cancelled = await e2e.sendCallbackQuery(`checkout:cancel`, enUser)
-    expect(cancelled[0]!.body?.text).toBe(e2e.gmsg(`start`, `default`, {userName: `testuser`}))
+    expect(e2e.extractText(cancelled[0]!)).toBe(e2e.gmsg(`start`, `default`, {userName: `testuser`}))
   })
 
   it(`does not continue another user's step`, async () => {
     await enterCheckout(enUser)          // 4001 is waiting for an address
     const other = await e2e.sendText(`hello`, idUser)
-    expect(other.length).toBeGreaterThan(0) // idUser is not in 4001's flow
+    expect(other.length).toBeGreaterThan(0)
+    expect(e2e.extractText(other[0]!)).not.toBe(e2e.gmsg(`checkout`, `retry`, {}))
   })
 })
 ```
@@ -91,7 +92,7 @@ it(`keeps sessions isolated`, async () => {
 
   await e2e.sendCallbackQuery(`sum-number`, enUser) // 4001 enters step left
   const other = await e2e.sendText(`10`, idUser)    // 5001 sends the same input
-  expect(other[0]!.body?.text).not.toBe(e2e.gmsg(`sum-number`, `r`, {}))
+  expect(e2e.extractText(other[0]!)).not.toBe(e2e.gmsg(`sum-number`, `r`, {}))
 })
 ```
 
@@ -105,7 +106,7 @@ it(`keeps sessions isolated`, async () => {
 
 ```typescript
 const allowed = await e2e.sendText(`/admin`, adminUser)
-expect(allowed[0]!.body?.text).toBe(e2e.gmsg(`admin`, `default`, {}))
+expect(e2e.extractText(allowed[0]!)).toBe(e2e.gmsg(`admin`, `default`, {}))
 
 e2e.clearCalls()
 const denied = await e2e.sendText(`/admin`, plainUser)
@@ -113,9 +114,11 @@ const denied = await e2e.sendText(`/admin`, plainUser)
 // Silent-deny contract (the framework default):
 expect(denied).toHaveLength(0)
 
-// OR deny-and-explain contract (the hook answered before returning false):
-// expect(e2e.lastCall(`answerCallbackQuery`)?.body?.text).toBe(`Forbidden`)
-// expect(e2e.calls.map((c) => c.method)).not.toContain(`editMessageText`)
+// OR deny-and-explain contract for a text update (the hook rendered the denial):
+// e2e.clearCalls()
+// const deniedWithMessage = await e2e.sendText(`/admin`, plainUser)
+// expect(e2e.extractText(deniedWithMessage[0]!)).toBe(`Forbidden`)
+// expect(e2e.extractText(deniedWithMessage[0]!)).not.toBe(e2e.gmsg(`admin`, `default`, {}))
 ```
 
 Pick the contract the page implements. Asserting both is impossible; asserting neither leaves the gate untested.
@@ -135,18 +138,18 @@ Every project needs all three:
 ```typescript
 it(`routes unknown callbacks to StatusPage`, async () => {
   const res = await e2e.sendCallbackQuery(`nonexistent-callback-data`, enUser)
-  expect(res[0]!.body?.text).toBe(e2e.gmsg(`status`, `nf`, {}))
+  expect(e2e.extractText(res[0]!)).toBe(e2e.gmsg(`status`, `nf`, {}))
 })
 it(`routes unknown commands to StatusPage`, async () => {
   const res = await e2e.sendText(`/definitely-not-a-command`, enUser)
-  expect(res[0]!.body?.text).toBe(e2e.gmsg(`status`, `nf`, {}))
+  expect(e2e.extractText(res[0]!)).toBe(e2e.gmsg(`status`, `nf`, {}))
 })
 
 it(`recovers after a fallback`, async () => {
   await e2e.sendCallbackQuery(`nonexistent-callback-data`, enUser)
   e2e.clearCalls()
   const res = await e2e.sendText(`/start`, enUser)
-  expect(res[0]!.body?.text).toBe(e2e.gmsg(`start`, `default`, {userName: `testuser`}))
+  expect(e2e.extractText(res[0]!)).toBe(e2e.gmsg(`start`, `default`, {userName: `testuser`}))
 })
 ```
 
@@ -213,7 +216,7 @@ it(`fans out one send per recipient in each language`, async () => {
 
   expect(sends).toHaveLength(2)
   expect(sends.map((call) => call.body?.chat_id)).toEqual([4001, 5001])
-  expect(String(sends[0]!.body?.text)).toBe(e2e.gmsg(`broadcast`, `sent`, {}))
+  expect(e2e.extractText(sends[0]!)).toBe(e2e.gmsg(`broadcast`, `sent`, {}))
 })
 ```
 
@@ -296,7 +299,7 @@ describe(`E2E: PageName`, () => {
 | Asserting a denial as "no crash" | A gate that allows everyone also does not crash |
 | Assuming a page-level deny renders | `hookBeforeRoute` is silent unless the hook renders |
 | Skipping the invalid-input recovery | Re-prompt can pass while the step was cleared |
-| Using `Bun.sleep` for session/worker timing | Flaky; use `settleMs`, `bot.ready`, or await the update |
+| Using `Bun.sleep` for session/worker timing | Flaky; use `handleUpdate(update, settleMs)`, `bot.ready`, or await the update |
 | Reimplementing the flow in the test | Test the user's buttons and text, not private methods |
 | Asserting literal translations | Drifts from the template and hides missing locales |
 

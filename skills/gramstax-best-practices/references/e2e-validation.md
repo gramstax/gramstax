@@ -51,9 +51,12 @@ For a message update:
 
 ```typescript
 const responses = await e2e.sendText(`/start`, enUser)
-expect(responses.map((c) => c.method)).toContain(`sendMessage`)
-expect(responses.map((c) => c.method)).not.toContain(`editMessageText`)
+const methods = responses.map((c) => c.method)
+expect(methods.some((method) => method === `sendMessage` || method === `sendRichMessage`)).toBe(true)
+expect(methods).not.toContain(`editMessageText`)
 ```
+
+`/start` in the scaffold renders rich, so the send method is `sendRichMessage`, not `sendMessage`. Assert the method family, or assert the exact method the page's template kind produces.
 
 The negative assertion is mandatory whenever the route matters. A test that only asserts the expected method passes when the page also sends a duplicate.
 
@@ -65,7 +68,7 @@ expect(e2e.extractText(reply)).toBe(e2e.gmsg(intent, `default`, {}))
 ```
 
 - `e2e.extractText(call)` reads `rich_message.html` → `rich_message.markdown` → `text` → `caption`, in that order. Use it instead of guessing which field the render path produced.
-- `e2e.gmsg(page, AGBaseId, data?, lang?)` takes the page key, the `<g-base id>` (usually `default`), the same data the page passed, and the language. It throws when the block does not exist — that is a real failure, not a skipped assertion.
+- `e2e.gmsg(page, AGBaseId, data?, lang?)` takes the page key, the `<g-base id>` (usually `default`), the same data the page passed, and the language. It falls back to the `default` block when that language block is absent and returns an empty string when the base/message does not exist — assert the expected text is non-empty when the block itself is part of the contract.
 - When the page passes a computed value (`{name: this.from.first_name}`), pass the same literal in the test: `gmsg(intent, 'default', {name: 'Test'})`.
 - Dynamic values (timestamps, generated ids, order numbers) cannot use `toBe`. Assert the stable frame with `toContain` / `toStartWith`, and assert one computed fragment with a regex.
 
@@ -151,12 +154,12 @@ Cover the route the page declared, on both input shapes when both are possible:
 
 | Route | Callback | Message |
 | --- | --- | --- |
-| `auto` (default) | `editMessageText` | `sendMessage` |
-| `mode: 'reply'` | `sendMessage` | `sendMessage` |
-| `mode: 'edit'` | `editMessageText` | `editMessageText` or the page's documented fallback when no editable message exists |
+| `auto` (default) | `editMessageText` | `sendMessage` / `sendRichMessage` (rich) |
+| `mode: 'reply'` | `sendMessage` / `sendRichMessage` (rich) | `sendMessage` / `sendRichMessage` (rich) |
+| `mode: 'edit'` | `editMessageText` | `editMessageText` or the page's documented fallback when no bot-owned message exists |
 | `fallback` | edit fails → `fallbackOptions` path | — |
 
-If the page forces `reply`, assert `methods` does not contain an edit. If it forces `edit`, assert no send. A route regression is invisible when the test accepts either method. A forced edit on a message update has no callback message to edit; assert the page's documented behavior (edit attempt or fallback) instead of assuming the edit succeeds.
+If the page forces `reply`, assert `methods` does not contain an edit. If it forces `edit`, assert no send. A route regression is invisible when the test accepts either method. A forced edit on a message update has no bot-owned message to edit; assert the page's documented behavior (edit attempt or fallback) instead of assuming the edit succeeds.
 
 ### 8. Multi-call and multi-page flows
 
@@ -167,11 +170,11 @@ await e2e.sendCallbackQuery(`sum-number`, enUser)
 e2e.clearCalls()
 
 const step = await e2e.sendText(`23`, enUser)
-expect(step[0]!.body?.text).toBe(e2e.gmsg(`sum-number`, `r`, {}))
+expect(e2e.extractText(step[0]!)).toBe(e2e.gmsg(`sum-number`, `r`, {}))
 e2e.clearCalls()
 
 const result = await e2e.sendText(`10`, enUser)
-expect(result[0]!.body?.text).toContain(`33`)
+expect(e2e.extractText(result[0]!)).toContain(`33`)
 ```
 
 For a fan-out inside one update (broadcast, multi-message render), assert the count and each recipient:
@@ -204,7 +207,7 @@ Do not read the session or DB to verify a handler. Prove the state by sending th
 await e2e.sendText(`23`, enUser)   // stores left = 23
 e2e.clearCalls()
 const prompt = await e2e.sendText(`10`, enUser)
-expect(prompt[0]!.body?.text).toBe(e2e.gmsg(`sum-number`, `s`, {result: `33`}))
+expect(e2e.extractText(prompt[0]!)).toBe(e2e.gmsg(`sum-number`, `s`, {result: `33`}))
 ```
 
 For a delete/update flow, assert the list page no longer contains the item after the mutation. That proves the write and the read path together.

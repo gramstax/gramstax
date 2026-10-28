@@ -16,6 +16,7 @@ export const bot = new BotCore({
 export const e2e = bot.e2e!
 
 // Same fixture ids as example/*/e2e/setup.ts. username is required by the
-// template user guard; chat is omitted (sessions are keyed by user id).
+// template user guard; chat is omitted because the default chat id is constant
+// and the user id already distinguishes the fixtures (session key is user:chat).
 export const enUser = {user: {id: 4001, username: `testuser`, language_code: `en`}}
 export const idUser = {user: {id: 5001, username: `pengguna`, language_code: `id`}}

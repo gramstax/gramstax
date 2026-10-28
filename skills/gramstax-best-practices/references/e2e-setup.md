@@ -117,7 +117,7 @@ await e2e.handleUpdate(update, 50) // typed second argument: settle ms
 
 - Defaults when a field is omitted: user `{id: 1001, first_name: "Test", is_bot: false, language_code: "en"}`, chat `{id: 1001, type: "private", first_name: "Test"}`.
 - **Allocate a unique `user.id` block per test file.** The `bot` instance and its session store live at module scope and are shared by every file in the run. Two files using `4001` for different flows will answer each other's pending steps.
-- Chat id defaults to the user id only when you pass `chat` with the same id; if a page keys state by chat, set both explicitly.
+- Chat id defaults to `1001`, not the user id. Sessions are keyed by `userId:chatId`, so omitting `chat` still isolates fixtures by user id; set `chat` explicitly when a page keys state by chat.
 - A fixture with no `username` deliberately exercises the username guard.
 - Keep fixture objects immutable; clone when a test needs an override: `{user: {...enUser.user, id: 4100}}`.
 
@@ -174,7 +174,7 @@ bun run test:e2e:check                          # both, as test:all runs them
 bun run scripts/generate-e2e-structure.ts      # bulk-generate stubs
 ```
 
-The checker's page key is the relative path without the extension, so nested pages are accessed as `bot.pages.all[\`start/random\`]`.
+The checker's page key is the relative path without the extension, so nested pages are accessed as `bot.pages.all["start/random"]`.
 
 ## Project extras
 

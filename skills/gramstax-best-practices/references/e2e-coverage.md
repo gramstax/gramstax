@@ -17,6 +17,19 @@ File mirroring answers one question: "does `src/pages/foo/bar.ts` have `e2e/foo/
 
 A change is not complete until the mirrored test, the ledger row, and the assertion all exist. Reviewers check the ledger, not the test count.
 
+## Execution protocol for an AI agent
+
+Follow this order; do not start writing assertions before the inventory exists.
+
+1. Read `src/pages`, `src/base`, `src/guards`, `src/core/bot.ts`, and `e2e/setup.ts`.
+2. Run the inventory scans in Rule 0 and list every handler, state, render call, gate, locale, and fallback.
+3. Create or refresh `e2e/COVERAGE.md` with one row per handler/state/hook, a real trigger, a test file, and the concrete assertion.
+4. Write the mirrored test for each row. Add the invalid, cancel, deny, locale, and fallback cases that the page declares.
+5. Assert the Bot API method and the template-derived payload; never stop at `length > 0`.
+6. Run `bun run test:e2e:check`. Fix every missing row, missing test file, and orphan test.
+7. Run `bun run test:e2e`. Fix the assertion or the page, not the ledger, when behavior is wrong.
+8. Re-read the ledger against the source and delete stale rows. Stop only when the definition of done is met.
+
 ## The seven coverage layers
 
 | # | Layer | Question it answers | Minimum proof |
@@ -29,7 +42,7 @@ A change is not complete until the mirrored test, the ledger row, and the assert
 | 6 | Locales | Does every declared `lang` variant render? | `gmsg`/`gkb`/`gmedia` with that lang |
 | 7 | Fallbacks | Do unknown/unsupported updates land somewhere safe? | Fallback page or free handler assertion |
 
-Layers 2–7 are per page. Layers 1 and 7 are per project.
+Layers 2–6 are per page. Layers 1 and 7 are project-wide.
 
 ## Rule 0 — derive the inventory from source, never from memory
 
@@ -64,19 +77,19 @@ Trigger each handler with the update shape its name implies. `intent` is `Page.d
 | Handler | Trigger | Notes |
 | --- | --- | --- |
 | `handleCallbackQueryData` | `e2e.sendCallbackQuery(intent, user)` | Exact intent only. Auto-edit is expected on callbacks. |
-| `handleArgsCallbackQueryData` | `e2e.sendCallbackQuery(\`${intent}:${a1}:${a2}\`, user)` or `Page.data.callbackQueryData(a1, a2).result` | Requires `static data = this.buildData((a1, a2) => [a1, a2])`. Args are colon-separated. |
+| `handleArgsCallbackQueryData` | ``e2e.sendCallbackQuery(`${intent}:${a1}:${a2}`, user)`` or `Page.data.callbackQueryData(a1, a2).result` | Requires `static data = this.buildData((a1, a2) => [a1, a2])`. Args are colon-separated. |
 | `handleText` | `e2e.sendText(Page.data.intentText, user)` | Default intent is the page name. Language maps are keyed `lang:intent`. |
-| `handleArgsText` | `e2e.sendText(\`${Page.data.intentText} ${a1} ${a2}\`, user)` | Args are space-separated; at least one arg is required. |
-| `handleCommandText` | `e2e.sendText(\`/${Page.data.intentCommandText}\`, user)` | Default command is the page name. |
-| `handleCommandArgsText` | `e2e.sendText(\`/${Page.data.intentCommandText} ${a1}\`, user)` | Space-separated args after the command. |
+| `handleArgsText` | ``e2e.sendText(`${Page.data.intentText} ${a1} ${a2}`, user)`` | Args are space-separated; at least one arg is required. |
+| `handleCommandText` | ``e2e.sendText(`/${Page.data.intentCommandText}`, user)`` | Default command is the page name. |
+| `handleCommandArgsText` | ``e2e.sendText(`/${Page.data.intentCommandText} ${a1}`, user)`` | Space-separated args after the command. |
 | `handleCaptionPhoto` | `e2e.sendPhoto({caption: Page.data.name, user})` | Exact caption only; captions match the **bare route name** (e.g. `admin/ban`), not `intentText`. Same pattern for `Video`, `Audio`, `Document`, `Animation`, `Voice`. |
-| `handleCommandCaptionPhoto` | `e2e.sendPhoto({caption: \`/${Page.data.intentCommandText}\`, user})` | Exact command caption. Same suffix pattern for the other media kinds. |
-| `handleCaptionArgsPhoto` | `e2e.sendPhoto({caption: \`${Page.data.name} ${a1}\`, user})` | At least one arg required. Same for `Video`, `Audio`, `Document`, `Animation`, `Voice`. |
-| `handleCommandCaptionArgsPhoto` | `e2e.sendPhoto({caption: \`/${Page.data.intentCommandText} ${a1}\`, user})` | Command caption with args. |
+| `handleCommandCaptionPhoto` | ``e2e.sendPhoto({caption: `/${Page.data.intentCommandText}`, user})`` | Exact command caption. Same suffix pattern for the other media kinds. |
+| `handleCaptionArgsPhoto` | ``e2e.sendPhoto({caption: `${Page.data.name} ${a1}`, user})`` | At least one arg required. Same for `Video`, `Audio`, `Document`, `Animation`, `Voice`. |
+| `handleCommandCaptionArgsPhoto` | ``e2e.sendPhoto({caption: `/${Page.data.intentCommandText} ${a1}`, user})`` | Command caption with args. |
 | `handleFreePhoto` / `handleFreeText` / … | Send the same shape with data no other route matches | Dynamic-specific: only runs when defined **on the page's own prototype**, and every matching page handler runs. |
 | `handleFree` | Send any unmatched update | Global last resort. Every matching page runs. |
-| `handleChatMemberOutIn` | `e2e.sendChatMemberUpdate({oldStatus: \`kicked\`, newStatus: \`member\`, user, chat})` | Handler suffix is `{old}{new}` in `out` / `in` / `regular` / `admin` buckets, not raw Telegram statuses. |
-| `handleMyChatMemberOutAdmin` | `e2e.sendMyChatMemberUpdate({oldStatus: \`left\`, newStatus: \`administrator\`, chat})` | `out` covers `left`, `kicked`, and `restricted` with `is_member: false`. |
+| `handleChatMemberOutIn` | ``e2e.sendChatMemberUpdate({oldStatus: `kicked`, newStatus: `member`, user, chat})`` | Handler suffix is `{old}{new}` in `out` / `in` / `regular` / `admin` buckets, not raw Telegram statuses. |
+| `handleMyChatMemberOutAdmin` | ``e2e.sendMyChatMemberUpdate({oldStatus: `left`, newStatus: `administrator`, chat})`` | `out` covers `left`, `kicked`, and `restricted` with `is_member: false`. |
 | custom route (`registerCustomRoute`) | Inject the underlying event with `e2e.handleUpdate(...)` | The custom handler is dispatched by the built-in listener for that event. |
 | session variants (`handleSession*`) | Enter the state first, then send the matching update | Never dispatched by `handleFree*`; only reachable while `session.method` points at them. |
 
@@ -105,16 +118,19 @@ Assert the Bot API method, not just "some response". The default `renderText` ro
 
 | Page call | From a callback | From a message | Assert |
 | --- | --- | --- | --- |
-| `renderText()` | `editMessageText` | `sendMessage` | method + `text` |
-| `renderText({mode: 'reply'})` | `sendMessage` | `sendMessage` | no `editMessageText` |
-| `renderText({mode: 'edit'})` | `editMessageText` | `editMessageText` or the documented fallback | no `sendMessage` |
-| `renderPhoto` / `renderVideo` / `renderAudio` / `renderDocument` / `renderAnimation` / `renderVoice` / `renderVideoNote` / `renderSticker` | `editMessageMedia` | `sendPhoto` / `sendVideo` / … | `media.type`, `media.media`, `media.caption` |
-| `renderMediaGroup` / `renderPhotoGroup` / … | `sendMediaGroup` | `sendMediaGroup` | `media[]` length, per-item `type` + `caption` (groups cannot edit) |
-| `renderEditCaption` | `editMessageCaption` | — | `caption` |
-| `renderEditKeyboard` | `editMessageReplyMarkup` | — | `reply_markup` |
+| `renderText()` | `editMessageText` | `sendMessage` / `sendRichMessage` (rich) | method + `text` |
+| `renderText({mode: 'reply'})` | `sendMessage` / `sendRichMessage` (rich) | `sendMessage` / `sendRichMessage` (rich) | no `editMessageText` |
+| `renderText({mode: 'edit'})` | `editMessageText` | `editMessageText` or the documented fallback | no `sendMessage` when the edit succeeds; assert the fallback otherwise |
+| `renderPhoto` / `renderVideo` / `renderAudio` / `renderDocument` / `renderAnimation` | `editMessageMedia` | `sendPhoto` / `sendVideo` / … | `media.type`, `media.media`, `media.caption` |
+| `renderVoice` / `renderVideoNote` / `renderSticker` / `renderLocation` / `renderContact` | `deleteMessage` + matching `send*` | matching `send*` | delete happened first; payload fields |
+| `renderMediaGroup` / `renderPhotoGroup` / … (multi-src) | `deleteMessage` + `sendMediaGroup` | `sendMediaGroup` | `media[]` length, per-item `type` + `caption` (groups cannot edit) |
+| `renderEditCaption` | `editMessageCaption` | `deleteMessage` + reply fallback | `caption`, or the reply text on fallback |
+| `renderEditKeyboard` | `editMessageReplyMarkup` | throws (no fallback) | `reply_markup` |
 | `renderCallbackAnswer` | `answerCallbackQuery` | — | `text` / `show_alert` |
-| `renderPreCheckout` | `answerPreCheckoutQuery` | — | `ok` |
-| `renderShipping` | `answerShippingQuery` | — | `ok` |
+| `renderPreCheckout` | `answerPreCheckoutQuery` | — | `ok` / `error_message` |
+| `renderShipping` | `answerShippingQuery` | — | `ok` / `error_message` |
+| `renderGuestAnswer` | `answerGuestQuery` | — | result payload |
+| `renderWebAppAnswer` | `answerWebAppQuery` | — | `result` |
 | `renderInlineAnswer` | `answerInlineQuery` | — | `results` |
 | `renderPoll` / `renderDice` / `renderGift` / `renderInvoice` / `renderPaidMedia` / `renderVenue` | the matching `send*` | the matching `send*` | payload fields |
 | `renderBroadcastDelete` | `deleteMessage` per recipient | `deleteMessage` per recipient | one call per id |
@@ -155,7 +171,7 @@ Use two distinct users: one allowed, one denied.
 ```typescript
 const allowed = await e2e.sendText(`/admin`, adminUser)
 expect(allowed.length).toBeGreaterThan(0)
-expect(allowed[0]?.body?.text).toBe(e2e.gmsg(`admin`, `default`, {}))
+expect(e2e.extractText(allowed[0]!)).toBe(e2e.gmsg(`admin`, `default`, {}))
 
 e2e.clearCalls()
 const denied = await e2e.sendText(`/admin`, plainUser)
@@ -164,15 +180,19 @@ const denied = await e2e.sendText(`/admin`, plainUser)
 // A) silent deny (`hookBeforeRoute` returns false with no render):
 expect(denied.length).toBe(0)
 
-// B) deny-and-explain (the hook answers, then returns false):
-expect(e2e.lastCall(`answerCallbackQuery`)?.body?.text).toBe(`Forbidden`)
-expect(e2e.calls.map((c) => c.method)).not.toContain(`editMessageText`)
+// B) deny-and-explain for a text update (the hook rendered the denial):
+e2e.clearCalls()
+const deniedWithMessage = await e2e.sendText(`/admin`, plainUser)
+expect(e2e.extractText(deniedWithMessage[0]!)).toBe(`Forbidden`)
+expect(e2e.extractText(deniedWithMessage[0]!)).not.toBe(e2e.gmsg(`admin`, `default`, {}))
 ```
+
+For a callback update, the denial render is usually `answerCallbackQuery` (`renderCallbackAnswer`); assert that method and the absence of the page's normal `editMessageText` render instead.
 
 Rules:
 
 - **`hookBeforeRoute` is silent by default.** A denied page-level gate that renders nothing is a valid, intentional design. Assert `0` calls for it. A denial that *should* explain itself must produce the explanation call; assert that instead. Never assert both contracts in one test.
-- **The handler must not run.** The `not.toContain` assertion proves the gated render was skipped; without it, a gate that denies everyone and a gate that was never wired look identical.
+- **The handler must not run.** Assert the denial output is not the page's normal render (`.not.toBe(e2e.gmsg(...))`), or — for a callback — that the normal `editMessageText` render is absent. Without it, a gate that denies everyone and a gate that was never wired look identical.
 - **Page-level denial does not increment `metrics.counts.blocked`; bot-level denial does.** Do not use metrics as proof for a page gate.
 - **Bot-level and page-level gates are different tests.** The bot gate runs before routing and drops the whole update; the page gate runs after a route matches.
 - **`GuardBase` checks inside a handler** get the same two-direction treatment, even though they are not `hookBeforeRoute`.
@@ -187,8 +207,8 @@ A `<g-message lang="id">`, `<g-keyboard lang="id">`, or `intentTextMap` is a pro
 const en = await e2e.sendCallbackQuery(intent, enUser)
 const id = await e2e.sendCallbackQuery(intent, idUser)
 
-expect(en[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, {}, `en`))
-expect(id[0]!.body?.text).toBe(e2e.gmsg(intent, `default`, {}, `id`))
+expect(e2e.extractText(en[0]!)).toBe(e2e.gmsg(intent, `default`, {}, `en`))
+expect(e2e.extractText(id[0]!)).toBe(e2e.gmsg(intent, `default`, {}, `id`))
 expect(e2e.extractButtonLabels(id[0]!)).toEqual(e2e.gkb(intent, `default`, `inline`, {}, `id`))
 ```
 
@@ -226,7 +246,7 @@ Use a fixture that satisfies the app's bot-level gate. The scaffold's `UserGuard
 | LMDB / SQLite / app DB | Use the real store. Seed in `beforeEach`, purge by user id, assert through the next update — never by reading rows from the test. |
 | Worker thread | `await bot.ready` before the first update. Assert observable output only. Give the test a timeout (`it(..., 15_000)`) when the worker does real work. |
 | HTTP dependency | Start a real local server with port `0`, inject its URL before bot construction, stop it in `afterAll`. |
-| Timers / debounce | Pass `settleMs` and assert the post-settle calls; avoid `await Bun.sleep()` unless the delay is the behavior under test. |
+| Timers / debounce | Pass the `settleMs` argument of `handleUpdate(update, settleMs)` and assert the post-settle calls; avoid `await Bun.sleep()` unless the delay is the behavior under test. |
 | Config / AOT / deploy mode | **Not covered by e2e.** `e2e/setup.ts` bypasses `gramstax.config.ts` and the filesystem walk. Cover config with `tsc --noEmit` + `gramstax build --dry-run`; cover AOT/manifest with a boot test. |
 
 Runtime middleware is app behavior too: if `rateLimit` is enabled, send `max + 1` updates from one user and assert the `hookRateLimited` output (or deliberate silence). `sessionLock` is Redis-only; a memory store auto-disables it, so an e2e with the default store proves nothing about locking.
@@ -280,6 +300,20 @@ proof. A row that says `length > 0` is still a failure of this contract.
 It scans `src/pages`; a handler inherited from `src/base` is not in a page file,
 so cover it through a concrete page and list it in the ledger. The regex covers
 method declarations and class-field handlers (`handleX = async () => {}`).
+
+## Failure recovery
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| Audit: `has no row in e2e/COVERAGE.md` | A new handler was added without a ledger row | Add the row; name the test file and the concrete assertion |
+| Audit: `has no test file` | The row has a handler but an empty `Test` cell | Point it at the mirrored test and a real case |
+| Audit: `test file ... does not exist` | Renamed or deleted test, stale row | Update the path or delete the row |
+| Audit: `is not referenced by e2e/COVERAGE.md` | New test file, no ledger row | Add a row, or delete the orphan test |
+| Test: zero calls | Guard denied, intent mismatch, or session not armed | Inspect `e2e.calls`, the fixture, and the preceding update |
+| Test: `Received "sendRichMessage"` | The page renders a rich template | Assert `sendRichMessage` or use `extractText` |
+| Test: extra calls | Missing `clearCalls()` between steps, or duplicate render | Clear between updates; assert the method set |
+| Test: `answerCallbackQuery` absent | The page never calls `renderCallbackAnswer` | Do not expect it; add the block if the UX needs it |
+| Ledger passes but behavior is untested | `Asserts` says `length > 0` | Record the method, text, keyboard, media, or call count |
 
 ## No exception rows
 
