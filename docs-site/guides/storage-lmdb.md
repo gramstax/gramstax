@@ -33,7 +33,7 @@ the store is a plain object you own, and nothing about the page contract moves.
 </Columns>
 
 Install it next to `gramstax`. It is a separate npm package, versioned and
-released with the framework (both are at `6.0.2`), and nothing in `gramstax`
+released with the framework (both are at `latest`), and nothing in `gramstax`
 depends on it, so a bot that never persists anything does not install it.
 
 ```bash

@@ -25,7 +25,7 @@ that a background thread is incrementing while the bot is up.
 ## Install
 
 It is a separate npm package, versioned and released with the framework (both
-are at `6.0.2`), and nothing in `gramstax` depends on it.
+are at `latest`), and nothing in `gramstax` depends on it.
 
 ```bash
 bun add @gramstax/worker-thread

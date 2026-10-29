@@ -18,7 +18,7 @@ CLI scaffolds a project that can use all three.
 | `@gramstax/worker-thread` | Worker lifecycle, typed RPC, pools, inter-worker socket gateway | `bun add @gramstax/worker-thread` | `packages/worker-thread` |
 | `create-gramstax` | Project scaffolding: the template tree that becomes a new project | `bunx create-gramstax@latest my-bot` | `packages/create-gramstax` |
 
-One workspace version governs all four, and all four are published at `6.0.2`;
+One workspace version governs all four, and all four are published at `latest`;
 the published versions are a matched set. The two supporting packages carry no
 dependency on `gramstax`: a worker never touches storage, and a repository never
 knows about the bot. `create-gramstax` wires them in behind `--lmdb` and

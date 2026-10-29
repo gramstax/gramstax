@@ -132,7 +132,7 @@ test. See [ADR-0006](/guides/adr/0006-in-process-e2e).
 ### Is it production ready?
 
 Judge the evidence rather than take a claim. The package is published and at
-6.0.2, it carries 118 unit test files under `packages/gramstax/test` plus a
+latest, it carries 118 unit test files under `packages/gramstax/test` plus a
 per-example e2e suite, and the public API has a generated reference. Against
 that: it is young, and the conventions are strict (named exports in package
 source, no `@ts-ignore`, `bun:test` only). The lint rules and the type checker

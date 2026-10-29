@@ -1044,10 +1044,10 @@ Why opt-in: measured with `bench/bench.ts`, the queue is neutral below saturatio
 
 | Package | Version | Owns |
 | :------ | :------ | :--- |
-| [`gramstax`](https://github.com/gramstax/gramstax/tree/main/packages/gramstax) | 6.0.2 | Page routing, template engine, render API, session/caching, CLI, mock server, e2e harness |
-| [`create-gramstax`](https://github.com/gramstax/gramstax/tree/main/packages/create-gramstax) | 6.0.2 | Project scaffolding and the `templates/` tree that becomes a new project |
-| [`@gramstax/lmdb`](https://github.com/gramstax/gramstax/tree/main/packages/lmdb) | 6.0.2 | Schema-declared LMDB sub-databases, indexes, transactions, queues, CDC, backups |
-| [`@gramstax/worker-thread`](https://github.com/gramstax/gramstax/tree/main/packages/worker-thread) | 6.0.2 | Worker lifecycle, typed RPC, pools, inter-worker socket gateway |
+| [`gramstax`](https://github.com/gramstax/gramstax/tree/main/packages/gramstax) | latest | Page routing, template engine, render API, session/caching, CLI, mock server, e2e harness |
+| [`create-gramstax`](https://github.com/gramstax/gramstax/tree/main/packages/create-gramstax) | latest | Project scaffolding and the `templates/` tree that becomes a new project |
+| [`@gramstax/lmdb`](https://github.com/gramstax/gramstax/tree/main/packages/lmdb) | latest | Schema-declared LMDB sub-databases, indexes, transactions, queues, CDC, backups |
+| [`@gramstax/worker-thread`](https://github.com/gramstax/gramstax/tree/main/packages/worker-thread) | latest | Worker lifecycle, typed RPC, pools, inter-worker socket gateway |
 
 One workspace version governs all four (`nx release` tags `v{version}` and updates every `packages/{projectName}` manifest), which is why they are always installed together. The two supporting packages have **no dependency on `gramstax`**: a worker never touches storage, and a repository never knows about the bot. `create-gramstax` wires them in behind `--lmdb` and `--worker-thread`, independently combinable, and regenerates `src/core/services.ts` from `buildServicesSource(useLmdb, useWorkerThread)` so the bot class never statically references a pruned directory.
 
