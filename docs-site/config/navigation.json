@@ -484,16 +484,6 @@
             {
               "group": "_constructor_",
               "pages": [
-                "reference/worker-thread.workerthreadgatewayclient._constructor_",
-                "reference/worker-thread.workerthreadgatewayserver._constructor_",
-                "reference/worker-thread.workerthreadinit._constructor_",
-                "reference/worker-thread.workerthreadlaunch._constructor_",
-                "reference/worker-thread.workerthreadrpc._constructor_"
-              ]
-            },
-            {
-              "group": "_constructor_",
-              "pages": [
                 "reference/gramstax.cacheexternal._constructor_",
                 "reference/gramstax.ctx._constructor_",
                 "reference/gramstax.e2ehelper._constructor_",
@@ -516,6 +506,16 @@
                 "reference/lmdb.lmdbqueue._constructor_",
                 "reference/lmdb.lmdbsyncstream._constructor_",
                 "reference/lmdb.recordcodec._constructor_"
+              ]
+            },
+            {
+              "group": "_constructor_",
+              "pages": [
+                "reference/worker-thread.workerthreadgatewayclient._constructor_",
+                "reference/worker-thread.workerthreadgatewayserver._constructor_",
+                "reference/worker-thread.workerthreadinit._constructor_",
+                "reference/worker-thread.workerthreadlaunch._constructor_",
+                "reference/worker-thread.workerthreadrpc._constructor_"
               ]
             },
             {
@@ -1449,13 +1449,13 @@
             {
               "group": "client",
               "pages": [
-                "reference/worker-thread.workerthreadgatewayclient.client"
+                "reference/lmdb.lmdbbackups3options.client"
               ]
             },
             {
               "group": "client",
               "pages": [
-                "reference/lmdb.lmdbbackups3options.client"
+                "reference/worker-thread.workerthreadgatewayclient.client"
               ]
             },
             {
@@ -1814,13 +1814,13 @@
             {
               "group": "dequeue",
               "pages": [
-                "reference/gramstax.updatequeue.dequeue"
+                "reference/lmdb.lmdbqueue.dequeue"
               ]
             },
             {
               "group": "dequeue",
               "pages": [
-                "reference/lmdb.lmdbqueue.dequeue"
+                "reference/gramstax.updatequeue.dequeue"
               ]
             },
             {
@@ -1976,13 +1976,13 @@
             {
               "group": "enqueue",
               "pages": [
-                "reference/gramstax.updatequeue.enqueue"
+                "reference/lmdb.lmdbqueue.enqueue"
               ]
             },
             {
               "group": "enqueue",
               "pages": [
-                "reference/lmdb.lmdbqueue.enqueue"
+                "reference/gramstax.updatequeue.enqueue"
               ]
             },
             {
@@ -4496,17 +4496,17 @@
             {
               "group": "path",
               "pages": [
-                "reference/worker-thread.workerthreadlaunch.path"
-              ]
-            },
-            {
-              "group": "path",
-              "pages": [
                 "reference/lmdb.ilmdbenvoptions.path",
                 "reference/lmdb.lmdbbackuparchiveentry.path",
                 "reference/lmdb.lmdbbackupentry.path",
                 "reference/lmdb.lmdbbackupsnapshotresult.path",
                 "reference/lmdb.lmdbenv.path"
+              ]
+            },
+            {
+              "group": "path",
+              "pages": [
+                "reference/worker-thread.workerthreadlaunch.path"
               ]
             },
             {
@@ -4787,15 +4787,15 @@
             {
               "group": "register",
               "pages": [
-                "reference/lmdb.lmdbenv.register"
+                "reference/worker-thread.workerthreadgatewayserver.register",
+                "reference/worker-thread.workerthreadlaunch.register",
+                "reference/worker-thread.workerthreadrpc.register"
               ]
             },
             {
               "group": "register",
               "pages": [
-                "reference/worker-thread.workerthreadgatewayserver.register",
-                "reference/worker-thread.workerthreadlaunch.register",
-                "reference/worker-thread.workerthreadrpc.register"
+                "reference/lmdb.lmdbenv.register"
               ]
             },
             {
@@ -4831,13 +4831,13 @@
             {
               "group": "release",
               "pages": [
-                "reference/lmdb.lmdbtransaction.release"
+                "reference/gramstax.sessionlock.release"
               ]
             },
             {
               "group": "release",
               "pages": [
-                "reference/gramstax.sessionlock.release"
+                "reference/lmdb.lmdbtransaction.release"
               ]
             },
             {
@@ -5522,13 +5522,13 @@
             {
               "group": "server",
               "pages": [
-                "reference/gramstax.mocktelegramserver.server"
+                "reference/worker-thread.workerthreadgatewayserver.server"
               ]
             },
             {
               "group": "server",
               "pages": [
-                "reference/worker-thread.workerthreadgatewayserver.server"
+                "reference/gramstax.mocktelegramserver.server"
               ]
             },
             {
@@ -6183,6 +6183,15 @@
             {
               "group": "start",
               "pages": [
+                "reference/lmdb.icompositerange.start",
+                "reference/lmdb.irangeoptions.start",
+                "reference/lmdb.lmdbbackup.start",
+                "reference/lmdb.lmdbjobrun.start"
+              ]
+            },
+            {
+              "group": "start",
+              "pages": [
                 "reference/gramstax.mocktelegramserver.start",
                 "reference/gramstax.updatedispatcher.start"
               ]
@@ -6191,15 +6200,6 @@
               "group": "start",
               "pages": [
                 "reference/worker-thread.workerthreadgatewayserver.start"
-              ]
-            },
-            {
-              "group": "start",
-              "pages": [
-                "reference/lmdb.icompositerange.start",
-                "reference/lmdb.irangeoptions.start",
-                "reference/lmdb.lmdbbackup.start",
-                "reference/lmdb.lmdbjobrun.start"
               ]
             },
             {
