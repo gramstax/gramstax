@@ -484,21 +484,6 @@
             {
               "group": "_constructor_",
               "pages": [
-                "reference/gramstax.cacheexternal._constructor_",
-                "reference/gramstax.ctx._constructor_",
-                "reference/gramstax.e2ehelper._constructor_",
-                "reference/gramstax.gramstax._constructor_",
-                "reference/gramstax.mocktelegramserver._constructor_",
-                "reference/gramstax.sessionlock._constructor_",
-                "reference/gramstax.templatemanager._constructor_",
-                "reference/gramstax.updatedispatcher._constructor_",
-                "reference/gramstax.updategate._constructor_",
-                "reference/gramstax.updatequeue._constructor_"
-              ]
-            },
-            {
-              "group": "_constructor_",
-              "pages": [
                 "reference/lmdb.lmdbenv._constructor_",
                 "reference/lmdb.lmdbenvsub._constructor_",
                 "reference/lmdb.lmdberror._constructor_",
@@ -516,6 +501,21 @@
                 "reference/worker-thread.workerthreadinit._constructor_",
                 "reference/worker-thread.workerthreadlaunch._constructor_",
                 "reference/worker-thread.workerthreadrpc._constructor_"
+              ]
+            },
+            {
+              "group": "_constructor_",
+              "pages": [
+                "reference/gramstax.cacheexternal._constructor_",
+                "reference/gramstax.ctx._constructor_",
+                "reference/gramstax.e2ehelper._constructor_",
+                "reference/gramstax.gramstax._constructor_",
+                "reference/gramstax.mocktelegramserver._constructor_",
+                "reference/gramstax.sessionlock._constructor_",
+                "reference/gramstax.templatemanager._constructor_",
+                "reference/gramstax.updatedispatcher._constructor_",
+                "reference/gramstax.updategate._constructor_",
+                "reference/gramstax.updatequeue._constructor_"
               ]
             },
             {
@@ -1467,14 +1467,14 @@
             {
               "group": "close",
               "pages": [
-                "reference/worker-thread.workerthreadgatewayclient.close",
-                "reference/worker-thread.workerthreadgatewayserver.close"
+                "reference/lmdb.lmdbenv.close"
               ]
             },
             {
               "group": "close",
               "pages": [
-                "reference/lmdb.lmdbenv.close"
+                "reference/worker-thread.workerthreadgatewayclient.close",
+                "reference/worker-thread.workerthreadgatewayserver.close"
               ]
             },
             {
@@ -1976,13 +1976,13 @@
             {
               "group": "enqueue",
               "pages": [
-                "reference/lmdb.lmdbqueue.enqueue"
+                "reference/gramstax.updatequeue.enqueue"
               ]
             },
             {
               "group": "enqueue",
               "pages": [
-                "reference/gramstax.updatequeue.enqueue"
+                "reference/lmdb.lmdbqueue.enqueue"
               ]
             },
             {
@@ -3246,13 +3246,13 @@
             {
               "group": "isclosed",
               "pages": [
-                "reference/gramstax.updatequeue.isclosed"
+                "reference/worker-thread.workerthreadgatewayclient.isclosed"
               ]
             },
             {
               "group": "isclosed",
               "pages": [
-                "reference/worker-thread.workerthreadgatewayclient.isclosed"
+                "reference/gramstax.updatequeue.isclosed"
               ]
             },
             {
@@ -3377,14 +3377,14 @@
             {
               "group": "label",
               "pages": [
-                "reference/lmdb.lmdbbackuphandle.label",
-                "reference/lmdb.lmdbjobrunhandle.label"
+                "reference/gramstax.blockgkeyboard.label"
               ]
             },
             {
               "group": "label",
               "pages": [
-                "reference/gramstax.blockgkeyboard.label"
+                "reference/lmdb.lmdbbackuphandle.label",
+                "reference/lmdb.lmdbjobrunhandle.label"
               ]
             },
             {
@@ -4380,14 +4380,14 @@
             {
               "group": "onerror",
               "pages": [
-                "reference/lmdb.lmdbbackupstartoptions.onerror",
-                "reference/lmdb.lmdbjobrunscheduleoptions.onerror"
+                "reference/worker-thread.workerthreadinit.onerror"
               ]
             },
             {
               "group": "onerror",
               "pages": [
-                "reference/worker-thread.workerthreadinit.onerror"
+                "reference/lmdb.lmdbbackupstartoptions.onerror",
+                "reference/lmdb.lmdbjobrunscheduleoptions.onerror"
               ]
             },
             {
@@ -4733,13 +4733,13 @@
             {
               "group": "ready",
               "pages": [
-                "reference/worker-thread.workerthreadlaunch.ready"
+                "reference/gramstax.gramstax.ready"
               ]
             },
             {
               "group": "ready",
               "pages": [
-                "reference/gramstax.gramstax.ready"
+                "reference/worker-thread.workerthreadlaunch.ready"
               ]
             },
             {
@@ -4831,13 +4831,13 @@
             {
               "group": "release",
               "pages": [
-                "reference/gramstax.sessionlock.release"
+                "reference/lmdb.lmdbtransaction.release"
               ]
             },
             {
               "group": "release",
               "pages": [
-                "reference/lmdb.lmdbtransaction.release"
+                "reference/gramstax.sessionlock.release"
               ]
             },
             {
@@ -5522,13 +5522,13 @@
             {
               "group": "server",
               "pages": [
-                "reference/worker-thread.workerthreadgatewayserver.server"
+                "reference/gramstax.mocktelegramserver.server"
               ]
             },
             {
               "group": "server",
               "pages": [
-                "reference/gramstax.mocktelegramserver.server"
+                "reference/worker-thread.workerthreadgatewayserver.server"
               ]
             },
             {
@@ -6171,13 +6171,13 @@
             {
               "group": "snapshot",
               "pages": [
-                "reference/gramstax.metricsstore.snapshot"
+                "reference/lmdb.lmdbbackup.snapshot"
               ]
             },
             {
               "group": "snapshot",
               "pages": [
-                "reference/lmdb.lmdbbackup.snapshot"
+                "reference/gramstax.metricsstore.snapshot"
               ]
             },
             {
@@ -6231,16 +6231,16 @@
             {
               "group": "stop",
               "pages": [
-                "reference/gramstax.gramstax.stop",
-                "reference/gramstax.mocktelegramserver.stop",
-                "reference/gramstax.updatedispatcher.stop"
+                "reference/lmdb.lmdbbackuphandle.stop",
+                "reference/lmdb.lmdbjobrunhandle.stop"
               ]
             },
             {
               "group": "stop",
               "pages": [
-                "reference/lmdb.lmdbbackuphandle.stop",
-                "reference/lmdb.lmdbjobrunhandle.stop"
+                "reference/gramstax.gramstax.stop",
+                "reference/gramstax.mocktelegramserver.stop",
+                "reference/gramstax.updatedispatcher.stop"
               ]
             },
             {
