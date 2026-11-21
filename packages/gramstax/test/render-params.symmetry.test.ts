@@ -52,6 +52,28 @@ const ROUTE_PARAMS = [
 
 const DIR = join(import.meta.dir, `.symmetry`)
 
+/**
+ * The repo-local `tsc` (the pinned typescript devDependency). A bare `tsc`
+ * only resolves when the runner image happens to ship one on PATH — when
+ * ubuntu-latest moved from 24.04 (had it) to 26.04 (does not), both suites
+ * failed with zero diagnostics instead of a clear error. Resolve it from the
+ * workspace root so the compiler under test is always the pinned one.
+ */
+const TSC = join(import.meta.dir, `..`, `..`, `..`, `node_modules`, `.bin`, process.platform === `win32` ? `tsc.cmd` : `tsc`)
+
+/**
+ * Runs the local compiler on a generated project. A non-zero exit is normal
+ * here (the fixture is deliberately invalid), so only a spawn failure or a
+ * signal kill throws — but it throws loudly, so a missing compiler can never
+ * again degrade to zero diagnostics and a vacuous pass.
+ */
+function runTsc(project: string): string {
+  const run = spawnSync(TSC, [`-p`, project], {encoding: `utf8`})
+  if (run.error) throw new Error(`local tsc failed to start (${TSC}): ${run.error.message}`)
+  if (run.status === null) throw new Error(`local tsc was killed by signal ${run.signal ?? `unknown`} (${TSC})`)
+  return `${run.stdout ?? ``}${run.stderr ?? ``}`
+}
+
 /** Builds a fixture that requires every route-using type to declare `universal`. */
 function fixture(universal: readonly string[]) {
   return [
@@ -91,8 +113,7 @@ function compile(name: string, universal: readonly string[]) {
     ),
     `utf8`
   )
-  const run = spawnSync(`tsc`, [`-p`, join(DIR, `tsconfig.json`)], {encoding: `utf8`, shell: true})
-  const out = `${run.stdout ?? ``}${run.stderr ?? ``}`
+  const out = runTsc(join(DIR, `tsconfig.json`))
   return out
     .split(/\r?\n/)
     .filter((l) => l.includes(`${name}.ts(`) && /error TS\d+/.test(l))
