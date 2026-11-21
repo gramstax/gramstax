@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://gramstax.mintlify.site/
+    about: Read the guides and API reference first — most questions are answered there.
+  - name: Security vulnerability
+    url: https://github.com/gramstax/gramstax/security/advisories/new
+    about: Do not open a public issue for a security problem. Report it privately here instead.
