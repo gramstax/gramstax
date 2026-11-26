@@ -1847,6 +1847,35 @@ export type IRenderCallbackAnswerParams = {
 }
 
 /**
+ * Parameters for `renderWidgetAnswer`.
+ *
+ * @remarks
+ * Template-backed counterpart to answering widget taps: the
+ * `<g-widget-answer>` block supplies the answer data. There is no message
+ * to send, so this takes no keyboard and never falls back to a reply. The
+ * answer data is an opaque payload for the widget's JS (not user-facing
+ * copy), at most 1024 UTF-8 bytes per the Bot API `answerWidgetQuery`
+ * limits. It must be sent within 15 seconds of the query, and it does not
+ * change the widget's data — that is `renderWidget` mode `update-data`.
+ *
+ * @public
+ */
+export type IRenderWidgetAnswerParams = {
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template base ID position for the answer data.
+   *
+   * @defaultValue `null` (default base)
+   */
+  AGBaseId?: string | null
+}
+
+/**
  * Parameters for `renderPreCheckout`.
  *
  * @remarks

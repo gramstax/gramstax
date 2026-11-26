@@ -698,6 +698,36 @@ export type ICallbackAnswerBlock = {
 }
 
 /**
+ * Widget-answer block for Telegram widget-query feedback.
+ *
+ * @remarks
+ * Declared with `<g-widget-answer>` blocks. `text` supports the same
+ * `{{var|filter}}` interpolation pipeline as callback answers; the compiled
+ * value is an opaque data payload for the widget's JS (not user-facing
+ * copy), plain text without HTML, at most 1024 UTF-8 bytes per the Bot API
+ * `answerWidgetQuery` limits.
+ *
+ * @example
+ * ```typescript
+ * const answer: IWidgetAnswerBlock = {
+ *   text: `ok {{orderId}}`
+ * }
+ * ```
+ *
+ * @public
+ */
+export type IWidgetAnswerBlock = {
+  /**
+   * Answer data sent back to the widget that asked.
+   *
+   * @remarks
+   * Supports `{{var|filter}}` interpolation. Plain text without HTML, at
+   * most 1024 UTF-8 bytes per the Bot API `answerWidgetQuery` limits.
+   */
+  text: string
+}
+
+/**
  * Pre-checkout error block for Telegram payments.
  *
  * @remarks
@@ -902,7 +932,7 @@ export type IGiftBlock = {
  *
  * @public
  */
-export type GBlockKind = `message` | `media` | `poll` | `widget` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`
+export type GBlockKind = `message` | `media` | `poll` | `widget` | `widgetAnswer` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`
 
 /**
  * Result of `TemplateManager.getGMessage` for a `<g-message>` block.
@@ -982,6 +1012,16 @@ export type GKeyboardResult = {kind: `keyboard`; rows: string[]}
  * @public
  */
 export type GCallbackAnswerResult = {kind: `callbackAnswer`; text: string}
+/**
+ * Result of `TemplateManager.getGWidgetAnswer` for a `<g-widget-answer>` block.
+ *
+ * @remarks
+ * `text` is the rendered answer data; the getter throws when the block is
+ * missing (widget answers always need data).
+ *
+ * @public
+ */
+export type GWidgetAnswerResult = {kind: `widgetAnswer`; text: string}
 /**
  * Result of `TemplateManager.getGPrecheckoutError` for a `<g-precheckout-error>` block.
  *
@@ -1131,6 +1171,14 @@ export type ICompiledTemplate = {
    * resolves an `ICallbackAnswerBlock` for the given render data.
    */
   callbackAnswer: ReturnType<typeof TemplateEngine.compileBlockGCallbackAnswer>
+  /**
+   * Compiled widget-answer blocks indexed by base ID and language.
+   *
+   * @remarks
+   * Produced by `TemplateEngine.compileBlockGWidgetAnswer`. Each leaf
+   * resolves an `IWidgetAnswerBlock` for the given render data.
+   */
+  widgetAnswer: ReturnType<typeof TemplateEngine.compileBlockGWidgetAnswer>
   /**
    * Compiled precheckout-error blocks indexed by base ID and language.
    *

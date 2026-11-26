@@ -19,6 +19,7 @@ import type {
   GShippingErrorResult,
   GVenueResult,
   GWebAppAnswerResult,
+  GWidgetAnswerResult,
   GWidgetResult,
   ICompiledTemplate,
   ITemplateOptions
@@ -821,6 +822,10 @@ export class TemplateManager {
       compiled.callbackAnswer = TemplateEngine.compileBlockGCallbackAnswer(processedTemplate, baseBlocks)
       updated = true
     }
+    if (keepIfExist === undefined || keepIfExist?.widgetAnswer === false || existing?.widgetAnswer === undefined) {
+      compiled.widgetAnswer = TemplateEngine.compileBlockGWidgetAnswer(processedTemplate, baseBlocks)
+      updated = true
+    }
     if (keepIfExist === undefined || keepIfExist?.precheckoutError === false || existing?.precheckoutError === undefined) {
       compiled.precheckoutError = TemplateEngine.compileBlockGPrecheckoutError(processedTemplate, baseBlocks)
       updated = true
@@ -1116,6 +1121,27 @@ export class TemplateManager {
     }
 
     return {kind: `callbackAnswer`, text: func(data)}
+  }
+
+  /**
+   * Gets compiled text from block <g-widget-answer>.
+   *
+   * @remarks
+   * Strict lookup (mirrors `getGCallbackAnswer`): a missing block throws instead of
+   * returning an empty string, because widget answers always need data.
+   *
+   * @public
+   */
+  getGWidgetAnswer(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GWidgetAnswerResult {
+    const map = this.getCompiled(key)
+    const one = map?.widgetAnswer?.[AGBaseId] ?? map?.widgetAnswer?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`WidgetAnswer function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return {kind: `widgetAnswer`, text: func(data)}
   }
 
   /**

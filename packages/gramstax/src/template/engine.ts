@@ -176,6 +176,21 @@ export class TemplateEngine {
   static MAX_WIDGET_DATA_BYTES = 1024
 
   /**
+   * Maximum `<g-widget-answer>` data size in UTF-8 bytes.
+   *
+   * @remarks
+   * Matches the Bot API `answerWidgetQuery` `data` limit of 1024 bytes
+   * (source: `https://core.telegram.org/bots/api#answerwidgetquery`).
+   * Measured with `Buffer.byteLength` — character `.length` is wrong for
+   * UTF-8. Enforced at validation time on static content; `{{}}` spans
+   * skip the static check (runtime-enforced, mirroring the
+   * `<g-callback-answer>` static/dynamic split).
+   *
+   * @public
+   */
+  static MAX_WIDGET_ANSWER_BYTES = 1024
+
+  /**
    * Maximum Stars price for a `<g-paid-media>` paywall.
    *
    * @remarks
@@ -352,6 +367,7 @@ export class TemplateEngine {
     `<g-option>`,
     `<g-widget>`,
     `<g-widget-caption>`,
+    `<g-widget-answer>`,
     `<g-invoice>`,
     `<g-price>`,
     `<g-paid-media>`,
@@ -2583,6 +2599,58 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: g-widget-answer
+   * Extracts `<g-widget-answer>` plain-text blocks from a template string.
+   *
+   * @remarks
+   * Children form only (`<g-widget-answer>text</g-widget-answer>`);
+   * content is cleaned exactly like `<g-message>` (leading indent stripped,
+   * surrounding newlines trimmed) and keyed by `lang` (`"default"` when
+   * absent; last block wins per lang). Raw content is preserved verbatim
+   * (including `{{var|filter}}` spans) for later compilation. Plain-text
+   * and length rules are enforced by
+   * `validateBlockGWidgetAnswerAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-widget-answer>` blocks
+   * @returns An object mapping language keys to their raw text content
+   *
+   * @example
+   * ```typescript
+   * const blocks = TemplateEngine._processGWidgetAnswerBlocks(`<g-widget-answer>ok {{orderId}}</g-widget-answer>`);
+   * // Result: { default: 'ok {{orderId}}' }
+   * ```
+   *
+   * @public
+   */
+  static _processGWidgetAnswerBlocks(template: string) {
+    const blockRegex = /<g-widget-answer(?:\s+([^>]*))?>([\s\S]*?)<\/g-widget-answer>/gi
+    const result: {
+      [lang: string]: string
+    } = {}
+
+    for (const [, attributesStr, rawContent] of template.matchAll(blockRegex)) {
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+
+      const lang = attrs.lang || `default`
+      const cleaned = rawContent!
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .trim()
+
+      result[lang] = cleaned
+    }
+    return result
+  }
+
+  /**
    * Block: g-precheckout-error
    * Extracts `<g-precheckout-error>` plain-text blocks from a template string.
    *
@@ -3825,6 +3893,55 @@ export class TemplateEngine {
   }
 
   /**
+   * Compiles widget-answer blocks from a template into executable functions.
+   *
+   * @remarks
+   * This method parses `<g-widget-answer>` blocks from the template and
+   * compiles them into functions that generate rendered answer data. The
+   * result is organized by base ID and language. Each content string runs
+   * the same pipeline as `<g-message>` (script → map → switch → scope-exec
+   * → scope-variables → function).
+   *
+   * Output shape:
+   * - First level key: `AGBaseId` (from `<g-base id="...">`, or `"default"` if omitted)
+   * - Second level key: `ALang` (from `lang="..."`, or `"default"` if omitted)
+   * - Value: `(data?: Record<string, unknown>) => string`
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-widget-answer>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled widget-answer functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const compiled = TemplateEngine.compileBlockGWidgetAnswer(`<g-base><g-widget-answer>ok {{orderId}}</g-widget-answer></g-base>`);
+   * const text = compiled.default?.default?.({orderId: `1042`});
+   * // Result: 'ok 1042'
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGWidgetAnswer(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITemplateData) => string
+      }
+    } = {}
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const blocks = this._processGWidgetAnswerBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, content] of Object.entries(blocks)) {
+        const processed = this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(content))))))
+        result[AGBaseId][ALang] = this._compileToFunction(processed, false)
+      }
+    }
+
+    return result
+  }
+
+  /**
    * Compiles precheckout-error blocks from a template into executable functions.
    *
    * @remarks
@@ -4825,6 +4942,7 @@ export class TemplateEngine {
       "g-option": new Set([`g-poll`]),
       "g-widget": new Set([`g-base`]),
       "g-widget-caption": new Set([`g-widget`]),
+      "g-widget-answer": new Set([`g-base`]),
       "g-invoice": new Set([`g-base`]),
       "g-price": new Set([`g-invoice`]),
       "g-paid-media": new Set([`g-base`]),
@@ -5020,6 +5138,7 @@ export class TemplateEngine {
       `g-option`,
       `g-widget`,
       `g-widget-caption`,
+      `g-widget-answer`,
       `g-invoice`,
       `g-paid-media`,
       `g-description`,
@@ -6408,22 +6527,26 @@ export class TemplateEngine {
    *
    * @remarks
    * Answer payloads (`<g-callback-answer>`, `<g-precheckout-error>`,
-   * `<g-shipping-error>`) reach Telegram fields that accept no HTML
-   * (toast text, `error_message`), so any static markup tag inside the
+   * `<g-shipping-error>`, `<g-widget-answer>`) reach Telegram fields that accept no HTML
+   * (toast text, `error_message`, widget-query `data`), so any static markup tag inside the
    * block body is rejected. `{{}}` / `{~ ~}` spans are stripped before
    * checking (runtime data is the caller's responsibility, mirroring the
    * `_validateDiceItems` static/dynamic split). When `maxLength` is set,
    * the stripped static length is capped (toast text at most 200 chars
-   * per the Bot API `answerCallbackQuery` limits). Errors carry 1-based
-   * line numbers.
+   * per the Bot API `answerCallbackQuery` limits). When `maxBytes` is set,
+   * the stripped static content is capped in UTF-8 bytes via
+   * `Buffer.byteLength` (widget-query `data` at most 1024 bytes per the Bot
+   * API `answerWidgetQuery` limits — character `.length` is wrong for
+   * UTF-8). Errors carry 1-based line numbers.
    *
    * @param template - The raw template source to inspect.
    * @param tag - The block tag name without brackets (e.g. `g-callback-answer`).
    * @param maxLength - Optional static-length cap (or null to skip).
+   * @param maxBytes - Optional static UTF-8 byte cap (or null to skip).
    * @returns Validation errors (empty when valid).
    * @public
    */
-  static _validateAnswerTextContent(template: string, tag: string, maxLength?: number | null): Array<{line: number; message: string}> {
+  static _validateAnswerTextContent(template: string, tag: string, maxLength?: number | null, maxBytes?: number | null): Array<{line: number; message: string}> {
     const errors: Array<{line: number; message: string}> = []
     const blockRegex = new RegExp(`<${tag}(?:\\s+([^>]*))?>([\\s\\S]*?)<\\/${tag}>`, `gi`)
 
@@ -6436,6 +6559,12 @@ export class TemplateEngine {
       }
       if (maxLength !== undefined && maxLength !== null && stripped.trim().length > maxLength) {
         errors.push({line, message: `Content of <${tag}> exceeds ${maxLength} character limit (got ${stripped.trim().length})`})
+      }
+      if (maxBytes !== undefined && maxBytes !== null) {
+        const byteLength = Buffer.byteLength(stripped.trim(), `utf8`)
+        if (byteLength > maxBytes) {
+          errors.push({line, message: `Content of <${tag}> exceeds ${maxBytes} byte limit (got ${byteLength})`})
+        }
       }
     }
 
@@ -6464,6 +6593,33 @@ export class TemplateEngine {
   static validateBlockGCallbackAnswerAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors = this._validateBlockAttributes(template, `g-callback-answer`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-callback-answer`])
     errors.push(...this._validateAnswerTextContent(template, `g-callback-answer`, 200))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates attributes and content on `<g-widget-answer>` blocks.
+   *
+   * @remarks
+   * Allowed attributes are `lang` only. Content must be plain text without
+   * HTML (widget-query `data` is an opaque payload for the widget's JS, not
+   * user-facing copy) and at most 1024 UTF-8 bytes of static text (Bot API
+   * `answerWidgetQuery` limits, measured with `Buffer.byteLength`);
+   * `{{}}` spans skip the static checks (runtime-enforced).
+   *
+   * @param template - The raw template string to validate
+   * @returns An object with a `valid` boolean and an `errors` array
+   *
+   * @example
+   * ```typescript
+   * const result = TemplateEngine.validateBlockGWidgetAnswerAttributes(`<g-base><g-widget-answer>ok</g-widget-answer></g-base>`);
+   * // Result: { valid: true, errors: [] }
+   * ```
+   *
+   * @public
+   */
+  static validateBlockGWidgetAnswerAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(template, `g-widget-answer`, new Set([`lang`]), `"lang"`, this._PAGE_ATTR_VALUE_VALIDATORS[`g-widget-answer`])
+    errors.push(...this._validateAnswerTextContent(template, `g-widget-answer`, null, this.MAX_WIDGET_ANSWER_BYTES))
     return {valid: errors.length === 0, errors}
   }
 
@@ -7104,14 +7260,15 @@ export class TemplateEngine {
    * 24. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes
    * 25. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes
    * 26. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content
-   * 27. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content
-   * 28. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
-   * 29. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
-   * 30. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
-   * 31. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content
-   * 32. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
-   * 33. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-   * 34. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+   * 27. {@link TemplateEngine.validateBlockGWidgetAnswerAttributes} — checks `<g-widget-answer>` block attributes and plain-text content
+   * 28. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content
+   * 29. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
+   * 30. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
+   * 31. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
+   * 32. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content
+   * 33. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
+   * 34. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+   * 35. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
    * Widget HTML is raw by design, so every validator above runs on the
    * widget-stripped template ({@link TemplateEngine._stripGWidgetBody}) —
@@ -7176,6 +7333,7 @@ export class TemplateEngine {
     const importAttrResult = this.validateBlockGImportAttributes(widgetStripped)
     const spaceAttrResult = this.validateBlockGSpaceAttributes(widgetStripped)
     const callbackAnswerAttrResult = this.validateBlockGCallbackAnswerAttributes(widgetStripped)
+    const widgetAnswerAttrResult = this.validateBlockGWidgetAnswerAttributes(widgetStripped)
     const precheckoutErrorAttrResult = this.validateBlockGPrecheckoutErrorAttributes(widgetStripped)
     const shippingErrorAttrResult = this.validateBlockGShippingErrorAttributes(widgetStripped)
     const inlineButtonAttrResult = this.validateBlockGInlineButtonAttributes(widgetStripped)
@@ -7220,6 +7378,7 @@ export class TemplateEngine {
       ...importAttrResult.errors,
       ...spaceAttrResult.errors,
       ...callbackAnswerAttrResult.errors,
+      ...widgetAnswerAttrResult.errors,
       ...precheckoutErrorAttrResult.errors,
       ...shippingErrorAttrResult.errors,
       ...inlineButtonAttrResult.errors,

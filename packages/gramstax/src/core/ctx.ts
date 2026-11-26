@@ -78,6 +78,7 @@ import type {
   IRenderTextParams,
   IRenderVenueParams,
   IRenderWebAppAnswerParams,
+  IRenderWidgetAnswerParams,
   IRenderWidgetParams
 } from "~/types/ctx"
 import type {IInvoiceBlock, IMediaBlock, IPaidMediaBlock, IPollBlock, IWidgetBlock} from "~/types/template"
@@ -3503,6 +3504,61 @@ export class Ctx extends Context {
   }
 
   /**
+   * Answers the active widget query with template data.
+   *
+   * Template block: `<g-widget-answer>` (read via `getGWidgetAnswer`).
+   * @remarks
+   * Template-backed counterpart to answering widget taps: the
+   * `<g-widget-answer>` block supplies the answer data (multilang via
+   * `data`). There is no message to send, so this takes no keyboard and
+   * never falls back to a reply.
+   *
+   * The answer is received only by the widget that sent the query and does
+   * NOT change the widget's data — that is `renderWidget` mode
+   * `update-data`. One method covers both `widget_query` and
+   * `shared_widget_query`: the ctx shortcut resolves the query id from
+   * either update. The answer must be sent within 15 seconds of the query.
+   *
+   * Observe-only send-error coverage (mirrors `renderCallbackAnswer`):
+   * failures are classified via `Ctx.classifySendError`, reported to
+   * `notifySendError`, and logged (`retryable` → `log.error`,
+   * `fallback-text` → `log.warn`). After notify+log the original error is
+   * ALWAYS rethrown untouched.
+   *
+   * Answer data is limited by Telegram to 1024 bytes — keep the block short
+   * (the limit is bytes, not characters; multibyte text counts more).
+   *
+   * @param params - Answer params: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the answer data (or null to use default).
+   * @returns True on success.
+   *
+   * @example
+   * ```typescript
+   * async handleFreeWidgetQuery() {
+   *   await this.renderWidgetAnswer({AGBaseId: `rate-ack`})
+   *   await this.renderWidget({mode: `update-data`, data: {stars: 4}}) // tap -> new widget state
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderWidgetAnswer(params: IRenderWidgetAnswerParams = {}) {
+    const {data, AGBaseId} = params
+    const text = this.templateManager.getGWidgetAnswer(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined).text
+    try {
+      return await this.answerWidgetQuery({data: text})
+    } catch (error) {
+      const kind = Ctx.classifySendError(error)
+      this.notifySendError(error, kind, this.sendChatId())
+      if (kind === `retryable`) {
+        this.log?.error(`widget answer retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+        throw error
+      }
+      this.log?.warn(`widget answer fallback-text error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+      throw error
+    }
+  }
+
+  /**
    * Answers the active pre-checkout query with a template-backed error message.
    *
    * Template block: `<g-precheckout-error>` (read via `getGPrecheckoutError`).
@@ -4417,7 +4473,7 @@ export class Ctx extends Context {
    * @example
    * ```typescript
    * async handleFreeWidgetQuery() {
-   *   await this.answerWidgetQuery({data: "ok"})
+   *   await this.renderWidgetAnswer({AGBaseId: `rate-ack`}) // template-backed answer (underlying call: ctx.answerWidgetQuery)
    *   await this.renderWidget({mode: "update-data", data: {stars: 4}}) // tap -> new widget state
    * }
    * ```

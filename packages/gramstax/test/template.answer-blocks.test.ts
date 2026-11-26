@@ -21,6 +21,11 @@ const shippingTemplate = `<g-base id="ship">
   <g-shipping-error>Di luar zona {{city}}</g-shipping-error>
 </g-base>`
 
+const widgetAnswerTemplate = `<g-base>
+  <g-widget-answer>ok {{orderId}}</g-widget-answer>
+  <g-widget-answer lang="id">ok {{orderId}} ya</g-widget-answer>
+</g-base>`
+
 describe(`answer-blocks-parser`, () => {
   it(`parses callback-answer children with lang keys and interpolation preserved`, () => {
     const blocks = TemplateEngine._processGCallbackAnswerBlocks(callbackTemplate)
@@ -36,6 +41,12 @@ describe(`answer-blocks-parser`, () => {
   it(`parses shipping-error children with interpolation preserved`, () => {
     const blocks = TemplateEngine._processGShippingErrorBlocks(shippingTemplate)
     expect(blocks.default).toBe(`Di luar zona {{city}}`)
+  })
+
+  it(`parses widget-answer children with lang keys and interpolation preserved`, () => {
+    const blocks = TemplateEngine._processGWidgetAnswerBlocks(widgetAnswerTemplate)
+    expect(blocks.default).toBe(`ok {{orderId}}`)
+    expect(blocks.id).toBe(`ok {{orderId}} ya`)
   })
 })
 
@@ -54,6 +65,12 @@ describe(`answer-blocks-compile`, () => {
   it(`compiles shipping-error under its base id`, () => {
     const compiled = TemplateEngine.compileBlockGShippingError(shippingTemplate)
     expect(compiled.ship?.default?.({city: `Bandung`})).toBe(`Di luar zona Bandung`)
+  })
+
+  it(`compiles widget-answer per base and lang with data interpolation`, () => {
+    const compiled = TemplateEngine.compileBlockGWidgetAnswer(widgetAnswerTemplate)
+    expect(compiled.default?.default?.({orderId: `1042`})).toBe(`ok 1042`)
+    expect(compiled.default?.id?.({orderId: `1042`})).toBe(`ok 1042 ya`)
   })
 })
 
@@ -90,6 +107,59 @@ describe(`answer-blocks-validate`, () => {
     expect(pre.valid).toBe(false)
     const ship = TemplateEngine.validateBlockGShippingErrorAttributes(`<g-base><g-shipping-error>S <i>y</i></g-shipping-error></g-base>`)
     expect(ship.valid).toBe(false)
+  })
+
+  it(`accepts a valid template with a widget-answer block`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-base>
+  <g-widget-answer>ok {{x}}</g-widget-answer>
+</g-base>`)
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
+  })
+
+  it(`rejects unknown attributes on the widget-answer block`, () => {
+    const result = TemplateEngine.validateBlockGWidgetAnswerAttributes(`<g-base><g-widget-answer bogus="1">ok</g-widget-answer></g-base>`)
+    expect(result.valid).toBe(false)
+    expect(result.errors.length).toBeGreaterThan(0)
+  })
+
+  it(`rejects HTML inside widget-answer (data is an opaque payload, not copy)`, () => {
+    const result = TemplateEngine.validateBlockGWidgetAnswerAttributes(`<g-base><g-widget-answer>ok <b>x</b></g-widget-answer></g-base>`)
+    expect(result.valid).toBe(false)
+  })
+
+  it(`rejects widget-answer static content over 1024 bytes`, () => {
+    const long = `x`.repeat(1025)
+    const result = TemplateEngine.validateBlockGWidgetAnswerAttributes(`<g-base><g-widget-answer>${long}</g-widget-answer></g-base>`)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((error) => error.message.includes(`1024 byte limit`))).toBe(true)
+  })
+
+  it(`accepts widget-answer static content at exactly 1024 bytes`, () => {
+    const exact = `x`.repeat(1024)
+    const result = TemplateEngine.validateBlockGWidgetAnswerAttributes(`<g-base><g-widget-answer>${exact}</g-widget-answer></g-base>`)
+    expect(result.valid).toBe(true)
+  })
+
+  it(`measures the 1024-byte limit in UTF-8 bytes, not characters`, () => {
+    // 'é' is 2 bytes in UTF-8: 512 chars fit exactly, 513 chars overflow.
+    const exact = `é`.repeat(512)
+    expect(TemplateEngine.validateBlockGWidgetAnswerAttributes(`<g-base><g-widget-answer>${exact}</g-widget-answer></g-base>`).valid).toBe(true)
+    const over = `é`.repeat(513)
+    const result = TemplateEngine.validateBlockGWidgetAnswerAttributes(`<g-base><g-widget-answer>${over}</g-widget-answer></g-base>`)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((error) => error.message.includes(`1024 byte limit`))).toBe(true)
+  })
+
+  it(`rejects a self-closing widget-answer block`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-base><g-widget-answer/></g-base>`)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((error) => error.message.includes(`must not be self-closing`))).toBe(true)
+  })
+
+  it(`rejects a widget-answer block outside its base`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-widget-answer>ok</g-widget-answer>`)
+    expect(result.valid).toBe(false)
   })
 })
 
@@ -245,6 +315,19 @@ describe(`answer-blocks-manager`, () => {
     expect(() => manager.getGShippingError(`empty`)).toThrow(/ShippingError function not found/)
     expect(() => manager.getGInlineButton(`empty`)).toThrow(/InlineButton function not found/)
     expect(() => manager.getGAnswerNote(`empty`)).toThrow(/AnswerNote function not found/)
+  })
+
+  it(`compiles and serves the widget-answer block via its getter`, () => {
+    const manager = new TemplateManager({path: [TEST_DIR]})
+    manager.compile(`widget-answer`, `<g-base id="rate"><g-widget-answer>ok {{x}}</g-widget-answer><g-widget-answer lang="id">ok {{x}} ya</g-widget-answer></g-base>`)
+    expect(manager.getGWidgetAnswer(`widget-answer`, `rate`, `default`, {x: `1042`})).toEqual({kind: `widgetAnswer`, text: `ok 1042`})
+    expect(manager.getGWidgetAnswer(`widget-answer`, `rate`, `id`, {x: `1042`}).text).toBe(`ok 1042 ya`)
+  })
+
+  it(`throws for a missing widget-answer block (strict, never empty)`, () => {
+    const manager = new TemplateManager({path: [TEST_DIR]})
+    manager.compile(`empty-wa`, `<g-base><g-message>Hi</g-message></g-base>`)
+    expect(() => manager.getGWidgetAnswer(`empty-wa`)).toThrow(/WidgetAnswer function not found/)
   })
 
   const webAppOnly = `<g-base id="webapp"><g-web-app-answer>New {{x}}</g-web-app-answer></g-base>`

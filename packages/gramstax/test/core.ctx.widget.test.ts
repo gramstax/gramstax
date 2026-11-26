@@ -32,6 +32,7 @@ const makeApi = (overrides?: Record<string, unknown>) => ({
   config: {use: () => {}},
   sendWidget: mock(async () => ({message_id: 7, widget: {id: `w-1`}}) as never),
   sendMessage: mock(async () => ({message_id: 8}) as never),
+  answerWidgetQuery: mock(async () => true as never),
   editMessageWidgetData: mock(async () => true as never),
   editSharedWidgetData: mock(async () => true as never),
   editMessageCaption: mock(async () => true as never),
@@ -54,8 +55,18 @@ const widgetQueryUpdate = {
   }
 }
 
-const makeCtx = (api: Record<string, unknown>, widget: IWidgetBlock, extra?: {log?: unknown; onSendError?: unknown}, update: Record<string, unknown> = messageUpdate) => {
-  const tm = {getGWidget: mock(() => widget)} as never
+const sharedWidgetQueryUpdate = {
+  shared_widget_query: {
+    id: `sq1`,
+    from: {id: 1, is_bot: false, first_name: `A`},
+    type: {type: `data`},
+    data: `tap`,
+    widget_id: `w-9`
+  }
+}
+
+const makeCtx = (api: Record<string, unknown>, widget: IWidgetBlock, extra?: {log?: unknown; onSendError?: unknown; answerText?: string}, update: Record<string, unknown> = messageUpdate) => {
+  const tm = {getGWidget: mock(() => widget), getGWidgetAnswer: mock(() => ({kind: `widgetAnswer`, text: extra?.answerText ?? `ok`}))} as never
   const ct = {api, me: {id: 9, is_bot: true, first_name: `Bot`}, update} as unknown as ICtxParams[`ct`]
   return new WidgetPage({
     ct,
@@ -374,5 +385,81 @@ describe(`widget-route-guard`, () => {
     expect(() => Ctx._assertRenderWidgetRoute({mode: `update-data`})).not.toThrow()
     expect(() => Ctx._assertRenderWidgetRoute({broadcast: {ids: [1]}})).not.toThrow()
     expect(() => Ctx._assertRenderWidgetRoute({broadcast: {targets: []}})).not.toThrow()
+  })
+})
+
+describe(`widget-answer`, () => {
+  it(`answers a widget_query with the block text and returns true`, async () => {
+    const api = makeApi()
+    const result = await makeCtx(api, regularWidget, {answerText: `ok 1042`}, widgetQueryUpdate).renderWidgetAnswer({AGBaseId: `rate-ack`})
+    expect(result).toBe(true)
+    expect(api.answerWidgetQuery).toHaveBeenCalledTimes(1)
+    expect((api.answerWidgetQuery.mock.calls as any)[0]).toEqual([`q1`, {data: `ok 1042`}])
+  })
+
+  it(`answers a shared_widget_query with the same method (id resolved from either update)`, async () => {
+    const api = makeApi()
+    const result = await makeCtx(api, sharedWidget, {answerText: `shared-ok`}, sharedWidgetQueryUpdate).renderWidgetAnswer()
+    expect(result).toBe(true)
+    expect(api.answerWidgetQuery).toHaveBeenCalledTimes(1)
+    expect((api.answerWidgetQuery.mock.calls as any)[0]).toEqual([`sq1`, {data: `shared-ok`}])
+  })
+
+  it(`rethrows a 400 error after notify+warn (no fallback)`, async () => {
+    const err = grammyError(400)
+    const seen: Array<{err: unknown; info: unknown}> = []
+    const warn = mock(() => {})
+    const error = mock(() => {})
+    const api = makeApi({
+      answerWidgetQuery: mock(async () => {
+        throw err
+      })
+    })
+    await expect(
+      makeCtx(
+        api,
+        regularWidget,
+        {
+          log: {warn, error},
+          onSendError: (e: unknown, info: unknown) => {
+            seen.push({err: e, info})
+          }
+        },
+        widgetQueryUpdate
+      ).renderWidgetAnswer()
+    ).rejects.toBe(err)
+    expect(seen.length).toBe(1)
+    expect(seen[0]!.err).toBe(err)
+    expect(seen[0]!.info).toEqual({page: `widgetpage`, kind: `fallback-text`, chatId: 1})
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(error).not.toHaveBeenCalled()
+  })
+
+  it(`rethrows a retryable transport error after notify+error log`, async () => {
+    const err = httpError()
+    const seen: Array<unknown> = []
+    const warn = mock(() => {})
+    const error = mock(() => {})
+    const api = makeApi({
+      answerWidgetQuery: mock(async () => {
+        throw err
+      })
+    })
+    await expect(
+      makeCtx(
+        api,
+        regularWidget,
+        {
+          log: {warn, error},
+          onSendError: (_e: unknown, info: unknown) => {
+            seen.push(info)
+          }
+        },
+        widgetQueryUpdate
+      ).renderWidgetAnswer()
+    ).rejects.toBe(err)
+    expect(seen).toEqual([{page: `widgetpage`, kind: `retryable`, chatId: 1}])
+    expect(error).toHaveBeenCalledTimes(1)
+    expect(warn).not.toHaveBeenCalled()
   })
 })
