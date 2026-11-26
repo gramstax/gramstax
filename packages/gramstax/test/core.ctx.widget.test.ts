@@ -28,6 +28,15 @@ const sharedWidget: IWidgetBlock = {
   public_data: `{"poll": "stars"}`
 }
 
+// Same content as sharedWidget but WITHOUT is_shared: the edit /
+// update-data routes must detect shared-ness from the update, never from
+// the template flag — so shared-path tests use this fixture.
+const sharedWidgetNoFlag: IWidgetBlock = {
+  html: `<div>Shared widget</div>`,
+  caption: `Rate us`,
+  public_data: `{"poll": "stars"}`
+}
+
 const makeApi = (overrides?: Record<string, unknown>) => ({
   config: {use: () => {}},
   sendWidget: mock(async () => ({message_id: 7, widget: {id: `w-1`}}) as never),
@@ -62,6 +71,32 @@ const sharedWidgetQueryUpdate = {
     type: {type: `data`},
     data: `tap`,
     widget_id: `w-9`
+  }
+}
+
+// Same tap as widgetQueryUpdate but from a REGULAR widget: no widget_id
+// (per @grammyjs/types, widget_id is omitted when the widget isn't shared).
+const regularWidgetQueryUpdate = {
+  widget_query: {
+    id: `q1`,
+    from: {id: 1, is_bot: false, first_name: `A`},
+    chat: {id: 1, type: `private`},
+    message_id: 5,
+    chat_instance: `ci`,
+    type: {type: `data`},
+    data: `tap`
+  }
+}
+
+// Keyboard button under a shared widget message: the update is a
+// callbackQuery whose message carries widget.id.
+const callbackQueryUpdate = {
+  callback_query: {
+    id: `c1`,
+    from: {id: 1, is_bot: false, first_name: `A`},
+    chat_instance: `ci`,
+    data: `btn`,
+    message: {message_id: 5, date: 1, chat: {id: 1, type: `private`}, widget: {id: `w-9`, html: `<div>Shared widget</div>`}, from: {id: 9, is_bot: true, first_name: `Bot`}}
   }
 }
 
@@ -225,12 +260,32 @@ describe(`widget-edit`, () => {
     expect(api.editMessageWidgetData).not.toHaveBeenCalled()
   })
 
-  it(`edits a shared widget via editSharedWidgetData (public data) plus caption on the held message`, async () => {
+  it(`edits a shared widget via editSharedWidgetData when the widget_query carries widget_id (no template is_shared needed)`, async () => {
     const api = makeApi()
-    const result = await makeCtx(api, sharedWidget, undefined, widgetQueryUpdate).renderWidget({mode: `edit`})
+    const result = await makeCtx(api, sharedWidgetNoFlag, undefined, widgetQueryUpdate).renderWidget({mode: `edit`})
     expect(result).toBe(true)
     expect(api.editSharedWidgetData).toHaveBeenCalledTimes(1)
     expect((api.editSharedWidgetData.mock.calls as any)[0]).toEqual([`w-9`, `{"poll": "stars"}`])
+    expect(api.editMessageWidgetData).not.toHaveBeenCalled()
+    expect(api.editMessageCaption).toHaveBeenCalledTimes(1)
+  })
+
+  it(`edits a shared widget via editSharedWidgetData when the held message carries widget.id (callbackQuery)`, async () => {
+    const api = makeApi()
+    const result = await makeCtx(api, sharedWidgetNoFlag, undefined, callbackQueryUpdate).renderWidget({mode: `edit`})
+    expect(result).toBe(true)
+    expect(api.editSharedWidgetData).toHaveBeenCalledTimes(1)
+    expect((api.editSharedWidgetData.mock.calls as any)[0]).toEqual([`w-9`, `{"poll": "stars"}`])
+    expect(api.editMessageWidgetData).not.toHaveBeenCalled()
+    expect(api.editMessageCaption).toHaveBeenCalledTimes(1)
+    expect((api.editMessageCaption.mock.calls as any)[0]).toEqual([1, 5, {caption: `Rate us`, parse_mode: `HTML`}])
+  })
+
+  it(`ignores the template is_shared flag on edit when the update carries no shared signal`, async () => {
+    const api = makeApi()
+    const result = await makeCtx(api, sharedWidget).renderWidget({mode: `edit`})
+    expect(result).toBe(true)
+    expect(api.editSharedWidgetData).not.toHaveBeenCalled()
     expect(api.editMessageWidgetData).not.toHaveBeenCalled()
     expect(api.editMessageCaption).toHaveBeenCalledTimes(1)
   })
@@ -250,7 +305,7 @@ describe(`widget-update-data`, () => {
 
   it(`updates a regular widget from a widget_query tap via widgetQuery.chat / message_id`, async () => {
     const api = makeApi()
-    const result = await makeCtx(api, regularWidget, undefined, widgetQueryUpdate).renderWidget({mode: `update-data`})
+    const result = await makeCtx(api, regularWidget, undefined, regularWidgetQueryUpdate).renderWidget({mode: `update-data`})
     expect(result).toBe(true)
     expect(api.editMessageWidgetData).toHaveBeenCalledTimes(1)
     expect((api.editMessageWidgetData.mock.calls as any)[0]).toEqual([1, 5, {chat_data: `{"order": "1042"}`}])
@@ -258,18 +313,43 @@ describe(`widget-update-data`, () => {
 
   it(`sends a new widget from a widget_query tap via replyWithWidget`, async () => {
     const api = makeApi()
-    await makeCtx(api, regularWidget, undefined, widgetQueryUpdate).renderWidget()
+    await makeCtx(api, regularWidget, undefined, regularWidgetQueryUpdate).renderWidget()
     expect(api.sendWidget).toHaveBeenCalledTimes(1)
     expect((api.sendWidget.mock.calls as any)[0][0]).toBe(1)
     expect((api.sendWidget.mock.calls as any)[0][1]).toBe(regularWidget.html)
   })
 
-  it(`updates a shared widget with one editSharedWidgetData call from a widget_query`, async () => {
+  it(`updates a shared widget with one editSharedWidgetData call from a widget_query carrying widget_id (no template is_shared needed)`, async () => {
     const api = makeApi()
-    const result = await makeCtx(api, sharedWidget, undefined, widgetQueryUpdate).renderWidget({mode: `update-data`})
+    const result = await makeCtx(api, sharedWidgetNoFlag, undefined, widgetQueryUpdate).renderWidget({mode: `update-data`})
     expect(result).toBe(true)
     expect(api.editSharedWidgetData).toHaveBeenCalledTimes(1)
     expect((api.editSharedWidgetData.mock.calls as any)[0]).toEqual([`w-9`, `{"poll": "stars"}`])
+    expect(api.editMessageWidgetData).not.toHaveBeenCalled()
+  })
+
+  it(`updates a shared widget with one editSharedWidgetData call from a shared_widget_query`, async () => {
+    const api = makeApi()
+    const result = await makeCtx(api, sharedWidgetNoFlag, undefined, sharedWidgetQueryUpdate).renderWidget({mode: `update-data`})
+    expect(result).toBe(true)
+    expect(api.editSharedWidgetData).toHaveBeenCalledTimes(1)
+    expect((api.editSharedWidgetData.mock.calls as any)[0]).toEqual([`w-9`, `{"poll": "stars"}`])
+    expect(api.editMessageWidgetData).not.toHaveBeenCalled()
+  })
+
+  it(`updates a shared widget with one editSharedWidgetData call from a callbackQuery on its message`, async () => {
+    const api = makeApi()
+    const result = await makeCtx(api, sharedWidgetNoFlag, undefined, callbackQueryUpdate).renderWidget({mode: `update-data`})
+    expect(result).toBe(true)
+    expect(api.editSharedWidgetData).toHaveBeenCalledTimes(1)
+    expect((api.editSharedWidgetData.mock.calls as any)[0]).toEqual([`w-9`, `{"poll": "stars"}`])
+    expect(api.editMessageWidgetData).not.toHaveBeenCalled()
+  })
+
+  it(`ignores the template is_shared flag on update-data when the update carries no shared signal`, async () => {
+    const api = makeApi()
+    await expect(makeCtx(api, sharedWidget).renderWidget({mode: `update-data`})).rejects.toThrow(/requires chat_data/)
+    expect(api.editSharedWidgetData).not.toHaveBeenCalled()
     expect(api.editMessageWidgetData).not.toHaveBeenCalled()
   })
 
@@ -282,7 +362,7 @@ describe(`widget-update-data`, () => {
 
   it(`throws when update-data on a shared widget has no public_data`, async () => {
     const api = makeApi()
-    const {public_data: _ignored, ...noData} = sharedWidget
+    const {public_data: _ignored, ...noData} = sharedWidgetNoFlag
     await expect(makeCtx(api, noData, undefined, widgetQueryUpdate).renderWidget({mode: `update-data`})).rejects.toThrow(/requires public_data/)
     expect(api.editSharedWidgetData).not.toHaveBeenCalled()
   })

@@ -4408,6 +4408,29 @@ export class Ctx extends Context {
   }
 
   /**
+   * Detects whether the widget held by this context is a shared widget,
+   * from the update itself — never from the template's `is_shared`.
+   *
+   * Signals, in order (each definitive per `@grammyjs/types` 5.2.0 —
+   * `widget_id` / `Widget.id` are documented "omitted if the widget
+   * isn't shared"):
+   * - a `shared_widget_query` update is always a shared widget;
+   * - a `widget_query` carrying `widget_id` is a shared widget;
+   * - a held message whose `widget.id` is present is a shared widget
+   *   (`SharedWidgetMessage` requires `widget.id`) — this covers a
+   *   `callbackQuery` on a widget message.
+   * No signal means a regular widget.
+   *
+   * @internal
+   */
+  private _isSharedWidget(): boolean {
+    if (this.sharedWidgetQuery !== undefined && this.sharedWidgetQuery !== null) return true
+    if (this.widgetQuery?.widget_id !== undefined) return true
+    const msg = this.msg
+    return msg !== undefined && msg !== null && `widget` in msg && msg.widget?.id !== undefined
+  }
+
+  /**
    * Sends, edits, or data-updates a template-driven HTML widget using the page `<g-widget>` block.
    *
    * Template block: `<g-widget>` (read via `getGWidget`).
@@ -4427,14 +4450,17 @@ export class Ctx extends Context {
    *   cannot replace (there is no `editMessageWidget`). NOT atomic: up to
    *   three API calls (`editMessageWidgetData` / `editSharedWidgetData`,
    *   `editMessageCaption`, `editMessageReplyMarkup`), so a failure mid-way
-   *   leaves part of the message updated and the error is rethrown. On a
-   *   shared widget the state edit goes to `editSharedWidgetData` (public
-   *   data, every message showing the widget) while the caption and keyboard
-   *   edits still target only the context-held message. Target resolution
-   *   uses the ctx shortcuts: `chatId` / `msgId` resolve from
-   *   `widgetQuery.chat` / `widgetQuery.message_id` on a tap update
-   *   (verified in grammY 1.48.0 `context.js` and `@grammyjs/types` 5.2.0),
-   *   so the tapped message is the edit target with no manual resolution.
+   *   leaves part of the message updated and the error is rethrown. Whether
+   *   the widget is shared is auto-detected from the update (see
+   *   `_isSharedWidget`) — the template's `is_shared` is ignored here. On
+   *   a detected shared widget the state edit goes to
+   *   `editSharedWidgetData` (public data, every message showing the
+   *   widget) while the caption and keyboard edits still target only the
+   *   context-held message. Target resolution uses the ctx shortcuts:
+   *   `chatId` / `msgId` resolve from `widgetQuery.chat` /
+   *   `widgetQuery.message_id` on a tap update (verified in grammY 1.48.0
+   *   `context.js` and `@grammyjs/types` 5.2.0), so the tapped message is
+   *   the edit target with no manual resolution.
    *   (One edge: a widget inside an INLINE message carries neither — the
    *   query has `inline_message_id` instead — and the data edit then takes
    *   grammY's Inline variant while the caption/keyboard edits throw
@@ -4442,14 +4468,21 @@ export class Ctx extends Context {
    * - `update-data`: changes only the widget state in exactly one API call
    *   (atomic) — `chat_data` via `editMessageWidgetData` for a regular
    *   widget, `public_data` via `editSharedWidgetData` for a shared one.
-   *   This is the hot path for widget taps and the only mode meaningful for
-   *   shared widgets. It does NOT answer the widget query: the handler must
-   *   still call `ctx.answerWidgetQuery` within 15 seconds. Target
-   *   resolution uses the ctx shortcuts (see the edit route above): the
-   *   regular-widget target comes from `widgetQuery.chat` /
-   *   `widgetQuery.message_id`, the shared target from `widgetQuery.widget_id
-   *   ?? sharedWidgetQuery.widget_id ?? msg.widget.id` (the widget_id path
-   *   grammY resolves).
+   *   Shared-ness is auto-detected from the update (see `_isSharedWidget`);
+   *   the template's `is_shared` is ignored here. This is the hot path for
+   *   widget taps and the only mode meaningful for shared widgets. It does
+   *   NOT answer the widget query: the handler must still call
+   *   `ctx.answerWidgetQuery` within 15 seconds. Target resolution uses
+   *   the ctx shortcuts (see the edit route above): the regular-widget
+   *   target comes from `widgetQuery.chat` / `widgetQuery.message_id`, the
+   *   shared target from `widgetQuery.widget_id ?? sharedWidgetQuery.widget_id
+   *   ?? msg.widget.id` (the widget_id path grammY resolves).
+   *
+   * `is_shared` is a send-time declaration only: it is passed to
+   * `replyWithWidget` when a new widget is created, and the
+   * broadcast-revise route still reads it from the template (stored targets
+   * carry no update to detect from). The `edit` and `update-data` routes
+   * ignore it and detect shared-ness from the context instead.
    *
    * Fail-fast validation (`Ctx.assertWidget`) runs BEFORE any API call on the
    * COMPILED strings — programmer errors always throw, never fall back.
@@ -4532,11 +4565,13 @@ export class Ctx extends Context {
       const keyboardInline = this._assertInlineKeyboardForEdit(`renderWidget`, params.keyboard, `editMessageReplyMarkup accepts`)
       // NOT atomic: up to three API calls; a failure mid-way leaves part of
       // the message updated, and the error is rethrown (no fallback resend).
-      // Target resolution uses the ctx shortcuts: chatId/msgId resolve from
-      // widgetQuery.chat / widgetQuery.message_id on a tap update (verified
-      // in grammY 1.48.0 context.js and @grammyjs/types 5.2.0), so the tapped
-      // message is the edit target with no manual resolution.
-      if (w.is_shared === true) {
+      // Shared-ness is auto-detected from the update (_isSharedWidget); the
+      // template's is_shared is ignored here. Target resolution uses the ctx
+      // shortcuts: chatId/msgId resolve from widgetQuery.chat /
+      // widgetQuery.message_id on a tap update (verified in grammY 1.48.0
+      // context.js and @grammyjs/types 5.2.0), so the tapped message is the
+      // edit target with no manual resolution.
+      if (this._isSharedWidget()) {
         if (w.public_data !== undefined) await this.editSharedWidgetData(w.public_data)
       } else if (w.chat_data !== undefined) {
         await this.editMessageWidgetData({chat_data: w.chat_data})
@@ -4550,10 +4585,12 @@ export class Ctx extends Context {
     if (mode === `update-data`) {
       // Atomic: exactly one API call. Does NOT answer the widget query — the
       // handler must still call ctx.answerWidgetQuery within 15 seconds.
-      // Target resolution uses the ctx shortcuts (see the edit route above):
-      // a regular widget edits the tapped message via widgetQuery.chat /
-      // widgetQuery.message_id, a shared widget edits by widget_id.
-      if (w.is_shared === true) {
+      // Shared-ness is auto-detected from the update (_isSharedWidget); the
+      // template's is_shared is ignored here. Target resolution uses the ctx
+      // shortcuts (see the edit route above): a regular widget edits the
+      // tapped message via widgetQuery.chat / widgetQuery.message_id, a
+      // shared widget edits by widget_id.
+      if (this._isSharedWidget()) {
         if (w.public_data === undefined) throw new Error(`renderWidget mode "update-data" on a shared widget requires public_data — set the "public_data" attribute on <g-widget>`)
         await this.editSharedWidgetData(w.public_data)
       } else {
