@@ -83,7 +83,18 @@ const LEGAL = [
   `ctx.renderText({mode: \`edit\`, keyboard: ctx.inlineKeyboard((k) => k)})`,
   `ctx.renderMedia({type: \`photo\`, mode: \`edit\`, keyboard: ctx.bottomKeyboard((k) => k)})`,
   `ctx.renderEditCaption({keyboard: ctx.inlineKeyboard((k) => k)})`,
-  `ctx.renderEditKeyboard({keyboard: null})`
+  `ctx.renderEditKeyboard({keyboard: null})`,
+  `ctx.renderWidget({})`,
+  `ctx.renderWidget({mode: \`reply\`, keyboard: ctx.inlineKeyboard((k) => k)})`,
+  `ctx.renderWidget({mode: \`reply\`, keyboard: ctx.bottomKeyboard((k) => k)})`,
+  `ctx.renderWidget({mode: \`reply\`, is_shared: true})`,
+  `ctx.renderWidget({is_shared: false})`,
+  `ctx.renderWidget({mode: \`reply\`, is_shared: null})`,
+  `ctx.renderWidget({broadcast: {ids: [1], languageCode: [\`en\`]}, is_shared: true})`,
+  `ctx.renderWidget({mode: \`edit\`, keyboard: ctx.inlineKeyboard((k) => k)})`,
+  `ctx.renderWidget({mode: \`update-data\`})`,
+  `ctx.renderWidget({broadcast: {ids: [1], languageCode: [\`en\`]}})`,
+  `ctx.renderWidget({broadcast: {targets: [{chatId: 1, messageId: 2}]}})`
 ]
 
 const BANNED: Array<[string, string]> = [
@@ -104,7 +115,19 @@ const BANNED: Array<[string, string]> = [
   [`renderDice: reply-only, mode cannot be edit`, `ctx.renderDice({mode: \`edit\`})`],
   [`renderText: an always-edit route rejects a bottom keyboard`, `ctx.renderText({mode: \`edit\`, keyboard: ctx.bottomKeyboard((k) => k)})`],
   [`renderEditCaption: an edit rejects a bottom keyboard`, `ctx.renderEditCaption({keyboard: ctx.bottomKeyboard((k) => k)})`],
-  [`renderEditKeyboard: an edit rejects a bottom keyboard`, `ctx.renderEditKeyboard({keyboard: ctx.bottomKeyboard((k) => k)})`]
+  [`renderEditKeyboard: an edit rejects a bottom keyboard`, `ctx.renderEditKeyboard({keyboard: ctx.bottomKeyboard((k) => k)})`],
+  [`renderWidget: broadcast send short-circuits mode`, `ctx.renderWidget({mode: \`edit\`, broadcast: {ids: [1], languageCode: [\`en\`]}})`],
+  [`renderWidget: broadcast revise ignores mode`, `ctx.renderWidget({mode: \`edit\`, broadcast: {targets: [{chatId: 1, messageId: 2}]}})`],
+  [`renderWidget: there is no auto mode`, `ctx.renderWidget({mode: \`auto\`})`],
+  [`renderWidget: an edit has no send options`, `ctx.renderWidget({mode: \`edit\`, options: {}})`],
+  [`renderWidget: update-data carries no keyboard`, `ctx.renderWidget({mode: \`update-data\`, keyboard: ctx.inlineKeyboard((k) => k)})`],
+  [`renderWidget: update-data carries no options`, `ctx.renderWidget({mode: \`update-data\`, options: {}})`],
+  [`renderWidget: broadcast revise carries no options`, `ctx.renderWidget({broadcast: {targets: [{chatId: 1, messageId: 2}]}, options: {}})`],
+  [`renderWidget: a forced reply has no chunkSize`, `ctx.renderWidget({mode: \`reply\`, chunkSize: 5})`],
+  [`renderWidget: an edit rejects a bottom keyboard`, `ctx.renderWidget({mode: \`edit\`, keyboard: ctx.bottomKeyboard((k) => k)})`],
+  [`renderWidget: an edit takes no is_shared`, `ctx.renderWidget({mode: \`edit\`, is_shared: true})`],
+  [`renderWidget: update-data takes no is_shared`, `ctx.renderWidget({mode: \`update-data\`, is_shared: true})`],
+  [`renderWidget: broadcast revise takes no is_shared`, `ctx.renderWidget({broadcast: {targets: [{chatId: 1, messageId: 2}]}, is_shared: true})`]
 ]
 
 const MARKER = `// BAN: `

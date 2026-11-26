@@ -28,12 +28,13 @@
 
 ## 💡 Why this repository
 
-Most Telegram packages are libraries. You call them, they wrap the Bot API, and
-the shape of the bot stays yours to assemble. Routing, markup, translations,
-send-versus-edit, input checks, the update queue, and the deploy entry point get
-rebuilt in every project, usually a little differently each time.
+Every Telegram bot needs the same skeleton: routing, markup, translations,
+send-versus-edit, input checks, an update queue, and a deploy entry point.
+Most packages hand you the pieces and leave the skeleton to you, so every
+project rebuilds it, usually a little differently each time.
 
-gramstax is a framework, not another library. It owns that shape:
+gramstax is a framework, not another library. It owns that shape, so you
+start from a working bot instead of an empty folder:
 
 - `gramstax.config.ts` is the single composition point.
 - `src/pages` is the route table. The file path *is* the route.
@@ -41,7 +42,8 @@ gramstax is a framework, not another library. It owns that shape:
 - `gramstax start` discovers the pages and runs the bot.
 
 There is no `src/index.ts`, no hand-written `new Gramstax({...})` entry, and no
-registry of routes to keep in sync. Construction *is* boot.
+registry of routes to keep in sync. Construction *is* boot: scaffold a project
+and it already runs.
 
 That structure is what produces the differences below:
 
@@ -50,23 +52,26 @@ That structure is what produces the differences below:
   cannot break an unrelated one.
 - **One message, one template.** Text, buttons, and media sit together, and a
   second language is a sibling block instead of a branch in every handler.
+  34 PAGE blocks and 54 validated Telegram HTML tags cover the message, so
+  there is nothing left to build with strings.
 - **One delivery decision.** Send or edit is resolved from the update, so a
   screen is written once rather than twice.
 - **One production surface.** Sessions, Redis session locking, rate limiting, an
   opt-in update queue with a per-chat gate, Prometheus metrics, an in-process
   e2e harness, and a CLI ship with the framework. A library leaves each of these
-  to you.
+  to you; here they are already wired, and 11 example projects are ready to
+  copy from.
 
 ### Against the usual approach
 
 | Area | The usual way | Here |
 | --- | --- | --- |
-| routing | every route registered by hand in one place | the file path *is* the route; naming a `handle*` method registers it |
-| markup and i18n | markup inside the API call, one branch per locale | one template; `<g-message lang="id">` sits beside `<g-message>`, and no handler branches |
-| send versus edit | read the update and choose | `mode: "auto"` reads it in one place |
-| impossible states | an options object assembled by hand | a union over real routes, `?: never` where a key is unreachable, re-checked at runtime |
-| nothing matched | silence | `noMatch`, `noHandler`, `blocked` and `dropped` counted |
-| server codegen | `new Function` at runtime | frozen ahead of time, asserted to hold zero codegen tokens |
+| routing | you register every route by hand, in one place, and keep the list in sync | drop a file in `src/pages` and you're done: the path *is* the route, and a `handle*` method registers itself |
+| markup and i18n | markup lives inside the API call, with a branch per locale in every handler | one template holds the text, buttons and media; a second language is a sibling `<g-message lang="id">`, not another branch in your code |
+| send versus edit | you read the update and choose, in every handler | `mode: "auto"` reads it once, in one place, so you write each screen a single time |
+| impossible states | an options object you assemble by hand, and nothing stops you passing a key the call never reads | a union over real routes: a key the route never reads is a compile error, re-checked at runtime |
+| nothing matched | nothing happens, the update just disappears | every miss is counted (`noMatch`, `noHandler`, `blocked`, `dropped`), so silence becomes a number you can watch |
+| server codegen | `new Function` runs at request time | templates freeze ahead of time, and a test proves zero codegen tokens survive |
 
 ## ✨ Features
 
@@ -96,13 +101,14 @@ That structure is what produces the differences below:
 
 ### The template pipeline
 
-- 🧱 **30 PAGE blocks**: `g-base`, `g-message`, `g-keyboard`, `g-media`,
-  `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-price`,
+- 🧱 **34 PAGE blocks**: `g-base`, `g-message`, `g-keyboard`, `g-media`,
+  `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-widget`,
+  `g-widget-caption`, `g-widget-body`, `g-invoice`, `g-price`,
   `g-paid-media`, `g-venue`, `g-dice`, `g-gift`, `g-description`, plus logic
   (`g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`, `g-script`),
   answers (`g-callback-answer`, `g-inline-button`, `g-precheckout-error`,
-  `g-shipping-error`, `g-answer-note`, `g-web-app-answer`) and utilities
-  (`g-import`, `g-space`).
+  `g-shipping-error`, `g-answer-note`, `g-web-app-answer`,
+  `g-widget-answer`) and utilities (`g-import`, `g-space`).
 - 🌐 **54 Telegram HTML tags** validated to Bot API 10.5: 9 legacy tags plus 45
   Rich HTML tags, with per-tag attribute allow-lists.
 - 🧮 **Compile-time filter pipes**: `{{name|upper}}`, `{{price|number:2}}`,
@@ -141,9 +147,9 @@ That structure is what produces the differences below:
 - 🔒 **Distributed session lock**: Redis-only atomic `SET NX PX` lease held for
   the whole update dispatch, so concurrent updates for one user serialise across
   instances; contention modes `skip`, `wait`, `serialize`.
-- 🚦 **Rate limiting and outgoing throttle**: `@grammyjs/ratelimiter` with
-  `hookRateLimited(ctx)` / `hookKeyGenerator(ctx)`, and
-  `@grammyjs/transformer-throttler` via `throttle: {global, group, out}`.
+- 🚦 **Rate limiting and outgoing throttle**: inbound limiting with
+  `hookRateLimited(ctx)` / `hookKeyGenerator(ctx)`, and outgoing throttling
+  via `throttle: {global, group, out}`.
 - ⚙️ **Bounded update queue**: opt-in `UpdateQueue` for polling and webhook; at
   a 600 users/s target on the dev host the sequential drain fell to 377 users/s
   at p95 1828 ms while the queue sustained 601 users/s at p95 124 ms.
@@ -165,138 +171,65 @@ That structure is what produces the differences below:
 
 ### 1. Prerequisites
 
-| Runtime | Support |
-| --- | --- |
-| **Bun** | **Required.** The `gramstax` CLI (`gramstax start`, `gramstax build`, and other commands), project boot, `~/*` path aliases, the webhook/status server (`Bun.serve`), and `gramstax build --bundle` all run on Bun. Generated projects use Bun for their scripts and tests. |
+- [Bun](https://bun.sh) — required. Generated projects run on Bun.
+- `typescript 7.0.2` (peer dependency)
+- A bot token from [@BotFather](https://t.me/BotFather) — needed to run the bot, not to scaffold it.
 
-`gramstax start --watch` is the dev loop; `gramstax start` is the production boot.
-
-- [Bun](https://bun.sh)
-- `typescript ^6.0.3` (peer dependency)
-- A bot token from [@BotFather](https://t.me/BotFather)
-
-### 2. Install and scaffold
-
-```bash
-bun add gramstax
-```
-
-Scaffold a whole project instead of wiring it by hand (the scaffolding CLI is
-the sibling package `create-gramstax`):
+### 2. Scaffold
 
 ```bash
 bunx create-gramstax@latest my-bot
 cd my-bot
-bun install
 ```
 
-The positional is a bare name, not a path. Non-interactive mode needs the flags
-it would otherwise prompt for:
+`my-bot` is a bare name, not a path. The scaffolder copies the template, prunes the features you skip, and runs one install. It creates no git repository.
+
+Non-interactive mode needs the flags it would otherwise prompt for:
 
 ```bash
 bunx create-gramstax@latest my-bot --pm bun --skip-install
 ```
 
-Each optional feature has a matching negation (`--no-lmdb`, `--no-worker-thread`,
-`--no-biome`). Generated projects are Bun-only: their `dev`, `start`, `test`,
-and `test:e2e` scripts all invoke Bun, and there is no runtime option to
-select.
+Each optional feature has a matching negation (`--no-lmdb`, `--no-worker-thread`, `--no-biome`).
 
-### 3. Declare a page
+### 3. Set the token and run
 
-A page is a class. The markup is a static template; the keyboard is built from
-the page's own blocks. This is
-[`example/2-helloworld/src/pages/start.ts`](https://github.com/gramstax/gramstax/blob/main/example/2-helloworld/src/pages/start.ts),
-verbatim:
+```bash
+# edit .env: set BOT_TOKEN
+bun run dev
+```
+
+The generated `.env` already exists with `BOT_TOKEN`, `BOT_DEPLOY`, and the session-store keys. `bun run dev` is `gramstax start --watch`. Open Telegram, find your bot, send `/start`.
+
+### 4. Your first page
+
+A page is a class under `src/pages`; the file path *is* the route. The generated `src/pages/start.ts` is a full welcome page — every page has the same shape:
 
 ```ts
 import {PageBase} from "~/base/page"
 
 export class StartPage extends PageBase {
-  static data = this.buildData()
-
   async handleCommandText() {
-    await this.gdefault.show()
-  }
-
-  async handleCallbackQueryData() {
-    await this.gdefault.show()
-  }
-
-  helper = {}
-  gdefault = {
-    show: async () => {
-      await this.renderText({keyboard: this.inlineKeyboardT([this]), data: {time: new Date().toString()}})
-    },
-    process: () => {}
+    await this.renderText({data: {time: Date.now()}})
   }
 
   static template = `
     <g-base>
-      <g-keyboard type="inline">Refresh</g-keyboard>
-      <g-keyboard type="inline" lang="id">Segarkan</g-keyboard>
-      <g-message>
-        Hello World!
-        Time now: {{time}}
-      </g-message>
-      <g-message lang="id">
-        Halo Dunia!
-        Waktu: {{time}}
-      </g-message>
+      <g-message>Hello World! Time now: {{time}}</g-message>
+      <g-message lang="id">Halo Dunia! Waktu: {{time}}</g-message>
     </g-base>
   `
 }
 ```
 
-Because both languages live in the same block set, the bot renders Indonesian for
-an Indonesian Telegram client and English for everyone else, without a branch in
-the handler.
-
-### 4. Configure and run
-
-`gramstax.config.ts` at the project root, default export, annotated. This is
-[`example/2-helloworld/gramstax.config.ts`](https://github.com/gramstax/gramstax/blob/main/example/2-helloworld/gramstax.config.ts),
-trimmed to the fields that matter:
-
-```ts
-import type {GramstaxConfig} from "gramstax"
-
-const config: GramstaxConfig = {
-  token: process.env.BOT_TOKEN,
-  deploy: process.env.BOT_DEPLOY ?? `polling`,
-  cacheSession: {
-    store: process.env.CACHE_SESSION_STORE ?? `memory`,
-    ttlMs: 4 * 60 * 60 * 1000,
-    namespace: `s`
-  },
-  log: true,
-  optionsDeploy: {polling: {maxRetries: undefined, queue: undefined}}
-}
-
-export default config
-```
-
-```bash
-gramstax start          # boot
-gramstax start --watch  # boot + restart on src change
-```
-
-`.env`, `.env.local`, `.env.<NODE_ENV>`, and `.env.<NODE_ENV>.local` in the
-project root are loaded automatically before `gramstax.config.ts` is imported;
-shell values win. The published binary has a Bun shebang, so no `bun --bun`
-prefix is needed.
+Both languages live in the same block set, so the bot renders Indonesian for an Indonesian Telegram client and English for everyone else, without a branch in the handler. `gramstax.config.ts` is already generated; the token and deploy mode come from `.env`.
 
 ### 5. Next steps
 
-- Write more pages under `src/pages`: routing is filesystem discovery, there is
-  no registry to update.
-- Add a shared keyboard block in `src/blocks/g-keyboard.ts` once two or more
-  pages need it.
-- Add the global error / not-found pages via `hookErrorPage` and
-  `hookNotFoundPage` on `src/core/bot.ts`.
-- Add `e2e/setup.ts` and drive the bot through `bot.e2e` with `deploy: "test"`.
-- Run [`gramstax build`](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/gramstax-build.md)
-  before any `serverless` deploy.
+- Add pages under `src/pages`: routing is filesystem discovery, there is no registry to update.
+- Share a keyboard once two pages need it: `src/blocks/g-keyboard.ts`.
+- Add the global error / not-found pages via `hookErrorPage` and `hookNotFoundPage` on `src/core/bot.ts`.
+- Run [`gramstax build`](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/gramstax-build.md) before any `serverless` deploy.
 
 ## 📖 Usage
 
@@ -404,7 +337,7 @@ await this.renderText({mode: `edit`, keyboard: this.inlineKeyboardT([this]), edi
 
 #### Route atoms
 
-The twelve atoms are exported, so the contract is documented per route rather than only per method. The **unread** column lists the keys a route never reads, so passing one is a compile error:
+The seventeen atoms are exported, so the contract is documented per route rather than only per method. The **unread** column lists the keys a route never reads, so passing one is a compile error:
 
 | Atom | Route | Unread keys |
 | :--- | :---- | :---------- |
@@ -420,12 +353,17 @@ The twelve atoms are exported, so the contract is documented per route rather th
 | `IRouteMediaBroadcastRevise<T>` | revise stored `broadcast.targets` | `mode`, `options`, `editOptions`, `rich`, `richOptions`, `fallbackOptions`, `captionOptions`, `chunkSize` |
 | `IRouteGroupAuto` | runtime-decided group send | `editOptions`, `rich`, `richOptions`, `fallbackOptions`, `keyboard`, `broadcast`, `chunkSize` |
 | `IRouteGroupReply` | forced group send | `rich`, `richOptions`, `editOptions`, `fallback`, `fallbackOptions`, `keyboard`, `broadcast`, `chunkSize` |
+| `IRouteWidgetReply` | forced widget send, `mode` optional | `rich`, `richOptions`, `broadcast`, `chunkSize`, `fallback`, `editOptions`, `fallbackOptions` |
+| `IRouteWidgetEdit` | forced in-place re-apply of the template onto the held widget message | `rich`, `richOptions`, `broadcast`, `chunkSize`, `fallback`, `options`, `editOptions`, `fallbackOptions`, `is_shared` |
+| `IRouteWidgetUpdateData` | data-only update of the held widget | `rich`, `richOptions`, `broadcast`, `chunkSize`, `fallback`, `options`, `editOptions`, `fallbackOptions`, `keyboard`, `is_shared` |
+| `IRouteWidgetBroadcastSend` | widget fan-out to `broadcast.ids` | `mode`, `rich`, `richOptions`, `chunkSize`, `fallback`, `editOptions`, `fallbackOptions` |
+| `IRouteWidgetBroadcastRevise` | revise stored `broadcast.targets` (non-shared widgets only) | `mode`, `rich`, `richOptions`, `chunkSize`, `fallback`, `options`, `editOptions`, `fallbackOptions`, `keyboard`, `is_shared` |
 
 The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error rather than a silently dropped field: `IRouteEdit` declares `broadcast` as `null | undefined`.
 
 ### Template blocks
 
-30 PAGE blocks, grouped by what they do.
+34 PAGE blocks, grouped by what they do.
 
 **Structure and sharing**
 
@@ -472,6 +410,10 @@ The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error
   <g-option>3</g-option>
   <g-option>4</g-option>
 </g-poll>
+<g-widget allow_queries>
+  <g-widget-caption>Order <b>#{{orderId}}</b></g-widget-caption>
+  <g-widget-body><div id="row"></div><script>TelegramWidget.request("tap")</script></g-widget-body>
+</g-widget>
 <g-invoice title="Pro" description="30 days" payload="sub-42" currency="USD">
   <g-price label="Monthly" amount="999" />
 </g-invoice>
@@ -482,7 +424,7 @@ The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error
 <g-gift>🎁 Gift text</g-gift>
 ```
 
-**Answers**, the text a query is answered with is a template block, so it is localizable: `<g-callback-answer>Saved</g-callback-answer>`, `<g-inline-button text="Search" start-parameter="q" />`, `<g-precheckout-error>Card declined</g-precheckout-error>`, `<g-shipping-error>We cannot ship there</g-shipping-error>`, `<g-answer-note>Note appended to the inline result</g-answer-note>`, `<g-web-app-answer>Note appended to the web-app result</g-web-app-answer>`.
+**Answers**, the text a query is answered with is a template block, so it is localizable: `<g-callback-answer>Saved</g-callback-answer>`, `<g-inline-button text="Search" start-parameter="q" />`, `<g-precheckout-error>Card declined</g-precheckout-error>`, `<g-shipping-error>We cannot ship there</g-shipping-error>`, `<g-answer-note>Note appended to the inline result</g-answer-note>`, `<g-web-app-answer>Note appended to the web-app result</g-web-app-answer>`, `<g-widget-answer>ok</g-widget-answer>`.
 
 **Telegram HTML.** 54 tags pass straight through to the message `html` field: 9 legacy tags (`b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`, `blockquote expandable`) plus 45 Rich HTML tags spanning inline (`del`, `em`, `ins`, `mark`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`), block (`aside`, `details`, `footer`, `h1`-`h6`, `li`, `ol`, `p`, `summary`, `table`, `td`, `th`, `tr`, `ul`), `tg-*` specifics (`tg-collage`, `tg-emoji`, `tg-map`, `tg-math`, `tg-math-block`, `tg-reference`, `tg-slideshow`, `tg-time`), media (`audio`, `cite`, `figcaption`, `figure`, `img`, `video`) and forms (`input`). Void elements must self-close (`<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>`). Required attributes, value formats and the per-tag allowlist are all validated: `<tg-time unix="1647531900">` is legal, `<tg-time unix="abc">` is not, and `<table ngasal="x">` is rejected by name.
 
@@ -628,7 +570,7 @@ export class BotCore extends Gramstax {
 
 ### Query answers
 
-Six methods take their text from a template block instead of a literal string, so the answer is localizable and lives with the page's markup:
+Seven methods take their text from a template block instead of a literal string, so the answer is localizable and lives with the page's markup:
 
 | Method | Block | Telegram call | Params |
 | :----- | :---- | :------------ | :----- |
@@ -638,6 +580,7 @@ Six methods take their text from a template block instead of a literal string, s
 | `renderInlineAnswer` | `<g-inline-button>` | `answerInlineQuery` | `{results, data?, AGBaseId?, options?, buttonStartParameter?}` |
 | `renderGuestAnswer` | `<g-answer-note>` | `answerGuestQuery` | `{result, data?, AGBaseId?, options?}` |
 | `renderWebAppAnswer` | `<g-web-app-answer>` | `api.answerWebAppQuery` | `{webAppQueryId, result, data?, AGBaseId?, options?}` |
+| `renderWidgetAnswer` | `<g-widget-answer>` | `answerWidgetQuery` | `{data?, AGBaseId?}` |
 
 ```ts
 await this.renderCallbackAnswer({showAlert: true, AGBaseId: Base.denied})
@@ -668,7 +611,9 @@ ginfoDeliverText = {
 | text fan-out | `renderText({broadcast: {ids, languageCode}})` |
 | media fan-out | `renderMedia({broadcast: {ids, languageCode}})`: no `type`; the kind comes from the `<g-media>` block |
 | poll fan-out | `renderPoll({broadcast})` |
+| widget fan-out | `renderWidget({broadcast: {ids, languageCode}})` |
 | revise stored messages | `renderMedia({type, broadcast: {targets}})` |
+| widget revise | `renderWidget({broadcast: {targets}})` |
 | delete stored messages | `renderBroadcastDelete({targets})` |
 
 `IBroadcastSendParams` adds `chunkSize` / `chunkDelayMs` pacing (different from the render-level `chunkSize`, which splits one message), `excludeIds`, `concurrency` (1-10), `startFrom` for resuming a checkpoint, `throwError`, and `onProgress`. The result is `{successCount, failedCount, totalCount, skippedCount, retryable: [{index, id, error}]}`. Retryable failures never abort the run.
@@ -971,7 +916,7 @@ gramstax/
 │   ├── create-gramstax/     # scaffolding CLI + src/templates/: the generated project
 │   ├── lmdb/                # @gramstax/lmdb: typed LMDB layer, its own README
 │   └── worker-thread/       # @gramstax/worker-thread: RPC, pools, socket gateway
-├── example/                 # 11 workspace members, 1-complex → 11-cloudflare-worker
+├── example/                 # 12 workspace members, 1-complex → 12-widget-counter
 ├── real-projects/           # production-vip-content-bot: standalone, own lockfile, NOT a workspace member
 ├── docs-site/               # the Mintlify site: concepts, guides, ADR, generated reference
 ├── docs/                    # agent guides, capacity model, research notes
@@ -1033,7 +978,7 @@ Paths resolve relative to the **project root**, not the config file.
 | `optionsDeploy` | object | `{deploy: 'polling'}` | Nested per-mode branches: see below |
 | `mediaRoots` | `string[] \| null` | `null` | Opt-in local-path jail for media uploads; `[]` and `undefined` leave it off |
 | `botConfig` | `BotConfig` | _none_ | Forwarded to the underlying client (`apiRoot`, …) |
-| `autoRetry` | `boolean` | `true` | Mount `@grammyjs/auto-retry` |
+| `autoRetry` | `boolean` | `true` | Automatic retry with backoff on rate-limit errors |
 | `autoRetryOptions` | `{maxRetryAttempts?, retryOnInternalServerErrors?}` | _none_ | Backoff / retry policy |
 | `rateLimit` | `{windowMs, max}` | _none_ | Inbound limit; both must be positive |
 | `throttle` | `APIThrottlerOptions` | _none_ | Outgoing Bottleneck buckets (`global`, `group`, `out`) |
@@ -1218,7 +1163,7 @@ App teams can copy `skills/gramstax-superplan/` plus the three best-practice ski
 
 ### Examples
 
-Eleven runnable workspace members under [`example/`](https://github.com/gramstax/gramstax/tree/main/example), ordered as a progression: [`example/AGENTS.md`](https://github.com/gramstax/gramstax/blob/main/example/AGENTS.md) is the map:
+Twelve runnable workspace members under [`example/`](https://github.com/gramstax/gramstax/tree/main/example), ordered as a progression: [`example/AGENTS.md`](https://github.com/gramstax/gramstax/blob/main/example/AGENTS.md) is the map:
 
 | # | Project | Demonstrates |
 | :- | :------ | :----------- |
@@ -1230,9 +1175,10 @@ Eleven runnable workspace members under [`example/`](https://github.com/gramstax
 | 6 | `6-bank-system` | Stateful store, bigint money math, a multi-step deposit/withdraw/transfer flow |
 | 7 | `7-crud` | LMDB persistence with a schema + repository service layer |
 | 8 | `8-newsletter` | LMDB subscribers, admin-gated broadcast, per-recipient language |
-| 9 | `9-substore-bot` | Full e-commerce on in-memory data plus `CacheExternal`; the only example with a unit test |
+| 9 | `9-substore-bot` | Full e-commerce on in-memory data plus `CacheExternal` |
 | 10 | `10-http-request` | External HTTP via `fetch` with `AbortSignal.timeout` |
 | 11 | `11-cloudflare-worker` | Manifest boot and AOT on a Cloudflare Workers isolate |
+| 12 | `12-widget-counter` | HTML widget tap counter: `renderWidget`, `handleFreeWidgetQuery`, answers plus `update-data`; unit + e2e tested |
 
 ## ❤️ Donate
 
@@ -1244,15 +1190,4 @@ If this project saves you time, you can support its development:
 
 Apache-2.0: Copyright (c) 2026 Gramstax. The four published packages carry `"license": "Apache-2.0"` in their `package.json`. See [LICENSE](https://github.com/gramstax/gramstax/blob/main/LICENSE).
 
-Published history is part of the record and is not rewritten. `gramstax@0.0.1`
-through `gramstax@0.3.19` (54 versions, November 2025 to January 2026) went out
-under **MIT**, and that grant is perpetual: it is not withdrawn by this
-relicensing. `gramstax@0.3.20` through `gramstax@5.0.0` were published under
-proprietary terms. Everything from `gramstax@6.0.0` onward is Apache-2.0.
-
-The same split applies to the other three packages: `create-gramstax` shares
-`gramstax`'s version line, and `@gramstax/lmdb` and `@gramstax/worker-thread`
-were published under proprietary terms until `6.0.0`.
-
-The scaffolder template is MIT, because the generated project's `package.json`
-and README badge already declared MIT.
+The scaffolder template is MIT.

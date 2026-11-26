@@ -1,7 +1,7 @@
 # EXAMPLE — Sample Bot Projects
 
 ## OVERVIEW
-11 runnable Telegram bots, ordinally named `1-complex` … `11-cloudflare-worker`, all members of the root npm workspace. Each is a complete bot built on the `gramstax` package.
+12 runnable Telegram bots, ordinally named `1-complex` … `12-widget-counter`, all members of the root npm workspace. Each is a complete bot built on the `gramstax` package.
 
 ## PROGRESSION
 | # | Project | Demonstrates | Unique deps |
@@ -17,6 +17,7 @@
 | 9 | `9-substore-bot` | Full e-commerce (catalog/cart/checkout/history) on in-memory static data (`src/data/store.ts`) + `CacheExternal` for cart state, no LMDB; env `BOT_TOKEN`, `STORE_ADMIN_USERNAME`; only example with a real unit test (`test/store.test.ts`) and a `PROMPT.md` | `gramstax` only |
 | 10 | `10-http-request` | External HTTP integration: `services/http.ts` (`HttpService` using `fetch`, `AbortSignal.timeout`, JSON formatting); pages: http-request/help/start/status/blank; `guards/__nocode.ts` | `gramstax` only |
 | 11 | `11-cloudflare-worker` | Serverless: `gramstax build` output committed under `.gramstax/`, manifest boot with no filesystem scan, `cloudflare-mod` in `optionsDeploy.serverless`, `log.override`, a bare `.html` template, and the only `optionsPage.shortCallbackQueryData: true` in the repo | `gramstax` only |
+| 12 | `12-widget-counter` | HTML widget tap counter: `/start` sends the widget via `renderWidget`, a tap routes to `handleFreeWidgetQuery`, the handler answers with `renderWidgetAnswer` and pushes new state with mode `update-data`; the widget reads `chat_data` via `TelegramWidget.chatData` and redraws on `chatDataChanged`; a real unit test (`test/tap.test.ts`) alongside the e2e suite | `gramstax` only |
 
 ## SHARED SKELETON
 All TS examples share the same `src/` layout:
@@ -48,7 +49,7 @@ All TS examples share the same `src/` layout:
 - `3-helloworld-js`: JavaScript example that runs with Bun, resolution-shim tsconfig only (pure JS source), no test scripts beyond start
 - `11-cloudflare-worker`: the only example with `optionsPage.shortCallbackQueryData: true`
 - `7-crud`: env `STORE_PATH`; `8-newsletter`: env `DB_PATH` + `BOT_ADMIN_IDS`; `9-substore-bot`: env `BOT_TOKEN` + `STORE_ADMIN_USERNAME`
-- `9-substore-bot`: only example with a real unit test (`test/store.test.ts`; all others just `test/.gitkeep`) and a `PROMPT.md` (the create-gramstax generation prompt that produced it)
+- `9-substore-bot`: one of two examples with a real unit test (`test/store.test.ts`; `12-widget-counter` has `test/tap.test.ts`, all others just `test/.gitkeep`) and a `PROMPT.md` (the create-gramstax generation prompt that produced it)
 - No example ships a `README.md`, and none is tracked under `example/`. The config, `src/pages/` and the e2e suite are the documentation, so do not cite a per-example README
 
 ## ANTI-PATTERNS / GOTCHAS

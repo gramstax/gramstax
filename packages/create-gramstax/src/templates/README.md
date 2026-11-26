@@ -1,16 +1,19 @@
-# {{projectName}}
+<div align="center">
+  <h1>{{projectName}}</h1>
 
-A production-ready Telegram bot built with [Gramstax](https://github.com/gramstax/gramstax): declarative pages, template-driven messages, and end-to-end tested flows.
+  <p>A production-ready Telegram bot built with <a href="https://github.com/gramstax/gramstax">Gramstax</a>: declarative pages, template-driven messages, and end-to-end tested flows.</p>
+  <p>
+    <img alt="Bun" src="https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white"/>
+    <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white"/>
+    <img alt="Telegram" src="https://img.shields.io/badge/Telegram-26A5E4.svg?style=flat&logo=telegram&logoColor=white"/>
+    <img alt="Biome" src="https://img.shields.io/badge/Biome-60A5FA.svg?style=flat&logo=biome&logoColor=white"/>
+    <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-green.svg"/></a>
+  </p>
+</div>
 
 The generated project is Bun-only: `gramstax start`, the test suite, and the build all run on Bun.
 
-![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=flat&logo=bun&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6.svg?style=flat&logo=typescript&logoColor=white)
-![Telegram](https://img.shields.io/badge/Telegram-26A5E4.svg?style=flat&logo=telegram&logoColor=white)
-![Biome](https://img.shields.io/badge/Biome-60A5FA.svg?style=flat&logo=biome&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
-
-## Features
+## ✨ Features
 
 - 🧩 **Page-based routing**: each screen is a class with `show`/`process` steps, inline keyboards, and session state
 - 🎨 **Template engine**: rich HTML messages, filters, media groups, and multi-language variants
@@ -19,7 +22,9 @@ The generated project is Bun-only: `gramstax start`, the test suite, and the bui
 - ⚙️ **Optional background jobs**: worker threads (if enabled)
 - 🛡️ **Guards, throttling & metrics**: route guards, rate limits, and a status server out of the box
 
-## Quick Start
+## 🚀 Quick Start
+
+**Prerequisites:** [Bun](https://bun.sh) (required — this project runs on Bun only) and a bot token from [@BotFather](https://t.me/BotFather).
 
 ### 1. Install dependencies
 
@@ -29,7 +34,7 @@ The generated project is Bun-only: `gramstax start`, the test suite, and the bui
 
 ### 2. Configure your environment
 
-Edit `.env` (already created for you on scaffold) and set your bot token; get one from [@BotFather](https://t.me/BotFather). The CLI loads `.env` from the project root automatically; there is no `--env-file` flag to type and no `bun --bun` prefix.
+Edit `.env` (already created for you on scaffold) and set your bot token. The CLI loads `.env` from the project root automatically; there is no `--env-file` flag to type and no `bun --bun` prefix. `.env` is gitignored — never commit it.
 
 ```bash
 BOT_TOKEN="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
@@ -41,15 +46,23 @@ BOT_TOKEN="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
 {{runDevCmd}}
 ```
 
-### 4. Run in production
+Open Telegram, find your bot, and send `/start`.
+
+### 4. Check the scaffold
+
+```bash
+bun run test:all
+```
+
+The suite passes out of the box: unit tests, the end-to-end journeys, and the mirror + coverage checks.
+
+### 5. Run in production
 
 ```bash
 {{runStartCmd}}
 ```
 
-Open Telegram, find your bot, and send `/start`.
-
-## Scripts
+## 📜 Scripts
 
 | Script          | Description                              |
 | :-------------- | :--------------------------------------- |
@@ -65,7 +78,9 @@ Open Telegram, find your bot, and send `/start`.
 | `test:e2e:check`| Run the mirror check + coverage ledger audit |
 | `test:all`      | Run the e2e checks, then unit + e2e tests |
 
-## Project Structure
+Lint and format scripts exist only when Biome was kept at scaffold time.
+
+## 🗂️ Project Structure
 
 ```
 ├── AGENTS.md          # agent instructions for this generated app
@@ -93,17 +108,20 @@ inline in a page or service. Optional type files are removed with their feature:
 
 New page? Create `src/pages/my-page.ts`, `e2e/my-page.test.ts`, and a row for every handler in `e2e/COVERAGE.md`. The mirror is enforced by `scripts/check-e2e-mirror.ts`; the handler/test ledger is enforced by `scripts/check-e2e-handlers.ts`.
 
-## Configuration
+## 🔧 Configuration
 
-All settings live in `.env` and are wired through `gramstax.config.ts` (`token` holds the token value via `process.env.BOT_TOKEN ?? ```, `deploy` and the session cache read their vars with local defaults). `gramstax start` and `gramstax build` load project-root `.env*` files automatically, with shell variables taking precedence:
+All settings live in `.env` and are wired through `gramstax.config.ts` (`token` reads `process.env.BOT_TOKEN`, `deploy` and the session cache read their vars with local defaults). `gramstax start` and `gramstax build` load project-root `.env*` files automatically, with shell variables taking precedence:
 
 | Variable                 | Required | Description                                                     |
 | :----------------------- | :------- | :-------------------------------------------------------------- |
 | `BOT_TOKEN`     | Yes      | Bot token from [@BotFather](https://t.me/BotFather)             |
 | `BOT_DEPLOY`    | Yes      | `polling` (dev) · `webhook` · `serverless` (details in `optionsDeploy`) |
 | `CACHE_SESSION_STORE` | No       | `memory` (single instance) or `redis:<url>` (multi-instance)    |
+| `CACHE_SESSION_TTL` | No       | Session TTL in ms (`14400000` = 4 hours)                        |
+| `CACHE_SESSION_NAMESPACE` | No | Session key namespace (`s`)                                     |
+| `DB_PATH`       | No       | LMDB data directory (`./data`); only when LMDB is enabled       |
 
-## Testing
+## ✅ Testing
 
 ```bash
 bun run test            # fast unit tests for helpers, stores, validation
@@ -114,28 +132,29 @@ bun run test:all        # the checks, then everything, as CI runs it
 
 E2E tests drive the real bot in-process (`deploy: test`) and assert every Telegram API call: message text, keyboards, media, edits, and call order. `e2e/COVERAGE.md` is the ledger: one row per handler, state, or hook-driven page, pointing at the test that proves it. The audit fails when a page handler or test file has no row.
 
-## Deployment
+## 📦 Deployment
 
 - **Development**: `BOT_DEPLOY=polling`, then `bun run dev`.
-- **Production (webhook)**: set `BOT_DEPLOY=webhook` and put your public URL in `optionsDeploy` in `gramstax.config.ts`, then run `bun run start` behind a process manager.
-- **Serverless**: set `deploy` to `serverless` with `optionsDeploy` (`adapter` + `url`), run `bun run build:gramstax`, and deploy `.gramstax/server/` per the Gramstax serverless guide.
+- **Production (webhook)**: set `BOT_DEPLOY=webhook` and put your public URL in `optionsDeploy` in `gramstax.config.ts`, then run `bun run start` behind a process manager. The webhook secret comes from the `BOT_WEBHOOK_SECRET` runtime binding, never a literal in the config file.
+- **Serverless**: set `BOT_DEPLOY=serverless` with `optionsDeploy` (`adapter` + `url`), run `bun run build:gramstax`, and deploy `.gramstax/server/` per the Gramstax serverless guide.
 
-## Planning with agents
+## 🤖 Planning with agents
 
 If your agent supports project skills, copy the portable `gramstax-superplan` skill from the Gramstax repository into this project's `skills/` directory. It plans app work under `plans/NNN-feature-slug/plan.md`, reads this project's `package.json` scripts, and never edits `node_modules` or `.gramstax/`. For full coverage, also copy `gramstax-best-practices`, `lmdb-best-practices`, and `worker-thread-best-practices`; the planner routes to them.
 
-## Tech Stack
+## 🧰 Tech Stack
 
 - [Gramstax](https://github.com/gramstax/gramstax): declarative Telegram bot framework with template-driven pages
 - [Bun](https://bun.sh): runtime, test runner, and bundler
-- [Biome](https://biomejs.dev): lint + format (no semicolons, backtick strings, 2-space indent)
-- TypeScript 7 in strict mode
+- [Biome](https://biomejs.dev): lint + format (no semicolons, backtick strings, 2-space indent; if enabled)
+- TypeScript 7.0.2 in strict mode
 
-## Learn More
+## 📚 Learn More
 
 - [Gramstax Documentation](https://github.com/gramstax/gramstax)
+- [Gramstax guides](https://github.com/gramstax/gramstax/tree/main/docs-site/guides): deploy, build, and serverless
 - [Telegram Bot API](https://core.telegram.org/bots/api)
 
-## License
+## 📄 License
 
-MIT
+This project is licensed under the [MIT License](LICENSE).

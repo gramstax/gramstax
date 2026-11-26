@@ -42,6 +42,15 @@
         "gramstax": "workspace:*",
       },
     },
+    "example/12-widget-counter": {
+      "name": "example-12-widget-counter",
+      "dependencies": {
+        "gramstax": "workspace:*",
+      },
+      "devDependencies": {
+        "grammy": "1.48.0",
+      },
+    },
     "example/2-helloworld": {
       "name": "example-2-helloworld",
       "dependencies": {
@@ -947,6 +956,8 @@
     "example-10-http-request": ["example-10-http-request@workspace:example/10-http-request"],
 
     "example-11-cloudflare-worker": ["example-11-cloudflare-worker@workspace:example/11-cloudflare-worker"],
+
+    "example-12-widget-counter": ["example-12-widget-counter@workspace:example/12-widget-counter"],
 
     "example-2-helloworld": ["example-2-helloworld@workspace:example/2-helloworld"],
 

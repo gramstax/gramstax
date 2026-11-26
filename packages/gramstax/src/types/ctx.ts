@@ -146,6 +146,21 @@ export type IOptReplyRich = Parameters<Context[`replyWithRichMessage`]>
 export type IOptPoll = Parameters<Ctx[`replyWithPoll`]>[2]
 
 /**
+ * Widget send options — `Ctx.replyWithWidget` argument index `[1]` (the `other`
+ * bag of `sendWidget`).
+ *
+ * @remarks
+ * Spread LAST over the template fields, like `renderPoll`'s `options`: a
+ * caller-supplied `caption` / `parse_mode` / `chat_data` overrides the
+ * template value. The template defaults are the contract — `caption` with a
+ * hardcoded `parse_mode: "HTML"` — and `options` is the power-user escape
+ * hatch, not a second template.
+ *
+ * @public
+ */
+export type IOptWidget = Parameters<Ctx[`replyWithWidget`]>[1]
+
+/**
  * Invoice send options — `Ctx.replyWithInvoice` argument index `[5]` (the
  * `other` bag of `sendInvoice`). `provider_token` is deliberately NOT part of
  * this type: the payment provider secret is content, not a call option, and
@@ -1832,6 +1847,35 @@ export type IRenderCallbackAnswerParams = {
 }
 
 /**
+ * Parameters for `renderWidgetAnswer`.
+ *
+ * @remarks
+ * Template-backed counterpart to answering widget taps: the
+ * `<g-widget-answer>` block supplies the answer data. There is no message
+ * to send, so this takes no keyboard and never falls back to a reply. The
+ * answer data is an opaque payload for the widget's JS (not user-facing
+ * copy), at most 1024 UTF-8 bytes per the Bot API `answerWidgetQuery`
+ * limits. It must be sent within 15 seconds of the query, and it does not
+ * change the widget's data — that is `renderWidget` mode `update-data`.
+ *
+ * @public
+ */
+export type IRenderWidgetAnswerParams = {
+  /**
+   * Optional template interpolation data.
+   *
+   * @defaultValue `null` (no data)
+   */
+  data?: IData | null
+  /**
+   * Optional template base ID position for the answer data.
+   *
+   * @defaultValue `null` (default base)
+   */
+  AGBaseId?: string | null
+}
+
+/**
  * Parameters for `renderPreCheckout`.
  *
  * @remarks
@@ -2043,6 +2087,237 @@ export type IRenderPollParams = IContent &
      */
     options?: IOptPoll | null
   }
+
+/**
+ * Widget route atom: forced single-widget send.
+ *
+ * @remarks
+ * `mode` is optional and defaults to `reply` — there is no `auto` mode for
+ * widgets (see {@link IRenderWidgetParams}): a tap inside the widget wants
+ * `update-data` while a keyboard button under it wants `edit`, so no single
+ * runtime guess is honest. Every route atom declares the full UNIVERSAL key
+ * set (`mode`, `keyboard`, `rich`, `richOptions`, `broadcast`, `chunkSize`,
+ * `fallback`, `options`, `editOptions`, `fallbackOptions`) with `never`
+ * where the route never reads the field, so the render-params symmetry
+ * suite keeps holding.
+ *
+ * @public
+ */
+export type IRouteWidgetReply = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `editOptions` | `fallbackOptions`> & {
+  /**
+   * Forces a new message. Optional: `reply` is the default mode.
+   *
+   * @defaultValue `reply`
+   */
+  mode?: `reply`
+  /**
+   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
+   * omit).
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional extra `sendWidget` fields, spread last over the template fields.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptWidget | null
+  /**
+   * First-class override of the template block's `is_shared` — whether the
+   * new widget is shared.
+   *
+   * @remarks
+   * The param wins over the `<g-widget is_shared>` attribute; omitting it
+   * keeps the template value. The `options` bag is still spread last over
+   * the template fields, so `options.is_shared` wins over this field.
+   *
+   * @defaultValue `null` (template value)
+   */
+  is_shared?: boolean | null
+}
+
+/**
+ * Widget route atom: forced single-widget edit.
+ *
+ * @remarks
+ * Re-applies the template's `chat_data` / `public_data`, caption, and
+ * keyboard to the widget message held by the context — never the HTML, which
+ * the Bot API cannot replace. NOT atomic: up to three API calls
+ * (`editMessageWidgetData` / `editSharedWidgetData`, `editMessageCaption`,
+ * `editMessageReplyMarkup`), so a failure mid-way leaves part of the message
+ * updated. The keyboard slot is inline-only: `editMessageReplyMarkup`
+ * rejects a bottom keyboard.
+ *
+ * On a shared widget the state edit goes to `editSharedWidgetData`
+ * (public data, every message showing the widget), while the caption and
+ * keyboard edits still target only the context-held message. Shared-ness is
+ * auto-detected from the context, so this route takes no `is_shared` field.
+ *
+ * @public
+ */
+export type IRouteWidgetEdit = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `is_shared`> & {
+  /**
+   * Forces an in-place re-apply of the template onto the held widget message.
+   */
+  mode: `edit`
+  /**
+   * Optional inline keyboard markup from {@link (Ctx:class).inlineKeyboard} (or
+   * null to leave the markup unchanged).
+   *
+   * @defaultValue `null` (markup untouched)
+   */
+  keyboard?: IInlineKb | null
+}
+
+/**
+ * Widget route atom: data-only update of the held widget.
+ *
+ * @remarks
+ * The hot path for widget taps: exactly ONE API call, so it is atomic where
+ * `edit` is not. A regular widget updates its per-message `chat_data` via
+ * `editMessageWidgetData`; a shared widget updates its `public_data` via
+ * `editSharedWidgetData` (every message showing the widget). No caption, no
+ * keyboard, no options — and it does NOT answer the widget query: the
+ * handler must still call `ctx.answerWidgetQuery` within 15 seconds.
+ * Shared-ness is auto-detected from the update, so this route takes no
+ * `is_shared` field.
+ *
+ * @public
+ */
+export type IRouteWidgetUpdateData = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `keyboard` | `is_shared`> & {
+  /**
+   * Updates only the widget data on the held widget message.
+   */
+  mode: `update-data`
+}
+
+/**
+ * Widget route atom: broadcast send fan-out.
+ *
+ * @remarks
+ * Fans the compiled `<g-widget>` block out to every entry of
+ * `broadcast.ids` with its own language code. Per-recipient failures follow
+ * `Ctx.classifySendError`: `fallback-text` triggers a best-effort caption
+ * send to that recipient (the caption is the designed standalone fallback),
+ * `retryable` is recorded and the loop continues. No private-chat-only
+ * restriction is enforced in code — DEFAULT (flip while testing if needed):
+ * a widget sent to a group chat fails per recipient and is counted, not
+ * pre-rejected.
+ *
+ * @public
+ */
+export type IRouteWidgetBroadcastSend = INeverFields<`mode` | `rich` | `richOptions` | `chunkSize` | `fallback` | `editOptions` | `fallbackOptions`> & {
+  /**
+   * Broadcast fan-out (see {@link IBroadcastSendParams}).
+   */
+  broadcast: IBroadcastSendParams
+  /**
+   * Optional keyboard markup from `inlineKeyboard`/`bottomKeyboard` (or null to
+   * omit).
+   *
+   * @defaultValue `null` (no keyboard)
+   */
+  keyboard?: IInBoKb | null
+  /**
+   * Optional extra `sendWidget` fields, spread last over the template fields.
+   *
+   * @defaultValue `null` (no extra options)
+   */
+  options?: IOptWidget | null
+  /**
+   * First-class override of the template block's `is_shared` — whether the
+   * new widget is shared — applied to every recipient.
+   *
+   * @remarks
+   * The param wins over the `<g-widget is_shared>` attribute; omitting it
+   * keeps the template value. The `options` bag is still spread last over
+   * the template fields, so `options.is_shared` wins over this field.
+   *
+   * @defaultValue `null` (template value)
+   */
+  is_shared?: boolean | null
+}
+
+/**
+ * Widget route atom: broadcast revise fan-out (data-only).
+ *
+ * @remarks
+ * Re-applies the template's `chat_data` to stored widget messages
+ * (`broadcast.targets`) via `editMessageWidgetData` — the `update-data`
+ * mode fanned out. There is no delete-and-resend fallback here (unlike
+ * `renderMedia` revise): a failed per-recipient update is classified via
+ * `Ctx.classifySendError` (`fallback-text` sends the caption as text to
+ * that recipient, `retryable` is recorded), so `reviseOptions.fallback` is
+ * omitted from the type. Shared widgets are rejected fail-fast: one
+ * `editSharedWidgetData` call updates every message showing the widget, so
+ * a fan-out over stored messages is the wrong tool — use
+ * `mode: "update-data"` once instead. This route takes no `is_shared` field.
+ *
+ * @public
+ */
+export type IRouteWidgetBroadcastRevise = INeverFields<`mode` | `rich` | `richOptions` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `keyboard` | `is_shared`> & {
+  /**
+   * Broadcast-revise fan-out: stored `{chatId, messageId}` rows to update,
+   * in stable order (checkpoint index = array index).
+   */
+  broadcast: {
+    /**
+     * Stored `{chatId, messageId}` rows to update, in stable order (checkpoint
+     * index = array index).
+     */
+    targets: IBroadcastEditTarget[]
+    /**
+     * Optional broadcast controls (`onProgress`, `startFrom`, `concurrency`,
+     * `batchSize`, `chunkDelayMs`).
+     *
+     * @remarks
+     * `fallback` is omitted: data updates have no resend to fall back to.
+     *
+     * @defaultValue `null` (defaults)
+     */
+    reviseOptions?: Omit<IBroadcastEditOpts, `fallback`> | null
+  }
+}
+
+/**
+ * Parameters for `renderWidget`.
+ *
+ * @remarks
+ * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`,
+ * read from the `<g-widget>` block) on one of five routes — forced send
+ * (`IRouteWidgetReply`, the default), forced edit
+ * (`IRouteWidgetEdit`), data-only update (`IRouteWidgetUpdateData`),
+ * broadcast send (`IRouteWidgetBroadcastSend`), or broadcast revise
+ * (`IRouteWidgetBroadcastRevise`).
+ *
+ * Modes are explicit and there is NO `auto` mode: a tap inside the widget
+ * (`widget_query`) wants `update-data` while a keyboard button under it
+ * (`callbackQuery`) wants `edit`, so no single runtime guess is honest.
+ * `mode` defaults to `reply` when omitted.
+ *
+ * The widget HTML can never be replaced — the Bot API offers no
+ * `editMessageWidget`. `edit` re-applies state + caption + keyboard to the
+ * message held by the context (up to three API calls, NOT atomic);
+ * `update-data` changes only the state in exactly one call (atomic), and is
+ * the only mode meaningful for shared widgets. Neither edit mode answers the
+ * widget query — the handler must still call `ctx.answerWidgetQuery` within
+ * 15 seconds.
+ *
+ * `is_shared` is a send-route-only param (`reply` and broadcast-send): it
+ * overrides the template block's `is_shared` at send time, while the edit
+ * routes auto-detect shared-ness from the context and take no `is_shared`
+ * field.
+ *
+ * Send failures follow `Ctx.classifySendError`, except the fallback content
+ * is the widget caption (sent as text with `parse_mode: "HTML"`) instead of
+ * the generic page fallback text — DEFAULT (flip to rethrow, `renderPoll`
+ * style, while testing if needed): the caption is designed to stand alone
+ * as the widget's replacement on clients without widget support.
+ *
+ * @public
+ */
+export type IRenderWidgetParams = IContent & (IRouteWidgetReply | IRouteWidgetEdit | IRouteWidgetUpdateData | IRouteWidgetBroadcastSend | IRouteWidgetBroadcastRevise)
 
 /**
  * Parameters for `renderInvoice`.

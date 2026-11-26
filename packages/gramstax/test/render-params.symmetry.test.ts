@@ -41,6 +41,7 @@ const ROUTE_PARAMS = [
   `IRenderMediaGroupParams`,
   `IRenderMediaGroupKindParams`,
   `IRenderPollParams`,
+  `IRenderWidgetParams`,
   `IRenderInvoiceParams`,
   `IRenderPaidMediaParams`,
   `IRenderVenueParams`,

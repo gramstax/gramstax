@@ -305,6 +305,123 @@ export type IPollBlock = {
 }
 
 /**
+ * Widget block for Telegram HTML widgets (Bot API 10.4).
+ *
+ * @remarks
+ * Declared with `<g-widget>` blocks. The widget HTML comes from the
+ * required `<g-widget-body>` child block and is carried RAW —
+ * it never runs the scope pipeline (`{{}}` interpolation, `<g-script>`,
+ * `<g-switch>` and friends are inert text inside the widget), so JS object
+ * literals and `${}` template strings survive compilation untouched. Dynamic
+ * data rides `chat_data` / `public_data` instead. The caption comes from the
+ * required `<g-widget-caption>` child block and runs the same rich pipeline
+ * as poll questions (HTML tags + `{{var|filter}}` interpolation); it is sent
+ * with a hardcoded `parse_mode: "HTML"`, never `caption_entities`.
+ *
+ * There is no way to replace the HTML of a sent widget — the Bot API offers
+ * no `editMessageWidget`. "Edit" only re-applies `chat_data` / `public_data`,
+ * the caption, and the keyboard to the message that holds the widget.
+ *
+ * @example
+ * ```typescript
+ * const block: IWidgetBlock = {html: `<div id="row"></div><script>TelegramWidget.request("tap")</script>`, caption: `Order <b>#1042</b>`, allow_queries: true}
+ * ```
+ *
+ * @public
+ */
+export type IWidgetBlock = {
+  /**
+   * Raw widget HTML document (inline CSS/JS, no external resources).
+   *
+   * @remarks
+   * Never interpolated — passed through verbatim. At most 32768 bytes raw
+   * and at most 4000 bytes after zlib level-9 compression at compile time
+   * (the Bot API hard limit is 4096 bytes; the 4000-byte safe target absorbs
+   * the tens of bytes Node zlib can differ from Telegram's server).
+   */
+  html: string
+  /**
+   * Widget caption from the `<g-widget-caption>` child block.
+   *
+   * @remarks
+   * Supports HTML tags and `{{var|filter}}` interpolation. Required — it is
+   * the fallback text on clients without widget support and the text shown in
+   * the chat list, notifications, and search. At most 1024 characters after
+   * entity parsing (HTML tags do not count).
+   */
+  caption: string
+  /**
+   * Whether the widget may send queries to the bot.
+   *
+   * @remarks
+   * Maps the template `allow_queries` flag (bare attribute or `="true"` /
+   * `="false"`). Without it the widget cannot call
+   * `TelegramWidget.request()`.
+   * @defaultValue `undefined` (Telegram server default applies)
+   */
+  allow_queries?: boolean
+  /**
+   * Whether this is a shared widget, re-sendable via `sendSharedWidget`.
+   *
+   * @remarks
+   * Maps the template `is_shared` flag. A shared widget's `public_data` is
+   * the same on every message that shows it; only `update-data` mode is
+   * meaningful for it.
+   * @defaultValue `undefined` (Telegram server default applies)
+   */
+  is_shared?: boolean
+  /**
+   * Whether the caption is shown above the widget.
+   *
+   * @remarks
+   * Maps the template `show_caption_above_media` flag. When set, the message
+   * time is drawn over the widget's bottom corner, so that area must stay
+   * clear (safe-area).
+   * @defaultValue `undefined` (Telegram server default applies)
+   */
+  show_caption_above_media?: boolean
+  /**
+   * Per-message widget state, 0–1024 bytes.
+   *
+   * @remarks
+   * Supports `{{var|filter}}` interpolation. Sent as `chat_data`; updated
+   * per message via `editMessageWidgetData`. Must not contain `>` (attribute
+   * values cannot contain it).
+   * @defaultValue `undefined`
+   */
+  chat_data?: string
+  /**
+   * Public widget state, 0–1024 bytes.
+   *
+   * @remarks
+   * Supports `{{var|filter}}` interpolation. Sent as `public_data`; updated
+   * for every message showing a shared widget via `editSharedWidgetData`.
+   * Must not contain `>` (attribute values cannot contain it).
+   * @defaultValue `undefined`
+   */
+  public_data?: string
+  /**
+   * Widget width in logical pixels, 200–600.
+   *
+   * @remarks
+   * Static integers pass through; `{{var|filter}}` values are compiled and
+   * range-checked at runtime. Omitted when the widget must occupy the whole
+   * width of the message bubble.
+   * @defaultValue `undefined` (Telegram server default applies)
+   */
+  width?: number | string
+  /**
+   * Widget height in logical pixels, 50–600.
+   *
+   * @remarks
+   * Static integers pass through; `{{var|filter}}` values are compiled and
+   * range-checked at runtime. Omitted when the height is not fixed.
+   * @defaultValue `undefined` (Telegram server default applies)
+   */
+  height?: number | string
+}
+
+/**
  * Invoice block configuration for Telegram payments.
  *
  * @remarks
@@ -582,6 +699,36 @@ export type ICallbackAnswerBlock = {
 }
 
 /**
+ * Widget-answer block for Telegram widget-query feedback.
+ *
+ * @remarks
+ * Declared with `<g-widget-answer>` blocks. `text` supports the same
+ * `{{var|filter}}` interpolation pipeline as callback answers; the compiled
+ * value is an opaque data payload for the widget's JS (not user-facing
+ * copy), plain text without HTML, at most 1024 UTF-8 bytes per the Bot API
+ * `answerWidgetQuery` limits.
+ *
+ * @example
+ * ```typescript
+ * const answer: IWidgetAnswerBlock = {
+ *   text: `ok {{orderId}}`
+ * }
+ * ```
+ *
+ * @public
+ */
+export type IWidgetAnswerBlock = {
+  /**
+   * Answer data sent back to the widget that asked.
+   *
+   * @remarks
+   * Supports `{{var|filter}}` interpolation. Plain text without HTML, at
+   * most 1024 UTF-8 bytes per the Bot API `answerWidgetQuery` limits.
+   */
+  text: string
+}
+
+/**
  * Pre-checkout error block for Telegram payments.
  *
  * @remarks
@@ -786,7 +933,7 @@ export type IGiftBlock = {
  *
  * @public
  */
-export type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`
+export type GBlockKind = `message` | `media` | `poll` | `widget` | `widgetAnswer` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`
 
 /**
  * Result of `TemplateManager.getGMessage` for a `<g-message>` block.
@@ -819,6 +966,15 @@ export type GMediaResult = {kind: `media`} & IMediaBlock
  * @public
  */
 export type GPollResult = {kind: `poll`} & IPollBlock
+/**
+ * Result of `TemplateManager.getGWidget` for a `<g-widget>` block.
+ *
+ * @remarks
+ * Extends {@link IWidgetBlock} with the `widget` kind discriminator.
+ *
+ * @public
+ */
+export type GWidgetResult = {kind: `widget`} & IWidgetBlock
 /**
  * Result of `TemplateManager.getGVenue` for a `<g-venue>` block.
  *
@@ -857,6 +1013,16 @@ export type GKeyboardResult = {kind: `keyboard`; rows: string[]}
  * @public
  */
 export type GCallbackAnswerResult = {kind: `callbackAnswer`; text: string}
+/**
+ * Result of `TemplateManager.getGWidgetAnswer` for a `<g-widget-answer>` block.
+ *
+ * @remarks
+ * `text` is the rendered answer data; the getter throws when the block is
+ * missing (widget answers always need data).
+ *
+ * @public
+ */
+export type GWidgetAnswerResult = {kind: `widgetAnswer`; text: string}
 /**
  * Result of `TemplateManager.getGPrecheckoutError` for a `<g-precheckout-error>` block.
  *
@@ -973,6 +1139,16 @@ export type ICompiledTemplate = {
    */
   poll: ReturnType<typeof TemplateEngine.compileBlockGPoll>
   /**
+   * Compiled widget blocks indexed by base ID and language.
+   *
+   * @remarks
+   * Produced by `TemplateEngine.compileBlockGWidget`. Each leaf resolves an
+   * `IWidgetBlock` for the given render data. The widget HTML rides raw —
+   * only the caption, `chat_data`, `public_data`, `width`, and `height` run
+   * the interpolation pipeline.
+   */
+  widget: ReturnType<typeof TemplateEngine.compileBlockGWidget>
+  /**
    * Compiled venue blocks indexed by base ID and language.
    *
    * @remarks
@@ -996,6 +1172,14 @@ export type ICompiledTemplate = {
    * resolves an `ICallbackAnswerBlock` for the given render data.
    */
   callbackAnswer: ReturnType<typeof TemplateEngine.compileBlockGCallbackAnswer>
+  /**
+   * Compiled widget-answer blocks indexed by base ID and language.
+   *
+   * @remarks
+   * Produced by `TemplateEngine.compileBlockGWidgetAnswer`. Each leaf
+   * resolves an `IWidgetAnswerBlock` for the given render data.
+   */
+  widgetAnswer: ReturnType<typeof TemplateEngine.compileBlockGWidgetAnswer>
   /**
    * Compiled precheckout-error blocks indexed by base ID and language.
    *
