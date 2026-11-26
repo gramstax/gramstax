@@ -1,5 +1,6 @@
+import {deflateSync} from "node:zlib"
 import type {InputFile} from "grammy"
-import type {IDiceBlock, IInlineButtonBlock, IInvoiceBlock, IMediaBlock, IPaidMediaBlock, IPollBlock, IVenueBlock} from "~/types/template"
+import type {IDiceBlock, IInlineButtonBlock, IInvoiceBlock, IMediaBlock, IPaidMediaBlock, IPollBlock, IVenueBlock, IWidgetBlock} from "~/types/template"
 
 type ITemplateData = Record<string, unknown>
 
@@ -104,6 +105,75 @@ export class TemplateEngine {
    * @public
    */
   static MAX_MEDIA_GROUP_ITEMS = 10
+
+  /**
+   * Maximum raw `<g-widget>` HTML size in UTF-8 bytes.
+   *
+   * @remarks
+   * Matches the Bot API `sendWidget` `html` limit of 32768 bytes
+   * (source: `https://core.telegram.org/bots/api#sendwidget`). Measured
+   * with `Buffer.byteLength` — character `.length` is wrong for UTF-8.
+   * Enforced at validation time and re-checked at runtime by
+   * `Ctx.assertWidget`.
+   *
+   * @public
+   */
+  static MAX_WIDGET_HTML_RAW_BYTES = 32768
+
+  /**
+   * Maximum `<g-widget>` HTML size after zlib level-9 compression.
+   *
+   * @remarks
+   * The Bot API `sendWidget` hard limit is 4096 bytes compressed
+   * (source: `https://core.telegram.org/bots/api#sendwidget`). Enforced at
+   * validation time and re-checked at runtime by `Ctx.assertWidget`.
+   *
+   * @public
+   */
+  static MAX_WIDGET_HTML_COMPRESSED_BYTES = 4096
+
+  /**
+   * Safe compile-time target for `<g-widget>` HTML after zlib level-9 compression.
+   *
+   * @remarks
+   * DEFAULT (flip to {@link TemplateEngine.MAX_WIDGET_HTML_COMPRESSED_BYTES}
+   * while testing if the stricter target rejects widgets Telegram would
+   * accept): Node zlib output can differ from Telegram's server-side
+   * compression by tens of bytes, so a widget that compresses to 4050 bytes
+   * locally can still fail on the server. The validator errors above this
+   * target, not above the 4096-byte hard limit, so a passing template is one
+   * that will also pass on Telegram's side.
+   *
+   * @public
+   */
+  static MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES = 4000
+
+  /**
+   * Maximum `<g-widget-caption>` length in characters after entity parsing.
+   *
+   * @remarks
+   * Matches the Bot API `sendWidget` caption limit of 1024 characters
+   * (source: `https://core.telegram.org/bots/api#sendwidget`). HTML tags do
+   * not count — the length is measured on the caption text with tags
+   * stripped. Enforced at validation time (static captions) and re-checked
+   * at runtime by `Ctx.assertWidget` (rendered captions).
+   *
+   * @public
+   */
+  static MAX_WIDGET_CAPTION_CHARS = 1024
+
+  /**
+   * Maximum `<g-widget>` `chat_data` / `public_data` size in UTF-8 bytes.
+   *
+   * @remarks
+   * Matches the Bot API `sendWidget` data limits of 1024 bytes each
+   * (source: `https://core.telegram.org/bots/api#sendwidget`). Measured
+   * with `Buffer.byteLength`. Enforced at validation time (static values)
+   * and re-checked at runtime by `Ctx.assertWidget` (rendered values).
+   *
+   * @public
+   */
+  static MAX_WIDGET_DATA_BYTES = 1024
 
   /**
    * Maximum Stars price for a `<g-paid-media>` paywall.
@@ -260,7 +330,7 @@ export class TemplateEngine {
    *
    * @remarks
    * Content blocks (`g-base`, `g-message`, `g-keyboard`, `g-media`,
-   * `g-media-group`, `g-description`), logic blocks (`g-script`,
+   * `g-media-group`, `g-poll`, `g-widget`, `g-description`), logic blocks (`g-script`,
    * `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`), and utility
    * blocks (`g-import`, `g-space`). Validated by `validateTemplate`
    * (per-block `validateBlockG*Attributes` methods plus the centralized
@@ -280,6 +350,8 @@ export class TemplateEngine {
     `<g-poll>`,
     `<g-question>`,
     `<g-option>`,
+    `<g-widget>`,
+    `<g-widget-caption>`,
     `<g-invoice>`,
     `<g-price>`,
     `<g-paid-media>`,
@@ -619,6 +691,10 @@ export class TemplateEngine {
    * - `<g-poll correct>` — must be a non-negative option index
    * - `<g-poll explanation>` — any string, always valid
    * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
+   * - `<g-widget allow_queries>` / `<g-widget is_shared>` / `<g-widget show_caption_above_media>` — must be `true` or `false`
+   * - `<g-widget chat_data>` / `<g-widget public_data>` — any string, always valid
+   * - `<g-widget width>` — must be an integer 200–600; `{{}}` values skip the static check (runtime-enforced)
+   * - `<g-widget height>` — must be an integer 50–600; `{{}}` values skip the static check (runtime-enforced)
    * - `<g-venue title>` / `<g-venue address>` — any string, always valid
    * - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced)
    * - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced)
@@ -660,6 +736,21 @@ export class TemplateEngine {
       explanation: () => null,
       anonymous: (v) => (v === `true` || v === `false` ? null : `Attribute "anonymous" on <g-poll> must be "true" or "false", got "${v}"`),
       multiple: (v) => (v === `true` || v === `false` ? null : `Attribute "multiple" on <g-poll> must be "true" or "false", got "${v}"`)
+    },
+    "g-widget": {
+      allow_queries: (v) => (v === `true` || v === `false` ? null : `Attribute "allow_queries" on <g-widget> must be "true" or "false", got "${v}"`),
+      is_shared: (v) => (v === `true` || v === `false` ? null : `Attribute "is_shared" on <g-widget> must be "true" or "false", got "${v}"`),
+      show_caption_above_media: (v) => (v === `true` || v === `false` ? null : `Attribute "show_caption_above_media" on <g-widget> must be "true" or "false", got "${v}"`),
+      chat_data: () => null,
+      public_data: () => null,
+      width: (v) => {
+        if (v.includes(`{{`) || v.includes(`{~`)) return null
+        return /^\d+$/.test(v) && Number(v) >= 200 && Number(v) <= 600 ? null : `Attribute "width" on <g-widget> must be an integer 200-600 (got "${v}")`
+      },
+      height: (v) => {
+        if (v.includes(`{{`) || v.includes(`{~`)) return null
+        return /^\d+$/.test(v) && Number(v) >= 50 && Number(v) <= 600 ? null : `Attribute "height" on <g-widget> must be an integer 50-600 (got "${v}")`
+      }
     },
     "g-invoice": {
       currency: (v) => (v.includes(`{{`) || v.includes(`{~`) ? null : /^[A-Z]{3}$/.test(v) ? null : `Attribute "currency" on <g-invoice> must be a 3-letter code (got "${v}")`)
@@ -1963,6 +2054,92 @@ export class TemplateEngine {
   }
 
   /**
+   * Block: g-widget
+   * Extracts and parses `<g-widget>` blocks from a template string.
+   *
+   * @remarks
+   * Each block declares one widget per language (`lang` defaults to
+   * `"default"`; last block wins per lang). The inner
+   * `<g-widget-caption>` becomes `caption`; everything else in the body is
+   * the widget `html` and is carried RAW — it never runs the scope
+   * pipeline, so JS object literals, `${}` template strings, and `<div>` /
+   * `<button>` / `<script>` / `<style>` tags survive verbatim. Dynamic data
+   * rides `chat_data` / `public_data` (compiled like any attribute string),
+   * never interpolation inside the HTML.
+   *
+   * Boolean flags (`allow_queries`, `is_shared`,
+   * `show_caption_above_media`) accept a bare attribute (`<g-widget
+   * allow_queries>`) or an explicit value (`allow_queries="false"`); a bare
+   * flag is `true`, an explicit value must be `"true"` or `"false"`.
+   * `width` / `height` parse to numbers when static integers and stay raw
+   * strings when dynamic (`{{}}`), for runtime range checks. Structural
+   * rules (exactly one caption, caption length, HTML byte sizes, data byte
+   * sizes) are enforced by `validateBlockGWidgetAttributes`, not here.
+   *
+   * @param template - The template string containing `<g-widget>` blocks
+   * @returns An object mapping language keys to their widget configurations
+   *
+   * @example
+   * ```typescript
+   * const widgets = TemplateEngine._processGWidgetBlocks(`<g-widget allow_queries><g-widget-caption>Order <b>#1042</b></g-widget-caption><div id="row"></div><script>TelegramWidget.request("tap")</script></g-widget>`);
+   * // Result: { default: { html: '<div id="row"></div><script>TelegramWidget.request("tap")</script>', caption: 'Order <b>#1042</b>', allow_queries: true } }
+   * ```
+   *
+   * @public
+   */
+  static _processGWidgetBlocks(template: string) {
+    const widgetRegex = /<g-widget(?:\s+([^>]*))?>([\s\S]*?)<\/g-widget>/gi
+    const result: {[lang: string]: IWidgetBlock} = {}
+    const captionRegex = /<g-widget-caption(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-caption>/i
+    const clean = (raw: string): string =>
+      raw
+        .replace(/^[\t ]+/gm, ``)
+        .replace(/^\n+/, ``)
+        .replace(/\n+$/, ``)
+        .trim()
+
+    for (const match of template.matchAll(widgetRegex)) {
+      const attributesStr = match[1]
+      const body = match[2] ?? ``
+      const attrs: {[key: string]: string} = {}
+      const attrRegex = /([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g
+
+      if (attributesStr) {
+        for (const attrMatch of attributesStr.matchAll(attrRegex)) {
+          attrs[attrMatch[1]!] = attrMatch[2] ?? attrMatch[3] ?? attrMatch[4] ?? ``
+        }
+      }
+
+      // Bare boolean flags: strip the valued pairs first, so a bare word
+      // inside a quoted JSON value (e.g. chat_data) cannot false-positive.
+      const bareAttrs = (attributesStr ?? ``).replace(/([\w-]+)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/g, ``)
+      const boolAttr = (name: string): boolean | undefined => {
+        if (attrs[name] !== undefined) return attrs[name] === `true`
+        return new RegExp(`\\b${name}\\b`).test(bareAttrs) ? true : undefined
+      }
+
+      const lang = attrs.lang || `default`
+      const caption = clean(captionRegex.exec(body)?.[1] ?? ``)
+      const html = body.replace(/<g-widget-caption(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-caption>/gi, ``).trim()
+
+      const widget: IWidgetBlock = {html, caption}
+      const allowQueries = boolAttr(`allow_queries`)
+      if (allowQueries !== undefined) widget.allow_queries = allowQueries
+      const isShared = boolAttr(`is_shared`)
+      if (isShared !== undefined) widget.is_shared = isShared
+      const aboveMedia = boolAttr(`show_caption_above_media`)
+      if (aboveMedia !== undefined) widget.show_caption_above_media = aboveMedia
+      if (attrs.chat_data !== undefined && attrs.chat_data !== ``) widget.chat_data = attrs.chat_data
+      if (attrs.public_data !== undefined && attrs.public_data !== ``) widget.public_data = attrs.public_data
+      if (attrs.width !== undefined && attrs.width !== ``) widget.width = /^\d+$/.test(attrs.width) ? Number(attrs.width) : attrs.width
+      if (attrs.height !== undefined && attrs.height !== ``) widget.height = /^\d+$/.test(attrs.height) ? Number(attrs.height) : attrs.height
+      result[lang] = widget
+    }
+
+    return result
+  }
+
+  /**
    * Block: g-venue
    * Extracts and parses `<g-venue>` blocks from a template string.
    *
@@ -3239,6 +3416,66 @@ export class TemplateEngine {
   }
 
   /**
+   * Compiles widget blocks from a template into executable functions.
+   *
+   * @remarks
+   * Parses `<g-widget>` blocks per base and compiles the caption,
+   * `chat_data`, `public_data`, `width`, and `height` through the same
+   * pipeline as poll questions (script → map → switch → exec → variables),
+   * so `{{var|filter}}` works in all five. The widget `html` is the
+   * exception by design: it is carried RAW and never runs the pipeline —
+   * JS object literals, `${}` template strings, and HTML tags inside the
+   * widget stay verbatim, because the scope pipeline would reject them
+   * (`validateScopes`) or miscompile them. Static fields
+   * (`allow_queries`, `is_shared`, `show_caption_above_media`) pass through
+   * untouched.
+   *
+   * @param template - Raw template string containing `<g-base>` and `<g-widget>` blocks
+   * @param baseBlocks - Optional pre-parsed base blocks for reuse
+   * @returns Compiled widget functions organized by base ID and language
+   *
+   * @example
+   * ```typescript
+   * const widgets = TemplateEngine.compileBlockGWidget(`<g-base><g-widget allow_queries chat_data='{"order_id": "{{orderId}}"}'><g-widget-caption>Order <b>#{{orderId}}</b></g-widget-caption><div id="row"></div><script>const state = {'order': 1};</script></g-widget></g-base>`);
+   * const result = widgets.default?.default?.({ orderId: '1042' });
+   * // Result: { html: '<div id="row"></div><script>const state = {\'order\': 1};</script>', caption: 'Order <b>#1042</b>', allow_queries: true, chat_data: '{"order_id": "1042"}' }
+   * ```
+   *
+   * @public
+   */
+  static compileBlockGWidget(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>) {
+    const bases = baseBlocks || this._processGBaseBlocks(template)
+    const result: {
+      [AGBaseId: string]: {
+        [ALang: string]: (data?: ITemplateData) => IWidgetBlock
+      }
+    } = {}
+    const compileString = (raw: string): ((data?: ITemplateData) => string) => this._compileToFunction(this._processScopeVariables(this._processScopeExec(this._processGSwitchBlocks(this._processGMapBlocks(this._processGIfElseBlocks(this._processGScriptBlocks(raw)))))), false)
+
+    for (const [AGBaseId, baseContent] of Object.entries(bases)) {
+      const widgets = this._processGWidgetBlocks(baseContent)
+      result[AGBaseId] = {}
+
+      for (const [ALang, widget] of Object.entries(widgets)) {
+        const captionFn = compileString(widget.caption)
+        const chatDataFn = widget.chat_data !== undefined ? compileString(widget.chat_data) : undefined
+        const publicDataFn = widget.public_data !== undefined ? compileString(widget.public_data) : undefined
+        const widthFn = typeof widget.width === `string` ? compileString(widget.width) : undefined
+        const heightFn = typeof widget.height === `string` ? compileString(widget.height) : undefined
+        result[AGBaseId][ALang] = (data?: ITemplateData) => ({
+          ...widget,
+          caption: captionFn(data),
+          ...(chatDataFn ? {chat_data: chatDataFn(data)} : {}),
+          ...(publicDataFn ? {public_data: publicDataFn(data)} : {}),
+          ...(widthFn ? {width: widthFn(data)} : {}),
+          ...(heightFn ? {height: heightFn(data)} : {})
+        })
+      }
+    }
+    return result
+  }
+
+  /**
    * Compiles venue blocks from a template into executable functions.
    *
    * @remarks
@@ -4356,6 +4593,41 @@ export class TemplateEngine {
   }
 
   /**
+   * Strips raw `<g-widget>` HTML from a template for content validation.
+   *
+   * @remarks
+   * Widget HTML is raw by design — it legitimately contains `<div>`,
+   * `<button>`, `<script>`, `<style>`, and JS object literals like
+   * `{'key': 'val'}` that `validateNamesBlock` and `validateScopes` would
+   * reject as unsupported blocks/scopes. Every content validator in
+   * `validateTemplate` runs on the stripped copy, so it never sees widget
+   * HTML at all.
+   *
+   * What survives the strip, and why:
+   * - the `<g-widget ...>` opening tag (with attributes), so attribute
+   *   validators still see the block — except `chat_data` / `public_data`
+   *   VALUES, which are blanked: JSON object literals in those values
+   *   would trip `validateScopes` the same way widget JS does, and their
+   *   formats are already validated by `validateBlockGWidgetAttributes` on
+   *   the full template;
+   * - the `<g-widget-caption>` child block verbatim, so its rich tags and
+   *   `{{}}` interpolation are validated exactly like a message caption.
+   *
+   * @param template - The raw template string to strip
+   * @returns The template with each widget body replaced by its caption child
+   *
+   * @internal
+   */
+  static _stripGWidgetBody(template: string): string {
+    return template.replace(/<g-widget(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget>/gi, (whole, body) => {
+      const openTag = whole.slice(0, whole.indexOf(`>`) + 1)
+      const blankedOpen = openTag.replace(/\b(chat_data|public_data)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, `$1=""`)
+      const caption = /<g-widget-caption(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-caption>/i.exec(body as string)?.[0] ?? ``
+      return `${blankedOpen}${caption}</g-widget>`
+    })
+  }
+
+  /**
    * Validates that all block tags in a template are recognized.
    *
    * @remarks
@@ -4488,9 +4760,10 @@ export class TemplateEngine {
    *
    * **Enforced rules:**
    * - `<g-base>` must be at the outermost level and cannot be nested inside any other block.
-   * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-invoice>`, `<g-paid-media>`, `<g-venue>`, `<g-dice>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
+   * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-widget>`, `<g-invoice>`, `<g-paid-media>`, `<g-venue>`, `<g-dice>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
    * - `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside `<g-paid-media>` as a paywall item.
    * - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`.
+   * - `<g-widget-caption>` can only appear directly inside `<g-widget>`.
    * - `<g-price>` can only appear directly inside `<g-invoice>`.
    * - `<g-switch>`, `<g-map>` can only appear inside `<g-message>`, `<g-keyboard>`, `<g-media>`, or `<g-description>`.
    * - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`.
@@ -4550,6 +4823,8 @@ export class TemplateEngine {
       "g-poll": new Set([`g-base`]),
       "g-question": new Set([`g-poll`]),
       "g-option": new Set([`g-poll`]),
+      "g-widget": new Set([`g-base`]),
+      "g-widget-caption": new Set([`g-widget`]),
       "g-invoice": new Set([`g-base`]),
       "g-price": new Set([`g-invoice`]),
       "g-paid-media": new Set([`g-base`]),
@@ -4707,7 +4982,7 @@ export class TemplateEngine {
    * **Must NOT be self-closing (must use open/close tags):**
    * - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`,
    *   `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`,
-   *   `<g-option>...</g-option>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
+   *   `<g-option>...</g-option>`, `<g-widget>...</g-widget>`, `<g-widget-caption>...</g-widget-caption>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
    *   `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`,
    *   `<g-map>...</g-map>`, `<g-div>...</g-div>`, `<g-web-app-answer>...</g-web-app-answer>`
    *
@@ -4734,7 +5009,29 @@ export class TemplateEngine {
   static validateFormatBlock(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
     const errors: Array<{line: number; message: string}> = []
     const selfClosingBlocks = new Set([`space`, `import`, `hr`, `img`, `input`, `br`, `tg-map`])
-    const regularBlocks = new Set([`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-paid-media`, `g-description`, `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`, `g-web-app-answer`])
+    const regularBlocks = new Set([
+      `g-base`,
+      `g-message`,
+      `g-keyboard`,
+      `g-media`,
+      `g-media-group`,
+      `g-poll`,
+      `g-question`,
+      `g-option`,
+      `g-widget`,
+      `g-widget-caption`,
+      `g-invoice`,
+      `g-paid-media`,
+      `g-description`,
+      `g-script`,
+      `g-ifelse`,
+      `g-switch`,
+      `g-case`,
+      `g-default`,
+      `g-map`,
+      `g-div`,
+      `g-web-app-answer`
+    ])
 
     const tagRegex = /<(\/?)(\w[\w-]*)([^>]*)>/g
     let match: RegExpExecArray | null
@@ -5282,6 +5579,10 @@ export class TemplateEngine {
    * - `<g-poll correct>` — must be a non-negative option index
    * - `<g-poll explanation>` — any string, always valid
    * - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false`
+   * - `<g-widget allow_queries>` / `<g-widget is_shared>` / `<g-widget show_caption_above_media>` — must be `true` or `false`
+   * - `<g-widget chat_data>` / `<g-widget public_data>` — any string, always valid
+   * - `<g-widget width>` — must be an integer 200–600; `{{}}` values skip the static check (runtime-enforced)
+   * - `<g-widget height>` — must be an integer 50–600; `{{}}` values skip the static check (runtime-enforced)
    * - `<g-venue title>` / `<g-venue address>` — any string, always valid
    * - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced)
    * - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced)
@@ -5538,6 +5839,110 @@ export class TemplateEngine {
       }
       if (explanation !== undefined && !isDynamic(explanation) && explanation.length > 200) {
         errors.push({line, message: `Attribute "explanation" on <g-poll> must be at most 200 characters (got ${explanation.length})`})
+      }
+    }
+
+    return errors
+  }
+
+  /**
+   * Validates attributes and structural rules on `<g-widget>` blocks.
+   *
+   * @remarks
+   * Step 14 of the `validateTemplate` pipeline. Checks the block-level
+   * attributes (`lang`, `allow_queries`, `is_shared`,
+   * `show_caption_above_media`, `chat_data`, `public_data`, `width`,
+   * `height`) via `_validateBlockAttributes` — note there is deliberately no
+   * `caption` attribute: the caption comes only from the required
+   * `<g-widget-caption>` child block — then delegates structural rules
+   * (exactly one caption, caption length, HTML raw/compressed byte sizes,
+   * data byte sizes) to {@link TemplateEngine._validateWidgetItems}.
+   * Returns `valid: false` with per-line errors instead of throwing, so
+   * callers can aggregate across blocks.
+   *
+   * @param template - The raw template source to validate.
+   * @returns `{valid, errors}`; `errors` carry 1-based line numbers.
+   * @public
+   */
+  static validateBlockGWidgetAttributes(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
+    const errors = this._validateBlockAttributes(
+      template,
+      `g-widget`,
+      new Set([`lang`, `allow_queries`, `is_shared`, `show_caption_above_media`, `chat_data`, `public_data`, `width`, `height`]),
+      `"lang", "allow_queries", "is_shared", "show_caption_above_media", "chat_data", "public_data", "width", and "height"`,
+      this._PAGE_ATTR_VALUE_VALIDATORS[`g-widget`]
+    )
+    errors.push(...this._validateWidgetItems(template))
+    return {valid: errors.length === 0, errors}
+  }
+
+  /**
+   * Validates `<g-widget-caption>` presence and `<g-widget>` size limits.
+   *
+   * @remarks
+   * Enforces the Bot API `sendWidget` constraints on the RAW template
+   * values (the widget HTML carries no interpolation, so the static check
+   * is exact): exactly one `<g-widget-caption>` (required — it is the
+   * fallback text on clients without widget support), caption text 1–1024
+   * characters after entity parsing (HTML tags stripped; skipped when the
+   * caption carries `{{}}` / `{~ ~}` interpolation — dynamic lengths are
+   * checked at runtime by `Ctx.assertWidget`), HTML at most 32768 UTF-8
+   * bytes raw and at most 4000 bytes after zlib level-9 compression (the
+   * safe target — see
+   * {@link TemplateEngine.MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES}; the API
+   * hard limit is 4096), `chat_data` / `public_data` at most 1024 UTF-8
+   * bytes each (skipped when dynamic). Called by
+   * {@link TemplateEngine.validateBlockGWidgetAttributes}; errors carry
+   * 1-based line numbers.
+   *
+   * @param template - The raw template source to inspect.
+   * @returns Validation errors (empty when valid).
+   * @public
+   */
+  static _validateWidgetItems(template: string): Array<{line: number; message: string}> {
+    const errors: Array<{line: number; message: string}> = []
+    const widgetRegex = /<g-widget(?:\s+([^>]*))?>([\s\S]*?)<\/g-widget>/gi
+    const captionRegex = /<g-widget-caption(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-caption>/gi
+    const attrValue = (attrsStr: string, name: string): string | undefined => {
+      const m = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`).exec(attrsStr)
+      if (!m) return undefined
+      return m[1] ?? m[2] ?? m[3]
+    }
+    const isDynamic = (s: string): boolean => s.includes(`{{`) || s.includes(`{~`)
+
+    for (const widgetMatch of template.matchAll(widgetRegex)) {
+      const line = (template.slice(0, widgetMatch.index).match(/\n/g) || []).length + 1
+      const attrsStr = widgetMatch[1] ?? ``
+      const body = widgetMatch[2] ?? ``
+      const captionMatches = [...body.matchAll(captionRegex)]
+      if (captionMatches.length !== 1) {
+        errors.push({line, message: `<g-widget> must contain exactly one <g-widget-caption> (got ${captionMatches.length})`})
+      }
+      const captionText = captionMatches[0]?.[1] ?? ``
+      if (!isDynamic(captionText)) {
+        const textLength = captionText.replace(/<[^>]*>/g, ``).length
+        if (textLength < 1 || textLength > this.MAX_WIDGET_CAPTION_CHARS) {
+          errors.push({line, message: `<g-widget-caption> must be 1-${this.MAX_WIDGET_CAPTION_CHARS} characters after entity parsing (got ${textLength})`})
+        }
+      }
+      const html = body.replace(/<g-widget-caption(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-caption>/gi, ``).trim()
+      const rawBytes = Buffer.byteLength(html, `utf8`)
+      if (rawBytes > this.MAX_WIDGET_HTML_RAW_BYTES) {
+        errors.push({line, message: `<g-widget> HTML exceeds ${this.MAX_WIDGET_HTML_RAW_BYTES} bytes raw (got ${rawBytes})`})
+      } else {
+        const compressedBytes = deflateSync(html, {level: 9}).length
+        if (compressedBytes > this.MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES) {
+          errors.push({
+            line,
+            message: `<g-widget> HTML compresses to ${compressedBytes} bytes with zlib level 9, above the safe target of ${this.MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES} bytes (Bot API hard limit ${this.MAX_WIDGET_HTML_COMPRESSED_BYTES} bytes; Node zlib output can differ from Telegram's by tens of bytes)`
+          })
+        }
+      }
+      for (const name of [`chat_data`, `public_data`]) {
+        const value = attrValue(attrsStr, name)
+        if (value !== undefined && !isDynamic(value) && Buffer.byteLength(value, `utf8`) > this.MAX_WIDGET_DATA_BYTES) {
+          errors.push({line, message: `Attribute "${name}" on <g-widget> must be at most ${this.MAX_WIDGET_DATA_BYTES} bytes (got ${Buffer.byteLength(value, `utf8`)})`})
+        }
       }
     }
 
@@ -6546,6 +6951,15 @@ export class TemplateEngine {
    * 32. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
    * 33. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
    *
+   * Widget HTML is raw by design, so every validator above runs on the
+   * widget-stripped template ({@link TemplateEngine._stripGWidgetBody}) —
+   * the raw HTML (with its `<div>` / `<button>` / `<script>` / `<style>`
+   * tags and JS object literals) never reaches the name/scope/format/
+   * position/telegram checks — except
+   * {@link TemplateEngine.validateBlockGWidgetAttributes}, which runs on the
+   * full template right after the poll step and checks the block attributes,
+   * caption presence, and size limits.
+   *
    * Errors from all validators are combined into a single result.
    *
    * @param template - The raw template string to validate
@@ -6664,7 +7078,6 @@ export class TemplateEngine {
    * @remarks
    * Executes every registered validator in sequence and collects all errors.
    * Validation steps:
-   *
    * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known
    * 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known
    * 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax
@@ -6678,26 +7091,36 @@ export class TemplateEngine {
    * 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
    * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
    * 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes
-   * 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
-   * 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
-   * 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
-   * 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
-   * 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
-   * 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
-   * 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
-   * 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
-   * 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
-   * 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes
-   * 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes
-   * 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content
-   * 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content
-   * 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
-   * 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
-   * 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
-   * 30. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content
-   * 31. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
-   * 32. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
-   * 33. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+   * 14. {@link TemplateEngine.validateBlockGWidgetAttributes} — checks `<g-widget>` block attributes, caption presence, and size limits
+   * 15. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
+   * 16. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
+   * 17. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes
+   * 18. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes
+   * 19. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes
+   * 20. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes
+   * 21. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes
+   * 22. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes
+   * 23. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes
+   * 24. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes
+   * 25. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes
+   * 26. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content
+   * 27. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content
+   * 28. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content
+   * 29. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format
+   * 30. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content
+   * 31. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content
+   * 32. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal)
+   * 33. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized)
+   * 34. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)
+   *
+   * Widget HTML is raw by design, so every validator above runs on the
+   * widget-stripped template ({@link TemplateEngine._stripGWidgetBody}) —
+   * the raw HTML (with its `<div>` / `<button>` / `<script>` / `<style>`
+   * tags and JS object literals) never reaches the name/scope/format/
+   * position/telegram checks — except
+   * {@link TemplateEngine.validateBlockGWidgetAttributes}, which runs on the
+   * full template right after the poll step and checks the block attributes,
+   * caption presence, and size limits.
    *
    * Errors from all validators are combined into a single result.
    *
@@ -6718,47 +7141,52 @@ export class TemplateEngine {
    * @public
    */
   static validateTemplate(template: string): {valid: boolean; errors: Array<{line: number; message: string}>} {
-    const blockNamesResult = this.validateNamesBlock(template)
-    const scopesResult = this.validateScopes(template)
-    const formatResult = this.validateFormatBlock(template)
-    const positionsResult = this.validatePositionsBlock(template)
-    const telegramAttrResult = this.validateTelegramAttributesBlock(template)
-    const telegramValueResult = this.validateTelegramAttributeValuesBlock(template)
-    const telegramUnknownResult = this.validateTelegramUnknownAttributesBlock(template)
-    const baseAttrResult = this.validateBlockGBaseAttributes(template)
-    const messageAttrResult = this.validateBlockGMessageAttributes(template)
-    const keyboardAttrResult = this.validateBlockGKeyboardAttributes(template)
-    const mediaAttrResult = this.validateBlockGMediaAttributes(template)
-    const mediaGroupAttrResult = this.validateBlockGMediaGroupAttributes(template)
-    const pollAttrResult = this.validateBlockGPollAttributes(template)
-    const venueAttrResult = this.validateBlockGVenueAttributes(template)
-    const diceAttrResult = this.validateBlockGDiceAttributes(template)
-    const invoiceAttrResult = this.validateBlockGInvoiceAttributes(template)
-    const priceAttrResult = this.validateBlockGPriceAttributes(template)
-    const paidMediaAttrResult = this.validateBlockGPaidMediaAttributes(template)
-    const descriptionAttrResult = this.validateBlockGDescriptionAttributes(template)
-    const scriptAttrResult = this.validateBlockGScriptAttributes(template)
-    const ifElseAttrResult = this.validateBlockGIfElseAttributes(template)
-    const ifElseBodyResult = this.validateBlockGIfElseBody(template)
-    const switchAttrResult = this.validateBlockGSwitchAttributes(template)
-    const caseAttrResult = this.validateBlockGCaseAttributes(template)
-    const defaultAttrResult = this.validateBlockGDefaultAttributes(template)
-    const mapAttrResult = this.validateBlockGMapAttributes(template)
-    const divAttrResult = this.validateBlockGDivAttributes(template)
-    const importAttrResult = this.validateBlockGImportAttributes(template)
-    const spaceAttrResult = this.validateBlockGSpaceAttributes(template)
-    const callbackAnswerAttrResult = this.validateBlockGCallbackAnswerAttributes(template)
-    const precheckoutErrorAttrResult = this.validateBlockGPrecheckoutErrorAttributes(template)
-    const shippingErrorAttrResult = this.validateBlockGShippingErrorAttributes(template)
-    const inlineButtonAttrResult = this.validateBlockGInlineButtonAttributes(template)
-    const answerNoteAttrResult = this.validateBlockGAnswerNoteAttributes(template)
-    const webAppAnswerAttrResult = this.validateBlockGWebAppAnswerAttributes(template)
-    const giftAttrResult = this.validateBlockGGiftAttributes(template)
-    const pageAttrResult = this.validatePageAttributesBlock(template)
-    const pageValueResult = this.validatePageAttributeValuesBlock(template)
+    // Widget HTML is raw: every validator below runs on the stripped copy
+    // (opening tags + caption children only), except the widget validator
+    // itself, which needs the full template.
+    const widgetStripped = this._stripGWidgetBody(template)
+    const blockNamesResult = this.validateNamesBlock(widgetStripped)
+    const scopesResult = this.validateScopes(widgetStripped)
+    const formatResult = this.validateFormatBlock(widgetStripped)
+    const positionsResult = this.validatePositionsBlock(widgetStripped)
+    const telegramAttrResult = this.validateTelegramAttributesBlock(widgetStripped)
+    const telegramValueResult = this.validateTelegramAttributeValuesBlock(widgetStripped)
+    const telegramUnknownResult = this.validateTelegramUnknownAttributesBlock(widgetStripped)
+    const baseAttrResult = this.validateBlockGBaseAttributes(widgetStripped)
+    const messageAttrResult = this.validateBlockGMessageAttributes(widgetStripped)
+    const keyboardAttrResult = this.validateBlockGKeyboardAttributes(widgetStripped)
+    const mediaAttrResult = this.validateBlockGMediaAttributes(widgetStripped)
+    const mediaGroupAttrResult = this.validateBlockGMediaGroupAttributes(widgetStripped)
+    const pollAttrResult = this.validateBlockGPollAttributes(widgetStripped)
+    const widgetAttrResult = this.validateBlockGWidgetAttributes(template)
+    const venueAttrResult = this.validateBlockGVenueAttributes(widgetStripped)
+    const diceAttrResult = this.validateBlockGDiceAttributes(widgetStripped)
+    const invoiceAttrResult = this.validateBlockGInvoiceAttributes(widgetStripped)
+    const priceAttrResult = this.validateBlockGPriceAttributes(widgetStripped)
+    const paidMediaAttrResult = this.validateBlockGPaidMediaAttributes(widgetStripped)
+    const descriptionAttrResult = this.validateBlockGDescriptionAttributes(widgetStripped)
+    const scriptAttrResult = this.validateBlockGScriptAttributes(widgetStripped)
+    const ifElseAttrResult = this.validateBlockGIfElseAttributes(widgetStripped)
+    const ifElseBodyResult = this.validateBlockGIfElseBody(widgetStripped)
+    const switchAttrResult = this.validateBlockGSwitchAttributes(widgetStripped)
+    const caseAttrResult = this.validateBlockGCaseAttributes(widgetStripped)
+    const defaultAttrResult = this.validateBlockGDefaultAttributes(widgetStripped)
+    const mapAttrResult = this.validateBlockGMapAttributes(widgetStripped)
+    const divAttrResult = this.validateBlockGDivAttributes(widgetStripped)
+    const importAttrResult = this.validateBlockGImportAttributes(widgetStripped)
+    const spaceAttrResult = this.validateBlockGSpaceAttributes(widgetStripped)
+    const callbackAnswerAttrResult = this.validateBlockGCallbackAnswerAttributes(widgetStripped)
+    const precheckoutErrorAttrResult = this.validateBlockGPrecheckoutErrorAttributes(widgetStripped)
+    const shippingErrorAttrResult = this.validateBlockGShippingErrorAttributes(widgetStripped)
+    const inlineButtonAttrResult = this.validateBlockGInlineButtonAttributes(widgetStripped)
+    const answerNoteAttrResult = this.validateBlockGAnswerNoteAttributes(widgetStripped)
+    const webAppAnswerAttrResult = this.validateBlockGWebAppAnswerAttributes(widgetStripped)
+    const giftAttrResult = this.validateBlockGGiftAttributes(widgetStripped)
+    const pageAttrResult = this.validatePageAttributesBlock(widgetStripped)
+    const pageValueResult = this.validatePageAttributeValuesBlock(widgetStripped)
 
     // Extract <g-message> inner HTML and validate against Rich Message limits
-    const richMsgResult = this._validateBlockGMessageRichInTemplate(template)
+    const richMsgResult = this._validateBlockGMessageRichInTemplate(widgetStripped)
 
     const errors = [
       ...blockNamesResult.errors,
@@ -6774,6 +7202,7 @@ export class TemplateEngine {
       ...mediaAttrResult.errors,
       ...mediaGroupAttrResult.errors,
       ...pollAttrResult.errors,
+      ...widgetAttrResult.errors,
       ...venueAttrResult.errors,
       ...diceAttrResult.errors,
       ...invoiceAttrResult.errors,

@@ -2,7 +2,27 @@ import {existsSync, readdirSync, readFileSync, statSync, writeFileSync} from "no
 import {basename, extname, join, relative, resolve} from "node:path"
 import {type FSWatcher, watch} from "chokidar"
 import {PageManager} from "~/page/manager"
-import type {GAnswerNoteResult, GCallbackAnswerResult, GDescriptionResult, GDiceResult, GGiftResult, GInlineButtonResult, GInvoiceResult, GKeyboardResult, GMediaResult, GMessageResult, GPaidMediaResult, GPollResult, GPreCheckoutErrorResult, GShippingErrorResult, GVenueResult, GWebAppAnswerResult, ICompiledTemplate, ITemplateOptions} from "~/types/template"
+import type {
+  GAnswerNoteResult,
+  GCallbackAnswerResult,
+  GDescriptionResult,
+  GDiceResult,
+  GGiftResult,
+  GInlineButtonResult,
+  GInvoiceResult,
+  GKeyboardResult,
+  GMediaResult,
+  GMessageResult,
+  GPaidMediaResult,
+  GPollResult,
+  GPreCheckoutErrorResult,
+  GShippingErrorResult,
+  GVenueResult,
+  GWebAppAnswerResult,
+  GWidgetResult,
+  ICompiledTemplate,
+  ITemplateOptions
+} from "~/types/template"
 import {TemplateEngine} from "./engine"
 
 /**
@@ -785,6 +805,10 @@ export class TemplateManager {
       compiled.poll = TemplateEngine.compileBlockGPoll(processedTemplate, baseBlocks)
       updated = true
     }
+    if (keepIfExist === undefined || keepIfExist?.widget === false || existing?.widget === undefined) {
+      compiled.widget = TemplateEngine.compileBlockGWidget(processedTemplate, baseBlocks)
+      updated = true
+    }
     if (keepIfExist === undefined || keepIfExist?.venue === false || existing?.venue === undefined) {
       compiled.venue = TemplateEngine.compileBlockGVenue(processedTemplate, baseBlocks)
       updated = true
@@ -970,6 +994,41 @@ export class TemplateManager {
     }
 
     return {kind: `poll`, ...func(data)}
+  }
+
+  /**
+   * Gets compiled from block <g-widget>.
+   *
+   * @param key - Template identifier (filename without extension)
+   * @param AGBaseId - Base block ID matching `<g-base id="...">`
+   * @param ALang - Target language code (falls back to `default`)
+   * @param data - Template variables for interpolation
+   * @returns {@link GWidgetResult} with the widget payload flat under `kind: "widget"`
+   *
+   * @remarks
+   * Retrieves the compiled widget function for the specified template and language,
+   * then executes it with the provided data to generate the widget payload. The
+   * widget HTML rides raw (no interpolation); only the caption, `chat_data`,
+   * `public_data`, `width`, and `height` are interpolated from `data`.
+   *
+   * @example
+   * ```typescript
+   * const widget = tm.getGWidget("rate-page", "default", "en", {orderId: "1042"})
+   * // => {kind: "widget", html: "<div>...</div>", caption: "Order <b>#1042</b>", allow_queries: true}
+   * ```
+   *
+   * @public
+   */
+  getGWidget(key: string, AGBaseId = `default`, ALang = `default`, data?: Record<string, unknown>): GWidgetResult {
+    const map = this.getCompiled(key)
+    const one = map?.widget?.[AGBaseId] ?? map?.widget?.default
+    const func = one?.[ALang] ?? one?.default
+
+    if (!func) {
+      throw new Error(`Widget function not found for template "${key}" (base "${AGBaseId}", lang "${ALang}")`)
+    }
+
+    return {kind: `widget`, ...func(data)}
   }
 
   /**

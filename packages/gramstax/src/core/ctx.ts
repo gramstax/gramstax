@@ -13,6 +13,7 @@ import {AsyncLocalStorage} from "node:async_hooks"
 import {existsSync, statSync} from "node:fs"
 import {resolve, sep} from "node:path"
 import {setTimeout} from "node:timers/promises"
+import {deflateSync} from "node:zlib"
 import type {FileFlavor} from "@grammyjs/files"
 import type {MessageDraftPiece, StreamContextExtension} from "@grammyjs/stream"
 import {Context, GrammyError, HttpError, InlineKeyboard, InputFile, InputMediaBuilder, Keyboard} from "grammy"
@@ -28,6 +29,8 @@ import type {
   IBottomKb,
   IBottomKbParams,
   IBroadcastEditResult,
+  IBroadcastEditTarget,
+  IBroadcastEditOpts,
   IBroadcastSendResult,
   IBuildDataOptions,
   ICt,
@@ -74,9 +77,10 @@ import type {
   IRenderShippingParams,
   IRenderTextParams,
   IRenderVenueParams,
-  IRenderWebAppAnswerParams
+  IRenderWebAppAnswerParams,
+  IRenderWidgetParams
 } from "~/types/ctx"
-import type {IInvoiceBlock, IMediaBlock, IPaidMediaBlock, IPollBlock} from "~/types/template"
+import type {IInvoiceBlock, IMediaBlock, IPaidMediaBlock, IPollBlock, IWidgetBlock} from "~/types/template"
 
 type IMediaGroupType = Extract<IMediaBlock[`type`], `photo` | `video` | `audio` | `document`>
 type IMediaGroupInput = InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
@@ -789,6 +793,64 @@ export class Ctx extends Context {
   static readonly POLL_EXPLANATION_LIMIT = 200
 
   /**
+   * Bot API widget HTML limit in UTF-8 bytes (raw).
+   *
+   * @public
+   */
+  static readonly WIDGET_HTML_RAW_LIMIT = 32768
+
+  /**
+   * Bot API widget HTML limit in bytes after zlib level-9 compression.
+   *
+   * @public
+   */
+  static readonly WIDGET_HTML_COMPRESSED_LIMIT = 4096
+
+  /**
+   * Safe compile-time target for widget HTML after zlib level-9 compression.
+   *
+   * @remarks
+   * DEFAULT (flip to {@link Ctx.WIDGET_HTML_COMPRESSED_LIMIT} while testing
+   * if the stricter target rejects widgets Telegram would accept): Node zlib
+   * output can differ from Telegram's server-side compression by tens of
+   * bytes, so the runtime assert errors above this target, not above the
+   * 4096-byte hard limit.
+   *
+   * @public
+   */
+  static readonly WIDGET_HTML_COMPRESSED_SAFE_LIMIT = 4000
+
+  /**
+   * Bot API widget caption limit in characters after entity parsing.
+   *
+   * @public
+   */
+  static readonly WIDGET_CAPTION_LIMIT = 1024
+
+  /**
+   * Bot API widget `chat_data` / `public_data` limit in UTF-8 bytes each.
+   *
+   * @public
+   */
+  static readonly WIDGET_DATA_LIMIT = 1024
+
+  /**
+   * Bot API widget width range in logical pixels (200–600).
+   *
+   * @public
+   */
+  static readonly WIDGET_WIDTH_MIN = 200
+  static readonly WIDGET_WIDTH_MAX = 600
+
+  /**
+   * Bot API widget height range in logical pixels (50–600).
+   *
+   * @public
+   */
+  static readonly WIDGET_HEIGHT_MIN = 50
+  static readonly WIDGET_HEIGHT_MAX = 600
+
+  /**
    * Bot API invoice title limit in characters (`sendInvoice` title 1–32).
    *
    * @public
@@ -1059,6 +1121,42 @@ export class Ctx extends Context {
       if (poll.correct === undefined) throw new Error(`Poll type "quiz" requires "correct"`)
       if (!Number.isInteger(poll.correct) || poll.correct < 0 || poll.correct >= poll.options.length) throw new Error(`Poll "correct" must be an option index 0-${poll.options.length - 1} (got ${String(poll.correct)})`)
       if (poll.explanation !== undefined && poll.explanation.length > Ctx.POLL_EXPLANATION_LIMIT) throw new Error(`Poll explanation must be at most ${Ctx.POLL_EXPLANATION_LIMIT} characters (got ${poll.explanation.length})`)
+    }
+  }
+
+  /**
+   * Fail-fast checks for a compiled `<g-widget>` block against Bot API limits.
+   *
+   * @remarks
+   * Measures the COMPILED strings (post-interpolation): HTML at most 32768
+   * UTF-8 bytes raw and at most 4000 bytes after zlib level-9 compression
+   * (the safe target — see {@link Ctx.WIDGET_HTML_COMPRESSED_SAFE_LIMIT};
+   * the API hard limit is 4096), caption required and 1–1024 characters
+   * after entity parsing (HTML tags stripped), `chat_data` / `public_data`
+   * at most 1024 UTF-8 bytes each, `width` an integer 200–600 and `height`
+   * an integer 50–600 when present. Programmer error — always throws, never
+   * falls back or notifies.
+   *
+   * @param widget - Compiled widget block from `getGWidget`.
+   *
+   * @public
+   */
+  static assertWidget(widget: IWidgetBlock): void {
+    const rawBytes = Buffer.byteLength(widget.html, `utf8`)
+    if (rawBytes > Ctx.WIDGET_HTML_RAW_LIMIT) throw new Error(`Widget HTML must be at most ${Ctx.WIDGET_HTML_RAW_LIMIT} bytes raw (got ${rawBytes})`)
+    const compressedBytes = deflateSync(widget.html, {level: 9}).length
+    if (compressedBytes > Ctx.WIDGET_HTML_COMPRESSED_SAFE_LIMIT) throw new Error(`Widget HTML compresses to ${compressedBytes} bytes with zlib level 9, above the safe target of ${Ctx.WIDGET_HTML_COMPRESSED_SAFE_LIMIT} bytes (Bot API hard limit ${Ctx.WIDGET_HTML_COMPRESSED_LIMIT} bytes)`)
+    const captionText = widget.caption.replace(/<[^>]*>/g, ``)
+    if (captionText.length < 1 || captionText.length > Ctx.WIDGET_CAPTION_LIMIT) throw new Error(`Widget caption must be 1-${Ctx.WIDGET_CAPTION_LIMIT} characters after entity parsing (got ${captionText.length})`)
+    if (widget.chat_data !== undefined && Buffer.byteLength(widget.chat_data, `utf8`) > Ctx.WIDGET_DATA_LIMIT) throw new Error(`Widget chat_data must be at most ${Ctx.WIDGET_DATA_LIMIT} bytes (got ${Buffer.byteLength(widget.chat_data, `utf8`)})`)
+    if (widget.public_data !== undefined && Buffer.byteLength(widget.public_data, `utf8`) > Ctx.WIDGET_DATA_LIMIT) throw new Error(`Widget public_data must be at most ${Ctx.WIDGET_DATA_LIMIT} bytes (got ${Buffer.byteLength(widget.public_data, `utf8`)})`)
+    if (widget.width !== undefined) {
+      const width = Number(widget.width)
+      if (!Number.isInteger(width) || width < Ctx.WIDGET_WIDTH_MIN || width > Ctx.WIDGET_WIDTH_MAX) throw new Error(`Widget width must be an integer ${Ctx.WIDGET_WIDTH_MIN}-${Ctx.WIDGET_WIDTH_MAX} (got "${String(widget.width)}")`)
+    }
+    if (widget.height !== undefined) {
+      const height = Number(widget.height)
+      if (!Number.isInteger(height) || height < Ctx.WIDGET_HEIGHT_MIN || height > Ctx.WIDGET_HEIGHT_MAX) throw new Error(`Widget height must be an integer ${Ctx.WIDGET_HEIGHT_MIN}-${Ctx.WIDGET_HEIGHT_MAX} (got "${String(widget.height)}")`)
     }
   }
 
@@ -2312,10 +2410,10 @@ export class Ctx extends Context {
    *
    * @internal
    */
-  private _assertInlineKeyboardForEdit(method: string, keyboard: IInBoKb | null | undefined): InlineKeyboardMarkup | null | undefined {
+  private _assertInlineKeyboardForEdit(method: string, keyboard: IInBoKb | null | undefined, acceptClause = `editMessageText/editMessageMedia accept`): InlineKeyboardMarkup | null | undefined {
     if (keyboard === null || keyboard === undefined) return keyboard
     if (`inline_keyboard` in keyboard) return keyboard
-    throw new Error(`${method} edit route rejects a bottom (reply) keyboard: editMessageText/editMessageMedia accept inline keyboards only — pass mode: \`reply\` to send a new message instead, or use an inline keyboard`)
+    throw new Error(`${method} edit route rejects a bottom (reply) keyboard: ${acceptClause} inline keyboards only — pass mode: \`reply\` to send a new message instead, or use an inline keyboard`)
   }
 
   /**
@@ -2399,6 +2497,101 @@ export class Ctx extends Context {
       if (dropped.length > 0) {
         throw new Error(`${method} illegal combination: mode: "reply" + ${dropped.join(`, mode: "reply" + `)} — a forced reply never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`}, or use mode: "auto"/"edit" when the edit path matters`)
       }
+    }
+  }
+
+  /**
+   * Runtime route guard for {@link (Ctx:class).renderWidget} — the
+   * widget-worded twin of {@link (Ctx:class)._assertRenderRoute}.
+   *
+   * @remarks
+   * TypeScript callers cannot reach a failure — the params union already
+   * rejects these pairs. This guard exists for plain-JS callers, where a
+   * field would otherwise be silently dropped. Every throw names the
+   * offending field and the fix.
+   *
+   * A separate function (not a `richAxis` flag on the shared guard) because
+   * the widget routes differ in wording AND in fields: the broadcast-send
+   * message must not claim the route "reads the media kind from the
+   * `<g-media>` block", and the revise route has no
+   * `broadcast.reviseOptions.fallback` to point at — widget revise has no
+   * resend to fall back to, so `reviseOptions` omits `fallback` entirely.
+   * The route is resolved from the same discriminators (`broadcast` shape
+   * first, then `mode`), and each would-be-dropped field is read out of
+   * `params` by key.
+   *
+   * @param params - The render params to validate.
+   *
+   * @internal
+   */
+  static _assertRenderWidgetRoute(params: object): void {
+    const fields = params as {[key: string]: unknown}
+    const broadcast = fields.broadcast
+    const mode = fields.mode
+    const dropped: string[] = []
+    const note = (key: string, bare = false): void => {
+      const value = fields[key]
+      if (value === null || value === undefined) return
+      dropped.push(bare ? key : `${key}: "${String(value)}"`)
+    }
+    const noteUniversal = (): void => {
+      note(`rich`, true)
+      note(`richOptions`, true)
+      note(`chunkSize`, true)
+      note(`fallback`, true)
+      note(`editOptions`, true)
+      note(`fallbackOptions`, true)
+    }
+    if (broadcast !== null && broadcast !== undefined) {
+      if (typeof broadcast === `object` && broadcast !== null && `targets` in broadcast) {
+        note(`mode`)
+        note(`options`, true)
+        noteUniversal()
+        if (dropped.length > 0) {
+          throw new Error(
+            `renderWidget illegal combination: broadcast.targets + ${dropped.join(`, broadcast.targets + `)} — the revise route data-updates the stored widget messages and never reads ${dropped.length > 1 ? `these fields` : `this field`}; drop ${dropped.length > 1 ? `them` : `it`} or drop broadcast.targets and use mode: "edit" / "update-data" for a single chat`
+          )
+        }
+        return
+      }
+      note(`mode`)
+      noteUniversal()
+      if (dropped.length > 0) {
+        throw new Error(
+          `renderWidget illegal combination: broadcast + ${dropped.join(`, broadcast + `)} — the broadcast-send route reads the widget from the <g-widget> block and never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`} or use broadcast.targets to data-update already-sent widget messages`
+        )
+      }
+      return
+    }
+    if (mode === `reply`) {
+      noteUniversal()
+      if (dropped.length > 0) {
+        throw new Error(
+          `renderWidget illegal combination: mode: "reply" + ${dropped.join(`, mode: "reply" + `)} — a forced reply never edits, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`}, or use mode: "edit" / "update-data" when the update path matters`
+        )
+      }
+      return
+    }
+    if (mode === `edit`) {
+      note(`options`, true)
+      noteUniversal()
+      if (dropped.length > 0) {
+        throw new Error(
+          `renderWidget illegal combination: mode: "edit" + ${dropped.join(`, mode: "edit" + `)} — an edit re-applies state + caption + keyboard to the held widget message and never sends, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`}, or use mode: "reply" to send a new message`
+        )
+      }
+      return
+    }
+    if (mode === `update-data`) {
+      note(`options`, true)
+      note(`keyboard`, true)
+      noteUniversal()
+      if (dropped.length > 0) {
+        throw new Error(
+          `renderWidget illegal combination: mode: "update-data" + ${dropped.join(`, mode: "update-data" + `)} — a data-only update changes only the widget state in one call and never sends or edits the caption/keyboard, so ${dropped.length > 1 ? `these fields are` : `this field is`} never read; drop ${dropped.length > 1 ? `them` : `it`}, or use mode: "edit" to re-apply the caption and keyboard too`
+        )
+      }
+      return
     }
   }
 
@@ -4155,6 +4348,402 @@ export class Ctx extends Context {
     if (throwError && res.failedCount > 0) {
       throw {...res, err: firstError}
     }
+    return res
+  }
+
+  /**
+   * Sends, edits, or data-updates a template-driven HTML widget using the page `<g-widget>` block.
+   *
+   * Template block: `<g-widget>` (read via `getGWidget`).
+   * @remarks
+   * Modes are explicit — there is NO `auto` mode: a tap inside the widget
+   * (`widget_query`) wants `update-data` while a keyboard button under it
+   * (`callbackQuery`) wants `edit`, so no single runtime guess is honest.
+   * `mode` defaults to `reply`.
+   *
+   * - `reply` (default): sends a new widget via `replyWithWidget` with the
+   *   template caption and a hardcoded `parse_mode: "HTML"` (never
+   *   `caption_entities`, like `renderMedia` / `renderPoll`). The chat
+   *   resolves from `widgetQuery.chat` on a tap update too, so a tap handler
+   *   can reply with a fresh widget in the same chat.
+   * - `edit`: re-applies the template's state, caption, and keyboard to the
+   *   widget message held by the context — never the HTML, which the Bot API
+   *   cannot replace (there is no `editMessageWidget`). NOT atomic: up to
+   *   three API calls (`editMessageWidgetData` / `editSharedWidgetData`,
+   *   `editMessageCaption`, `editMessageReplyMarkup`), so a failure mid-way
+   *   leaves part of the message updated and the error is rethrown. On a
+   *   shared widget the state edit goes to `editSharedWidgetData` (public
+   *   data, every message showing the widget) while the caption and keyboard
+   *   edits still target only the context-held message. Target resolution
+   *   uses the ctx shortcuts: `chatId` / `msgId` resolve from
+   *   `widgetQuery.chat` / `widgetQuery.message_id` on a tap update
+   *   (verified in grammY 1.48.0 `context.js` and `@grammyjs/types` 5.2.0),
+   *   so the tapped message is the edit target with no manual resolution.
+   *   (One edge: a widget inside an INLINE message carries neither — the
+   *   query has `inline_message_id` instead — and the data edit then takes
+   *   grammY's Inline variant while the caption/keyboard edits throw
+   *   grammY's "Missing information" error.)
+   * - `update-data`: changes only the widget state in exactly one API call
+   *   (atomic) — `chat_data` via `editMessageWidgetData` for a regular
+   *   widget, `public_data` via `editSharedWidgetData` for a shared one.
+   *   This is the hot path for widget taps and the only mode meaningful for
+   *   shared widgets. It does NOT answer the widget query: the handler must
+   *   still call `ctx.answerWidgetQuery` within 15 seconds. Target
+   *   resolution uses the ctx shortcuts (see the edit route above): the
+   *   regular-widget target comes from `widgetQuery.chat` /
+   *   `widgetQuery.message_id`, the shared target from `widgetQuery.widget_id
+   *   ?? sharedWidgetQuery.widget_id ?? msg.widget.id` (the widget_id path
+   *   grammY resolves).
+   *
+   * Fail-fast validation (`Ctx.assertWidget`) runs BEFORE any API call on the
+   * COMPILED strings — programmer errors always throw, never fall back.
+   *
+   * Send failures follow `Ctx.classifySendError`, except the fallback content
+   * is the widget caption (sent as text with `parse_mode: "HTML"`) instead of
+   * the generic page fallback text — DEFAULT (flip to rethrow, `renderPoll`
+   * style, while testing if needed): the caption is designed to stand alone
+   * as the widget's replacement on clients without widget support.
+   *
+   * @param params - Optional params object (defaults to `{}`): `mode` one of `reply` (default), `edit`, `update-data`; `keyboard` optional keyboard markup (or null to omit) — inline-only on the `edit` route, `editMessageReplyMarkup` rejects a bottom keyboard; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block widget (or null to use default); `options` optional extra `sendWidget` fields, spread last over the template fields (or null to omit); `broadcast` optional fan-out — `{ids, languageCode, ...}` sends to many recipients, `{targets, reviseOptions}` data-updates stored widget messages (non-shared widgets only).
+   * @returns The sent widget message, `true` for an edit / data-update, `undefined` when the send fell back to the caption text, or the broadcast counts.
+   *
+   * @example
+   * ```typescript
+   * async handleCallbackQueryData() {
+   *   await this.renderWidget() // send the widget from the <g-widget> block
+   * }
+   * ```
+   *
+   * @example
+   * ```typescript
+   * async handleFreeWidgetQuery() {
+   *   await this.answerWidgetQuery({data: "ok"})
+   *   await this.renderWidget({mode: "update-data", data: {stars: 4}}) // tap -> new widget state
+   * }
+   * ```
+   *
+   * @public
+   */
+  async renderWidget(params: IRenderWidgetParams = {}): Promise<Awaited<ReturnType<Ctx[`replyWithWidget`]>> | Awaited<ReturnType<Ctx[`reply`]>> | true | undefined | IBroadcastSendResult | IBroadcastEditResult> {
+    Ctx._assertRenderWidgetRoute(params)
+    const broadcast = params.broadcast
+    if (broadcast !== null && broadcast !== undefined) {
+      if (`targets` in broadcast) {
+        return await this._broadcastReviseWidget({targets: broadcast.targets, reviseOptions: broadcast.reviseOptions, data: params.data, AGBaseId: params.AGBaseId})
+      }
+      return await this._broadcastSendWidget({...broadcast, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options})
+    }
+    const mode = params.mode ?? `reply`
+    const w = this.templateManager.getGWidget(this.data.name, params.AGBaseId ?? undefined, this.from?.language_code, params.data ?? undefined)
+    Ctx.assertWidget(w)
+    if (mode === `reply`) {
+      try {
+        return await this.replyWithWidget(w.html, {
+          caption: w.caption,
+          parse_mode: `HTML`,
+          chat_data: w.chat_data ?? undefined,
+          public_data: w.public_data ?? undefined,
+          allow_queries: w.allow_queries ?? undefined,
+          is_shared: w.is_shared ?? undefined,
+          show_caption_above_media: w.show_caption_above_media ?? undefined,
+          width: w.width !== undefined ? Number(w.width) : undefined,
+          height: w.height !== undefined ? Number(w.height) : undefined,
+          reply_markup: params.keyboard ?? undefined,
+          ...(params.options ?? {})
+        })
+      } catch (error) {
+        const kind = Ctx.classifySendError(error)
+        this.notifySendError(error, kind, this.sendChatId())
+        if (kind === `retryable`) {
+          this.log?.error(`widget send retryable error for page "${this.sendPageName()}" chat ${this.sendChatId()}: ${String(error)}`)
+          throw error
+        }
+        // DEFAULT (flip to rethrow, renderPoll style, while testing if needed):
+        // the caption is the widget's designed standalone fallback, so a
+        // non-retryable send failure degrades to sending the caption as text.
+        this.log?.warn(`widget send fallback-caption delivery for page "${this.sendPageName()}" chat ${this.sendChatId()}`)
+        try {
+          return await this.reply(w.caption, {parse_mode: `HTML`, reply_markup: params.keyboard ?? undefined})
+        } catch {
+          this.log?.warn(`widget send fallback-caption delivery failed for page "${this.sendPageName()}"`)
+          return undefined
+        }
+      }
+    }
+    if (mode === `edit`) {
+      // Fail fast on the keyboard BEFORE any API call: a bottom keyboard is
+      // a programmer error, and the data edit below must not run first.
+      const keyboardInline = this._assertInlineKeyboardForEdit(`renderWidget`, params.keyboard, `editMessageReplyMarkup accepts`)
+      // NOT atomic: up to three API calls; a failure mid-way leaves part of
+      // the message updated, and the error is rethrown (no fallback resend).
+      // Target resolution uses the ctx shortcuts: chatId/msgId resolve from
+      // widgetQuery.chat / widgetQuery.message_id on a tap update (verified
+      // in grammY 1.48.0 context.js and @grammyjs/types 5.2.0), so the tapped
+      // message is the edit target with no manual resolution.
+      if (w.is_shared === true) {
+        if (w.public_data !== undefined) await this.editSharedWidgetData(w.public_data)
+      } else if (w.chat_data !== undefined) {
+        await this.editMessageWidgetData({chat_data: w.chat_data})
+      }
+      await this.editMessageCaption({caption: w.caption, parse_mode: `HTML`})
+      if (keyboardInline !== null && keyboardInline !== undefined) {
+        await this.editMessageReplyMarkup({reply_markup: keyboardInline})
+      }
+      return true
+    }
+    if (mode === `update-data`) {
+      // Atomic: exactly one API call. Does NOT answer the widget query — the
+      // handler must still call ctx.answerWidgetQuery within 15 seconds.
+      // Target resolution uses the ctx shortcuts (see the edit route above):
+      // a regular widget edits the tapped message via widgetQuery.chat /
+      // widgetQuery.message_id, a shared widget edits by widget_id.
+      if (w.is_shared === true) {
+        if (w.public_data === undefined) throw new Error(`renderWidget mode "update-data" on a shared widget requires public_data — set the "public_data" attribute on <g-widget>`)
+        await this.editSharedWidgetData(w.public_data)
+      } else {
+        if (w.chat_data === undefined) throw new Error(`renderWidget mode "update-data" requires chat_data — set the "chat_data" attribute on <g-widget>`)
+        await this.editMessageWidgetData({chat_data: w.chat_data})
+      }
+      return true
+    }
+    throw new Error(`renderWidget unknown mode "${String(mode)}" — expected "reply" | "edit" | "update-data"`)
+  }
+
+  /**
+   * Broadcast-send half of {@link (Ctx:class).renderWidget} — the
+   * multi-recipient widget fan-out.
+   *
+   * Template block: `<g-widget>` (read via `getGWidget`).
+   * @remarks
+   * The same checkpoint-first loop as the other broadcast-send helpers
+   * (per-language `getGWidget` compilation, fail-fast `Ctx.assertWidget` for
+   * every recipient BEFORE the loop, `startFrom` resume without resending,
+   * bounded-concurrency stride lanes capped at `10`, `30`-message free-limit
+   * pacing plus optional `chunkSize`/`chunkDelayMs` sleeps with `onProgress`,
+   * `retryable[]` with absolute `index` + `id` + `error` in completion order,
+   * `excludeIds` skips, `throwError` rethrow). Per-recipient sends reuse the
+   * exact `api.sendWidget` arg construction from {@link (Ctx:class).renderWidget}
+   * (duplicated here — not extracted — so `renderWidget` behavior is untouched).
+   * Per-recipient failures mirror the broadcast-send loop: `fallback-text`
+   * triggers a best-effort caption send to that recipient (nested failures
+   * ignored) while `retryable` is recorded and the loop continues. No
+   * private-chat-only restriction is enforced — DEFAULT (flip while testing
+   * if needed): a widget sent to a group chat fails per recipient and is
+   * counted, not pre-rejected.
+   *
+   * @param params - Broadcast-send params plus the host `renderWidget` fields: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block widget (or null to use default); `options` optional extra `sendWidget` fields (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @returns Counts plus `retryable[]` for a re-drive pass.
+   *
+   * @internal
+   */
+  private async _broadcastSendWidget(
+    params: IBroadcastSendParams & {
+      keyboard?: IInBoKb | null
+      data?: IData | null
+      AGBaseId?: string | null
+      options?: Parameters<Ctx[`replyWithWidget`]>[1] | null
+    }
+  ): Promise<IBroadcastSendResult> {
+    const {ids, languageCode, keyboard, data, AGBaseId, options, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
+    const res: IBroadcastSendResult = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: []}
+    res.totalCount = ids.length
+    const limitFree = 30
+    const excluded = excludeIds !== null && excludeIds.length > 0 ? new Set(excludeIds) : null
+    const widgets = languageCode.map((it) => this.templateManager.getGWidget(this.data.name, AGBaseId ?? undefined, it, data ?? undefined))
+    for (const widget of widgets) {
+      Ctx.assertWidget(widget)
+    }
+    const rawStart = startFrom ?? 0
+    const start = !Number.isFinite(rawStart) ? 0 : Math.min(ids.length, Math.max(0, Math.floor(rawStart)))
+    res.skippedCount += start
+    const rawWorkers = concurrency ?? 1
+    const workers = !Number.isFinite(rawWorkers) ? 1 : Math.min(10, Math.max(1, Math.floor(rawWorkers)))
+    let firstError: unknown
+    const attempt = async (index: number): Promise<void> => {
+      const id = ids[index]
+      if (excluded?.has(id!)) {
+        res.skippedCount += 1
+        return
+      }
+      const widget = widgets[index] ?? widgets[widgets.length - 1]
+      try {
+        // Cross-chat by design: recipients differ from the current chat, so this loop keeps `api.*`.
+        if (!widget) {
+          throw new Error(`Widget not found for template "${this.data.name}"`)
+        }
+        await this.api.sendWidget(id!, widget.html, {
+          caption: widget.caption,
+          parse_mode: `HTML`,
+          chat_data: widget.chat_data ?? undefined,
+          public_data: widget.public_data ?? undefined,
+          allow_queries: widget.allow_queries ?? undefined,
+          is_shared: widget.is_shared ?? undefined,
+          show_caption_above_media: widget.show_caption_above_media ?? undefined,
+          width: widget.width !== undefined ? Number(widget.width) : undefined,
+          height: widget.height !== undefined ? Number(widget.height) : undefined,
+          reply_markup: keyboard ?? undefined,
+          ...(options ?? {})
+        })
+        res.successCount += 1
+      } catch (error) {
+        const kind = Ctx.classifySendError(error)
+        if (kind === `fallback-text`) {
+          this.log?.warn(`broadcast fallback-caption delivery to ${id} for page "${this.sendPageName()}"`)
+          this.notifySendError(error, kind, id)
+          try {
+            await this.api.sendMessage(id!, widget?.caption ?? this.resolveFallbackText(), {parse_mode: `HTML`})
+          } catch {
+            // best-effort fallback; ignore nested failure
+          }
+        } else {
+          this.notifySendError(error, kind, id)
+          res.retryable.push({index, id: id!, error})
+        }
+        res.failedCount += 1
+        firstError ??= error
+      }
+      if ((index + 1) % limitFree === 0) {
+        await setTimeout(1200)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+      } else if (chunkSize !== null && chunkSize > 0 && (index + 1) % chunkSize === 0 && index + 1 < ids.length) {
+        await setTimeout(chunkDelayMs ?? 500)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+      }
+    }
+    if (workers <= 1) {
+      for (let index = start; index < ids.length; index++) await attempt(index)
+    } else {
+      const pending: number[] = []
+      for (let index = start; index < ids.length; index++) pending.push(index)
+      const lanes: number[][] = Array.from({length: workers}, (): number[] => [])
+      pending.forEach((absolute, position) => {
+        lanes[position % workers]!.push(absolute)
+      })
+      await Promise.all(
+        lanes.map(async (lane) => {
+          for (const next of lane) await attempt(next)
+        })
+      )
+    }
+    await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+    if (throwError && res.failedCount > 0) {
+      throw {...res, err: firstError}
+    }
+    return res
+  }
+
+  /**
+   * Broadcast-revise half of {@link (Ctx:class).renderWidget} (the
+   * `broadcast.targets` path) — data-updates already-sent widget messages for
+   * many recipients in bulk.
+   *
+   * Template block: `<g-widget>` (read via `getGWidget`).
+   * @remarks
+   * The `update-data` mode fanned out: same checkpoint-first resume
+   * (`startFrom`), bounded-concurrency stride lanes (`concurrency`, capped at
+   * `10`), pacing (`30`-message free-limit sleep plus optional `batchSize` /
+   * `chunkDelayMs` sleeps with `onProgress`), retryable separation
+   * (`retryable[]` with absolute `index` + `chatId` + `messageId` + `error`,
+   * completion order), and fail-fast validation (programmer errors throw
+   * BEFORE any send).
+   *
+   * The intended input source is a stored sent-list such as the downstream
+   * `SentRepository` shape (`Array<{chatId, messageId}>` per content code):
+   * pass the rows back here to update the same widget messages for every
+   * recipient. Each target is updated via `api.editMessageWidgetData` with
+   * the template's `chat_data`.
+   *
+   * Shared widgets are rejected fail-fast: one `editSharedWidgetData` call
+   * updates every message showing the widget, so a fan-out over stored
+   * messages is the wrong tool — use `mode: "update-data"` once instead.
+   *
+   * There is no delete-and-resend fallback here (unlike `renderMedia`
+   * revise): a failed per-recipient update is classified via
+   * `Ctx.classifySendError` — `fallback-text` triggers a best-effort caption
+   * send to that recipient (nested failures ignored) and `failedCount++`;
+   * `retryable` appends to `retryable[]` and the loop continues.
+   *
+   * @param params - Revise-fanout params plus the host `renderWidget` fields: `targets` stored `{chatId, messageId}` rows to update, in stable order (checkpoint index = array index) (required); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block widget (or null to use default); `reviseOptions` optional broadcast controls (`onProgress`, `startFrom`, `concurrency`, `batchSize`, `chunkDelayMs`) (or null for defaults).
+   * @returns Counts plus `retryable[]` for a re-drive pass.
+   *
+   * @internal
+   */
+  private async _broadcastReviseWidget(
+    params: {
+      targets: IBroadcastEditTarget[]
+      reviseOptions?: Omit<IBroadcastEditOpts, `fallback`> | null
+      data?: IData | null
+      AGBaseId?: string | null
+    }
+  ): Promise<IBroadcastEditResult> {
+    const {targets, data, AGBaseId, reviseOptions} = params
+    const opts = reviseOptions ?? {}
+    const onProgress = opts.onProgress ?? null
+    const batchSize = opts.batchSize ?? null
+    const chunkDelayMs = opts.chunkDelayMs ?? null
+    const res: IBroadcastEditResult = {successCount: 0, failedCount: 0, totalCount: targets.length, skippedCount: 0, retryable: []}
+    const limitFree = 30
+    const w = this.templateManager.getGWidget(this.data.name, AGBaseId ?? undefined, this.from?.language_code, data ?? undefined)
+    Ctx.assertWidget(w)
+    if (w.is_shared === true) {
+      throw new Error(`renderWidget broadcast.targets rejects shared widgets — one editSharedWidgetData call updates every message showing the widget; use mode: "update-data" once instead`)
+    }
+    if (w.chat_data === undefined) {
+      throw new Error(`renderWidget broadcast.targets requires chat_data — set the "chat_data" attribute on <g-widget>`)
+    }
+    const rawStart = opts.startFrom ?? 0
+    const start = !Number.isFinite(rawStart) ? 0 : Math.min(targets.length, Math.max(0, Math.floor(rawStart)))
+    res.skippedCount += start
+    const rawWorkers = opts.concurrency ?? 1
+    const workers = !Number.isFinite(rawWorkers) ? 1 : Math.min(10, Math.max(1, Math.floor(rawWorkers)))
+    const attempt = async (index: number): Promise<void> => {
+      const target = targets[index]!
+      const chatId = target.chatId
+      const messageId = target.messageId
+      try {
+        // Cross-chat by design: targets differ from the current chat, so this loop keeps `api.*`.
+        await this.api.editMessageWidgetData(chatId, messageId, {chat_data: w.chat_data})
+        res.successCount += 1
+      } catch (error) {
+        const kind = Ctx.classifySendError(error)
+        if (kind === `fallback-text`) {
+          this.log?.warn(`broadcast revise fallback-caption delivery to ${chatId} for page "${this.sendPageName()}"`)
+          this.notifySendError(error, kind, chatId)
+          try {
+            await this.api.sendMessage(chatId, w.caption, {parse_mode: `HTML`})
+          } catch {
+            // best-effort fallback; ignore nested failure
+          }
+        } else {
+          this.notifySendError(error, kind, chatId)
+          res.retryable.push({index, chatId, messageId, error})
+        }
+        res.failedCount += 1
+      }
+      if ((index + 1) % limitFree === 0) {
+        await setTimeout(1200)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+      } else if (batchSize !== null && batchSize > 0 && (index + 1) % batchSize === 0 && index + 1 < targets.length) {
+        await setTimeout(chunkDelayMs ?? 500)
+        await onProgress?.(res.successCount + res.failedCount, res.totalCount)
+      }
+    }
+    if (workers <= 1) {
+      for (let index = start; index < targets.length; index++) await attempt(index)
+    } else {
+      const pending: number[] = []
+      for (let index = start; index < targets.length; index++) pending.push(index)
+      const lanes: number[][] = Array.from({length: workers}, (): number[] => [])
+      pending.forEach((absolute, position) => {
+        lanes[position % workers]!.push(absolute)
+      })
+      await Promise.all(
+        lanes.map(async (lane) => {
+          for (const next of lane) await attempt(next)
+        })
+      )
+    }
+    await onProgress?.(res.successCount + res.failedCount, res.totalCount)
     return res
   }
 
