@@ -1105,7 +1105,7 @@ App teams can copy `skills/gramstax-superplan/` plus the three best-practice ski
 
 ### Examples
 
-Eleven runnable workspace members under [`example/`](https://github.com/gramstax/gramstax/tree/main/example), ordered as a progression: [`example/AGENTS.md`](https://github.com/gramstax/gramstax/blob/main/example/AGENTS.md) is the map:
+Twelve runnable workspace members under [`example/`](https://github.com/gramstax/gramstax/tree/main/example), ordered as a progression: [`example/AGENTS.md`](https://github.com/gramstax/gramstax/blob/main/example/AGENTS.md) is the map:
 
 | # | Project | Demonstrates |
 | :- | :------ | :----------- |
@@ -1117,9 +1117,10 @@ Eleven runnable workspace members under [`example/`](https://github.com/gramstax
 | 6 | `6-bank-system` | Stateful store, bigint money math, a multi-step deposit/withdraw/transfer flow |
 | 7 | `7-crud` | LMDB persistence with a schema + repository service layer |
 | 8 | `8-newsletter` | LMDB subscribers, admin-gated broadcast, per-recipient language |
-| 9 | `9-substore-bot` | Full e-commerce on in-memory data plus `CacheExternal`; the only example with a unit test |
+| 9 | `9-substore-bot` | Full e-commerce on in-memory data plus `CacheExternal` |
 | 10 | `10-http-request` | External HTTP via `fetch` with `AbortSignal.timeout` |
 | 11 | `11-cloudflare-worker` | Manifest boot and AOT on a Cloudflare Workers isolate |
+| 12 | `12-widget-counter` | HTML widget tap counter: `renderWidget`, `handleFreeWidgetQuery`, answers plus `update-data`; unit + e2e tested |
 
 ## ❤️ Donate
 

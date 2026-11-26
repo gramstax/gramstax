@@ -1,0 +1,1 @@
+{"dependencies":{"gramstax":"workspace:*"},"devDependencies":{"grammy":"1.48.0"},"name":"example-12-widget-counter","private":false,"scripts":{"dev":"gramstax start --watch","start":"gramstax start","test":"bun test test/","test:all":"bun run test && bun run test:e2e","test:e2e":"bun test e2e/","typecheck":"tsc --noEmit -p tsconfig.json"},"type":"module"}

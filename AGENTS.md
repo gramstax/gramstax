@@ -17,7 +17,7 @@
 - `packages/*/src`: TypeScript sources.
 - `packages/*/test`: Bun unit tests (currently only in `gramstax`, `lmdb`, `worker-thread`).
 - `packages/create-gramstax/src/templates`: template project files for the CLI.
-- `example/`: sample projects (1-complex through 10-http-request, ordinally named).
+- `example/`: sample projects (1-complex through 12-widget-counter, ordinally named).
 - `skills/`: repository-level agent skills (`gramstax-best-practices`, `lmdb-best-practices`, `worker-thread-best-practices` rule routers, plus `gramstax-superplan` for apps built on Gramstax and `gramstax-repo-superplan` for this framework repo; each a router + `references/`).
 - `docs/`: documentation and API reference.
 - `docs/AGENTS.md`: API reference; not repo-wide agent guidance.
@@ -304,7 +304,7 @@ The repo has a broader scope than a typical 2-package Bun/Nx monorepo:
 
 - **Extra top-level dirs**: `skill/` (tooling, some deprecated), `.omo/` (tool metadata), `plans/` (numbered implementation plans), `prompts/` (agent prompt templates), `scripts/` (e2e-mirror tooling), `z-experiment/` (empty scratch), `real-projects/` (standalone apps, not workspace members).
 - **Extra packages**: `lmdb/` and `worker-thread/` are independently published npm packages.
-- **Example workspaces**: `example/1-complex` through `example/10-http-request` are ordinally named and included in the root workspace.
+- **Example workspaces**: `example/1-complex` through `example/12-widget-counter` are ordinally named and included in the root workspace.
 - **Checked-in artifacts**: `tsconfig.tsbuildinfo`, API-extractor temp output, and generated docs/yaml/markdown trees are versioned.
 
 ## Complexity Hotspots
