@@ -9,21 +9,21 @@ const TEST_DIR = join(import.meta.dir, `views-widget`)
 
 const regularTemplate = `<g-base>
   <g-widget allow_queries chat_data='{"order": "1042"}' width="400" height="300">
-    <div class="card"><button onclick="send('tap')">Tap me</button><script>const cfg = {'key': 'val'}; const t = \`hi \${name}\`;</script></div>
+    <g-widget-body><div class="card"><button onclick="send('tap')">Tap me</button><script>const cfg = {'key': 'val'}; const t = \`hi \${name}\`;</script></div></g-widget-body>
     <g-widget-caption>Order <b>#1042</b> — tap to rate it</g-widget-caption>
   </g-widget>
 </g-base>`
 
 const sharedTemplate = `<g-base>
   <g-widget is_shared public_data='{"poll": "stars"}' show_caption_above_media>
-    <div>Shared widget</div>
+    <g-widget-body><div>Shared widget</div></g-widget-body>
     <g-widget-caption>Rate us, everyone sees the same stars</g-widget-caption>
   </g-widget>
 </g-base>`
 
 const dynamicTemplate = `<g-base>
   <g-widget chat_data='{"order": "{{orderId}}"}' width="{{w}}" height="{{h}}">
-    <div>Order widget</div>
+    <g-widget-body><div>Order widget</div></g-widget-body>
     <g-widget-caption>Order <b>#{{orderId}}</b></g-widget-caption>
   </g-widget>
 </g-base>`
@@ -64,7 +64,7 @@ describe(`widget-parser`, () => {
   it(`parses valued booleans as false and dynamic width/height as raw strings`, () => {
     const widgets = TemplateEngine._processGWidgetBlocks(
       wrap(` allow_queries="false" is_shared="false">
-    <div>x</div>
+    <g-widget-body><div>x</div></g-widget-body>
     <g-widget-caption>Cap</g-widget-caption>
   </g-widget>`)
     )
@@ -76,7 +76,7 @@ describe(`widget-parser`, () => {
   })
 
   it(`keys widgets by lang with last block winning`, () => {
-    const widgets = TemplateEngine._processGWidgetBlocks(`<g-base><g-widget lang="id"><div>x</div><g-widget-caption>Cap</g-widget-caption></g-widget></g-base>`)
+    const widgets = TemplateEngine._processGWidgetBlocks(`<g-base><g-widget lang="id"><g-widget-body><div>x</div></g-widget-body><g-widget-caption>Cap</g-widget-caption></g-widget></g-base>`)
     expect(Object.keys(widgets)).toEqual([`id`])
   })
 })
@@ -101,7 +101,7 @@ describe(`widget-validator`, () => {
   it(`rejects a missing caption`, () => {
     const result = TemplateEngine.validateBlockGWidgetAttributes(
       wrap(`>
-    <div>x</div>
+    <g-widget-body><div>x</div></g-widget-body>
   </g-widget>`)
     )
     expect(result.valid).toBe(false)
@@ -111,7 +111,7 @@ describe(`widget-validator`, () => {
   it(`rejects two captions`, () => {
     const result = TemplateEngine.validateBlockGWidgetAttributes(
       wrap(`>
-    <div>x</div>
+    <g-widget-body><div>x</div></g-widget-body>
     <g-widget-caption>One</g-widget-caption>
     <g-widget-caption>Two</g-widget-caption>
   </g-widget>`)
@@ -120,10 +120,89 @@ describe(`widget-validator`, () => {
     expect(result.errors.some((e) => e.message.includes(`exactly one <g-widget-caption> (got 2)`))).toBe(true)
   })
 
+  it(`rejects a missing body`, () => {
+    const result = TemplateEngine.validateBlockGWidgetAttributes(
+      wrap(`>
+    <g-widget-caption>Cap</g-widget-caption>
+  </g-widget>`)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((e) => e.message.includes(`exactly one <g-widget-body>`))).toBe(true)
+  })
+
+  it(`rejects two bodies`, () => {
+    const result = TemplateEngine.validateBlockGWidgetAttributes(
+      wrap(`>
+    <g-widget-body><div>One</div></g-widget-body>
+    <g-widget-body><div>Two</div></g-widget-body>
+    <g-widget-caption>Cap</g-widget-caption>
+  </g-widget>`)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((e) => e.message.includes(`exactly one <g-widget-body> (got 2)`))).toBe(true)
+  })
+
+  it(`rejects an empty body`, () => {
+    const result = TemplateEngine.validateBlockGWidgetAttributes(
+      wrap(`>
+    <g-widget-body></g-widget-body>
+    <g-widget-caption>Cap</g-widget-caption>
+  </g-widget>`)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((e) => e.message.includes(`must not be empty`))).toBe(true)
+  })
+
+  it(`rejects a whitespace-only body`, () => {
+    const result = TemplateEngine.validateBlockGWidgetAttributes(
+      wrap(`>
+    <g-widget-body>
+    </g-widget-body>
+    <g-widget-caption>Cap</g-widget-caption>
+  </g-widget>`)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((e) => e.message.includes(`must not be empty`))).toBe(true)
+  })
+
+  it(`rejects stray content outside caption and body`, () => {
+    const result = TemplateEngine.validateBlockGWidgetAttributes(
+      wrap(`>
+    <g-widget-body><div>x</div></g-widget-body>
+    <div>stray</div>
+    <g-widget-caption>Cap</g-widget-caption>
+  </g-widget>`)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((e) => e.message.includes(`outside <g-widget-caption> and <g-widget-body>`))).toBe(true)
+  })
+
+  it(`rejects stray text outside caption and body`, () => {
+    const result = TemplateEngine.validateBlockGWidgetAttributes(
+      wrap(`>
+    <g-widget-body><div>x</div></g-widget-body>
+    hello
+    <g-widget-caption>Cap</g-widget-caption>
+  </g-widget>`)
+    )
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((e) => e.message.includes(`outside <g-widget-caption> and <g-widget-body>`))).toBe(true)
+  })
+
+  it(`rejects a self-closing body`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-base><g-widget><g-widget-caption>Cap</g-widget-caption><g-widget-body/></g-widget></g-base>`)
+    expect(result.valid).toBe(false)
+  })
+
+  it(`rejects a body outside the widget (positions)`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-base><g-widget-body><div>x</div></g-widget-body></g-base>`)
+    expect(result.valid).toBe(false)
+  })
+
   it(`rejects an unknown attribute`, () => {
     const result = TemplateEngine.validateBlockGWidgetAttributes(
       wrap(` foo="1">
-    <div>x</div>
+    <g-widget-body><div>x</div></g-widget-body>
     <g-widget-caption>Cap</g-widget-caption>
   </g-widget>`)
     )
@@ -134,7 +213,7 @@ describe(`widget-validator`, () => {
   it(`rejects a caption attribute (caption is the child block only)`, () => {
     const result = TemplateEngine.validateBlockGWidgetAttributes(
       wrap(` caption="hi">
-    <div>x</div>
+    <g-widget-body><div>x</div></g-widget-body>
     <g-widget-caption>Cap</g-widget-caption>
   </g-widget>`)
     )
@@ -145,7 +224,7 @@ describe(`widget-validator`, () => {
   it(`rejects a bad boolean value`, () => {
     const result = TemplateEngine.validateBlockGWidgetAttributes(
       wrap(` allow_queries="yes">
-    <div>x</div>
+    <g-widget-body><div>x</div></g-widget-body>
     <g-widget-caption>Cap</g-widget-caption>
   </g-widget>`)
     )
@@ -157,7 +236,7 @@ describe(`widget-validator`, () => {
     for (const width of [`100`, `700`, `abc`]) {
       const result = TemplateEngine.validateBlockGWidgetAttributes(
         wrap(` width="${width}">
-    <div>x</div>
+    <g-widget-body><div>x</div></g-widget-body>
     <g-widget-caption>Cap</g-widget-caption>
   </g-widget>`)
       )
@@ -169,7 +248,7 @@ describe(`widget-validator`, () => {
   it(`rejects height outside 50-600`, () => {
     const result = TemplateEngine.validateBlockGWidgetAttributes(
       wrap(` height="20">
-    <div>x</div>
+    <g-widget-body><div>x</div></g-widget-body>
     <g-widget-caption>Cap</g-widget-caption>
   </g-widget>`)
     )
@@ -181,7 +260,7 @@ describe(`widget-validator`, () => {
     const long = `C`.repeat(1025)
     const result = TemplateEngine.validateBlockGWidgetAttributes(
       wrap(`>
-    <div>x</div>
+    <g-widget-body><div>x</div></g-widget-body>
     <g-widget-caption>${long}</g-widget-caption>
   </g-widget>`)
     )
@@ -193,7 +272,7 @@ describe(`widget-validator`, () => {
     const big = `x`.repeat(32769)
     const result = TemplateEngine.validateBlockGWidgetAttributes(
       wrap(`>
-    <div>${big}</div>
+    <g-widget-body><div>${big}</div></g-widget-body>
     <g-widget-caption>Cap</g-widget-caption>
   </g-widget>`)
     )
@@ -217,7 +296,7 @@ describe(`widget-validator`, () => {
     const noisy = Array.from({length: 8000}, () => alphabet[next()]!).join(``)
     const result = TemplateEngine.validateBlockGWidgetAttributes(
       wrap(`>
-    <div>${noisy}</div>
+    <g-widget-body><div>${noisy}</div></g-widget-body>
     <g-widget-caption>Cap</g-widget-caption>
   </g-widget>`)
     )
@@ -229,7 +308,7 @@ describe(`widget-validator`, () => {
     const big = `x`.repeat(1025)
     const result = TemplateEngine.validateBlockGWidgetAttributes(
       wrap(` chat_data="${big}">
-    <div>x</div>
+    <g-widget-body><div>x</div></g-widget-body>
     <g-widget-caption>Cap</g-widget-caption>
   </g-widget>`)
     )
@@ -271,8 +350,14 @@ describe(`widget-compiler`, () => {
   })
 
   it(`applies filters in the caption`, () => {
-    const compiled = TemplateEngine.compileBlockGWidget(`<g-base><g-widget><div>x</div><g-widget-caption>Order {{orderId|upper}}</g-widget-caption></g-widget></g-base>`)
+    const compiled = TemplateEngine.compileBlockGWidget(`<g-base><g-widget><g-widget-body><div>x</div></g-widget-body><g-widget-caption>Order {{orderId|upper}}</g-widget-caption></g-widget></g-base>`)
     expect(compiled.default?.default?.({orderId: `ab12`})?.caption).toBe(`Order AB12`)
+  })
+
+  it(`ignores attributes on the body block`, () => {
+    const widgets = TemplateEngine._processGWidgetBlocks(`<g-base><g-widget><g-widget-body lang="id"><div>x</div></g-widget-body><g-widget-caption>Cap</g-widget-caption></g-widget></g-base>`)
+    expect(widgets.default?.html).toBe(`<div>x</div>`)
+    expect(TemplateEngine.validateTemplate(`<g-base><g-widget><g-widget-body lang="id"><div>x</div></g-widget-body><g-widget-caption>Cap</g-widget-caption></g-widget></g-base>`).valid).toBe(true)
   })
 })
 
@@ -312,7 +397,7 @@ describe(`widget-manager`, () => {
       manager.compile(
         `bad`,
         wrap(`>
-    <div>x</div>
+    <g-widget-body><div>x</div></g-widget-body>
   </g-widget>`)
       )
     ).toThrow(/exactly one <g-widget-caption>/)

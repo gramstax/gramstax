@@ -367,6 +367,7 @@ export class TemplateEngine {
     `<g-option>`,
     `<g-widget>`,
     `<g-widget-caption>`,
+    `<g-widget-body>`,
     `<g-widget-answer>`,
     `<g-invoice>`,
     `<g-price>`,
@@ -2076,12 +2077,12 @@ export class TemplateEngine {
    * @remarks
    * Each block declares one widget per language (`lang` defaults to
    * `"default"`; last block wins per lang). The inner
-   * `<g-widget-caption>` becomes `caption`; everything else in the body is
-   * the widget `html` and is carried RAW — it never runs the scope
-   * pipeline, so JS object literals, `${}` template strings, and `<div>` /
-   * `<button>` / `<script>` / `<style>` tags survive verbatim. Dynamic data
-   * rides `chat_data` / `public_data` (compiled like any attribute string),
-   * never interpolation inside the HTML.
+   * `<g-widget-caption>` becomes `caption` and the inner
+   * `<g-widget-body>` becomes the widget `html`, which is carried RAW — it
+   * never runs the scope pipeline, so JS object literals, `${}` template
+   * strings, and `<div>` / `<button>` / `<script>` / `<style>` tags survive
+   * verbatim. Dynamic data rides `chat_data` / `public_data` (compiled
+   * like any attribute string), never interpolation inside the HTML.
    *
    * Boolean flags (`allow_queries`, `is_shared`,
    * `show_caption_above_media`) accept a bare attribute (`<g-widget
@@ -2089,15 +2090,16 @@ export class TemplateEngine {
    * flag is `true`, an explicit value must be `"true"` or `"false"`.
    * `width` / `height` parse to numbers when static integers and stay raw
    * strings when dynamic (`{{}}`), for runtime range checks. Structural
-   * rules (exactly one caption, caption length, HTML byte sizes, data byte
-   * sizes) are enforced by `validateBlockGWidgetAttributes`, not here.
+   * rules (exactly one caption, exactly one body, non-empty body, no stray
+   * content outside caption + body, caption length, HTML byte sizes, data
+   * byte sizes) are enforced by `validateBlockGWidgetAttributes`, not here.
    *
    * @param template - The template string containing `<g-widget>` blocks
    * @returns An object mapping language keys to their widget configurations
    *
    * @example
    * ```typescript
-   * const widgets = TemplateEngine._processGWidgetBlocks(`<g-widget allow_queries><g-widget-caption>Order <b>#1042</b></g-widget-caption><div id="row"></div><script>TelegramWidget.request("tap")</script></g-widget>`);
+   * const widgets = TemplateEngine._processGWidgetBlocks(`<g-widget allow_queries><g-widget-caption>Order <b>#1042</b></g-widget-caption><g-widget-body><div id="row"></div><script>TelegramWidget.request("tap")</script></g-widget-body></g-widget>`);
    * // Result: { default: { html: '<div id="row"></div><script>TelegramWidget.request("tap")</script>', caption: 'Order <b>#1042</b>', allow_queries: true } }
    * ```
    *
@@ -2107,6 +2109,7 @@ export class TemplateEngine {
     const widgetRegex = /<g-widget(?:\s+([^>]*))?>([\s\S]*?)<\/g-widget>/gi
     const result: {[lang: string]: IWidgetBlock} = {}
     const captionRegex = /<g-widget-caption(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-caption>/i
+    const bodyRegex = /<g-widget-body(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-body>/i
     const clean = (raw: string): string =>
       raw
         .replace(/^[\t ]+/gm, ``)
@@ -2136,7 +2139,7 @@ export class TemplateEngine {
 
       const lang = attrs.lang || `default`
       const caption = clean(captionRegex.exec(body)?.[1] ?? ``)
-      const html = body.replace(/<g-widget-caption(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-caption>/gi, ``).trim()
+      const html = (bodyRegex.exec(body)?.[1] ?? ``).trim()
 
       const widget: IWidgetBlock = {html, caption}
       const allowQueries = boolAttr(`allow_queries`)
@@ -3504,7 +3507,7 @@ export class TemplateEngine {
    *
    * @example
    * ```typescript
-   * const widgets = TemplateEngine.compileBlockGWidget(`<g-base><g-widget allow_queries chat_data='{"order_id": "{{orderId}}"}'><g-widget-caption>Order <b>#{{orderId}}</b></g-widget-caption><div id="row"></div><script>const state = {'order': 1};</script></g-widget></g-base>`);
+   * const widgets = TemplateEngine.compileBlockGWidget(`<g-base><g-widget allow_queries chat_data='{"order_id": "{{orderId}}"}'><g-widget-caption>Order <b>#{{orderId}}</b></g-widget-caption><g-widget-body><div id="row"></div><script>const state = {'order': 1};</script></g-widget-body></g-widget></g-base>`);
    * const result = widgets.default?.default?.({ orderId: '1042' });
    * // Result: { html: '<div id="row"></div><script>const state = {\'order\': 1};</script>', caption: 'Order <b>#1042</b>', allow_queries: true, chat_data: '{"order_id": "1042"}' }
    * ```
@@ -4728,7 +4731,12 @@ export class TemplateEngine {
    *   formats are already validated by `validateBlockGWidgetAttributes` on
    *   the full template;
    * - the `<g-widget-caption>` child block verbatim, so its rich tags and
-   *   `{{}}` interpolation are validated exactly like a message caption.
+   *   `{{}}` interpolation are validated exactly like a message caption;
+   * - the `<g-widget-body>` tag shape (paired form only, content blanked),
+   *   so `validatePositionsBlock` and `validateFormatBlock` still see the
+   *   block — a self-closing `<g-widget-body/>` is preserved verbatim
+   *   instead, so the format validator can reject it. Body attributes are
+   *   dropped: they are ignored by design.
    *
    * @param template - The raw template string to strip
    * @returns The template with each widget body replaced by its caption child
@@ -4740,7 +4748,9 @@ export class TemplateEngine {
       const openTag = whole.slice(0, whole.indexOf(`>`) + 1)
       const blankedOpen = openTag.replace(/\b(chat_data|public_data)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, `$1=""`)
       const caption = /<g-widget-caption(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-caption>/i.exec(body as string)?.[0] ?? ``
-      return `${blankedOpen}${caption}</g-widget>`
+      const bodyOpen = /<g-widget-body(?:\s+[^>]*)?\/?>/i.exec(body as string)?.[0] ?? ``
+      const bodyTag = bodyOpen === `` ? `` : bodyOpen.endsWith(`/>`) ? bodyOpen : `<g-widget-body></g-widget-body>`
+      return `${blankedOpen}${caption}${bodyTag}</g-widget>`
     })
   }
 
@@ -4880,7 +4890,7 @@ export class TemplateEngine {
    * - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-widget>`, `<g-invoice>`, `<g-paid-media>`, `<g-venue>`, `<g-dice>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`.
    * - `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside `<g-paid-media>` as a paywall item.
    * - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`.
-   * - `<g-widget-caption>` can only appear directly inside `<g-widget>`.
+   * - `<g-widget-caption>` and `<g-widget-body>` can only appear directly inside `<g-widget>`.
    * - `<g-price>` can only appear directly inside `<g-invoice>`.
    * - `<g-switch>`, `<g-map>` can only appear inside `<g-message>`, `<g-keyboard>`, `<g-media>`, or `<g-description>`.
    * - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`.
@@ -4942,6 +4952,7 @@ export class TemplateEngine {
       "g-option": new Set([`g-poll`]),
       "g-widget": new Set([`g-base`]),
       "g-widget-caption": new Set([`g-widget`]),
+      "g-widget-body": new Set([`g-widget`]),
       "g-widget-answer": new Set([`g-base`]),
       "g-invoice": new Set([`g-base`]),
       "g-price": new Set([`g-invoice`]),
@@ -5107,7 +5118,7 @@ export class TemplateEngine {
    * **Must NOT be self-closing (must use open/close tags):**
    * - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`,
    *   `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`,
-   *   `<g-option>...</g-option>`, `<g-widget>...</g-widget>`, `<g-widget-caption>...</g-widget-caption>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
+   *   `<g-option>...</g-option>`, `<g-widget>...</g-widget>`, `<g-widget-caption>...</g-widget-caption>`, `<g-widget-body>...</g-widget-body>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
    *   `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`,
    *   `<g-map>...</g-map>`, `<g-div>...</g-div>`, `<g-web-app-answer>...</g-web-app-answer>`,
    *   `<g-callback-answer>...</g-callback-answer>`, `<g-precheckout-error>...</g-precheckout-error>`, `<g-shipping-error>...</g-shipping-error>`, `<g-answer-note>...</g-answer-note>`, `<g-gift>...</g-gift>`
@@ -5146,6 +5157,7 @@ export class TemplateEngine {
       `g-option`,
       `g-widget`,
       `g-widget-caption`,
+      `g-widget-body`,
       `g-widget-answer`,
       `g-invoice`,
       `g-paid-media`,
@@ -5987,8 +5999,9 @@ export class TemplateEngine {
    * `height`) via `_validateBlockAttributes` — note there is deliberately no
    * `caption` attribute: the caption comes only from the required
    * `<g-widget-caption>` child block — then delegates structural rules
-   * (exactly one caption, caption length, HTML raw/compressed byte sizes,
-   * data byte sizes) to {@link TemplateEngine._validateWidgetItems}.
+   * (exactly one caption, exactly one body, non-empty body, no stray
+   * content outside caption + body, caption length, HTML raw/compressed
+   * byte sizes, data byte sizes) to {@link TemplateEngine._validateWidgetItems}.
    * Returns `valid: false` with per-line errors instead of throwing, so
    * callers can aggregate across blocks.
    *
@@ -6009,18 +6022,22 @@ export class TemplateEngine {
   }
 
   /**
-   * Validates `<g-widget-caption>` presence and `<g-widget>` size limits.
+   * Validates `<g-widget-caption>` / `<g-widget-body>` presence and `<g-widget>` size limits.
    *
    * @remarks
    * Enforces the Bot API `sendWidget` constraints on the RAW template
    * values (the widget HTML carries no interpolation, so the static check
    * is exact): exactly one `<g-widget-caption>` (required — it is the
-   * fallback text on clients without widget support), caption text 1–1024
-   * characters after entity parsing (HTML tags stripped; skipped when the
-   * caption carries `{{}}` / `{~ ~}` interpolation — dynamic lengths are
-   * checked at runtime by `Ctx.assertWidget`), HTML at most 32768 UTF-8
-   * bytes raw and at most 4000 bytes after zlib level-9 compression (the
-   * safe target — see
+   * fallback text on clients without widget support), exactly one
+   * `<g-widget-body>` (required — it carries the widget HTML), body content
+   * at least 1 UTF-8 byte (the API requires HTML of 1–32768 bytes; an empty
+   * body used to slip through compile and fail only at Telegram), no stray
+   * content inside `<g-widget>` outside the caption and body blocks,
+   * caption text 1–1024 characters after entity parsing (HTML tags
+   * stripped; skipped when the caption carries `{{}}` / `{~ ~}`
+   * interpolation — dynamic lengths are checked at runtime by
+   * `Ctx.assertWidget`), HTML at most 32768 UTF-8 bytes raw and at most
+   * 4000 bytes after zlib level-9 compression (the safe target — see
    * {@link TemplateEngine.MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES}; the API
    * hard limit is 4096), `chat_data` / `public_data` at most 1024 UTF-8
    * bytes each (skipped when dynamic). Called by
@@ -6035,6 +6052,7 @@ export class TemplateEngine {
     const errors: Array<{line: number; message: string}> = []
     const widgetRegex = /<g-widget(?:\s+([^>]*))?>([\s\S]*?)<\/g-widget>/gi
     const captionRegex = /<g-widget-caption(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-caption>/gi
+    const bodyRegex = /<g-widget-body(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-body>/gi
     const attrValue = (attrsStr: string, name: string): string | undefined => {
       const m = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`).exec(attrsStr)
       if (!m) return undefined
@@ -6050,6 +6068,10 @@ export class TemplateEngine {
       if (captionMatches.length !== 1) {
         errors.push({line, message: `<g-widget> must contain exactly one <g-widget-caption> (got ${captionMatches.length})`})
       }
+      const bodyMatches = [...body.matchAll(bodyRegex)]
+      if (bodyMatches.length !== 1) {
+        errors.push({line, message: `<g-widget> must contain exactly one <g-widget-body> (got ${bodyMatches.length})`})
+      }
       const captionText = captionMatches[0]?.[1] ?? ``
       if (!isDynamic(captionText)) {
         const textLength = captionText.replace(/<[^>]*>/g, ``).length
@@ -6057,8 +6079,11 @@ export class TemplateEngine {
           errors.push({line, message: `<g-widget-caption> must be 1-${this.MAX_WIDGET_CAPTION_CHARS} characters after entity parsing (got ${textLength})`})
         }
       }
-      const html = body.replace(/<g-widget-caption(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-caption>/gi, ``).trim()
+      const html = (bodyMatches[0]?.[1] ?? ``).trim()
       const rawBytes = Buffer.byteLength(html, `utf8`)
+      if (bodyMatches.length === 1 && rawBytes < 1) {
+        errors.push({line, message: `<g-widget-body> must not be empty (widget HTML must be 1-${this.MAX_WIDGET_HTML_RAW_BYTES} bytes)`})
+      }
       if (rawBytes > this.MAX_WIDGET_HTML_RAW_BYTES) {
         errors.push({line, message: `<g-widget> HTML exceeds ${this.MAX_WIDGET_HTML_RAW_BYTES} bytes raw (got ${rawBytes})`})
       } else {
@@ -6069,6 +6094,15 @@ export class TemplateEngine {
             message: `<g-widget> HTML compresses to ${compressedBytes} bytes with zlib level 9, above the safe target of ${this.MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES} bytes (Bot API hard limit ${this.MAX_WIDGET_HTML_COMPRESSED_BYTES} bytes; Node zlib output can differ from Telegram's by tens of bytes)`
           })
         }
+      }
+      const stray = body
+        .replace(/<g-widget-caption(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-caption>/gi, ``)
+        .replace(/<g-widget-body(?:\s+[^>]*)?>([\s\S]*?)<\/g-widget-body>/gi, ``)
+        .replace(/<g-widget-body(?:\s+[^>]*)?\/>/gi, ``)
+        .trim()
+      if (stray !== ``) {
+        const preview = stray.replace(/\s+/g, ` `).slice(0, 60)
+        errors.push({line, message: `<g-widget> contains content outside <g-widget-caption> and <g-widget-body> — move it inside <g-widget-body> (found: "${preview}${stray.length > 60 ? `...` : ``}")`})
       }
       for (const name of [`chat_data`, `public_data`]) {
         const value = attrValue(attrsStr, name)
@@ -7260,7 +7294,7 @@ export class TemplateEngine {
    * 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes
    * 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes
    * 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes
-   * 14. {@link TemplateEngine.validateBlockGWidgetAttributes} — checks `<g-widget>` block attributes, caption presence, and size limits
+   * 14. {@link TemplateEngine.validateBlockGWidgetAttributes} — checks `<g-widget>` block attributes, caption/body presence, and size limits
    * 15. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes
    * 16. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes
    * 17. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes

@@ -308,7 +308,8 @@ export type IPollBlock = {
  * Widget block for Telegram HTML widgets (Bot API 10.4).
  *
  * @remarks
- * Declared with `<g-widget>` blocks. The widget HTML is carried RAW —
+ * Declared with `<g-widget>` blocks. The widget HTML comes from the
+ * required `<g-widget-body>` child block and is carried RAW —
  * it never runs the scope pipeline (`{{}}` interpolation, `<g-script>`,
  * `<g-switch>` and friends are inert text inside the widget), so JS object
  * literals and `${}` template strings survive compilation untouched. Dynamic
