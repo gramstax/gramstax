@@ -57,12 +57,12 @@ That structure is what produces the differences below:
 
 | Area | The usual way | Here |
 | --- | --- | --- |
-| routing | every route registered by hand in one place | the file path *is* the route; naming a `handle*` method registers it |
-| markup and i18n | markup inside the API call, one branch per locale | one template; `<g-message lang="id">` sits beside `<g-message>`, and no handler branches |
-| send versus edit | read the update and choose | `mode: "auto"` reads it in one place |
-| impossible states | an options object assembled by hand | a union over real routes, `?: never` where a key is unreachable, re-checked at runtime |
-| nothing matched | silence | `noMatch`, `noHandler`, `blocked` and `dropped` counted |
-| server codegen | `new Function` at runtime | frozen ahead of time, asserted to hold zero codegen tokens |
+| routing | you register every route by hand, in one place, and keep the list in sync | drop a file in `src/pages` and you're done: the path *is* the route, and a `handle*` method registers itself |
+| markup and i18n | markup lives inside the API call, with a branch per locale in every handler | one template holds the text, buttons and media; a second language is a sibling `<g-message lang="id">`, not another branch in your code |
+| send versus edit | you read the update and choose, in every handler | `mode: "auto"` reads it once, in one place, so you write each screen a single time |
+| impossible states | an options object you assemble by hand, and nothing stops you passing a key the call never reads | a union over real routes: a key the route never reads is a compile error, re-checked at runtime |
+| nothing matched | nothing happens, the update just disappears | every miss is counted (`noMatch`, `noHandler`, `blocked`, `dropped`), so silence becomes a number you can watch |
+| server codegen | `new Function` runs at request time | templates freeze ahead of time, and a test proves zero codegen tokens survive |
 
 ## ✨ Features
 
@@ -169,7 +169,7 @@ That structure is what produces the differences below:
 `gramstax start --watch` is the dev loop; `gramstax start` is the production boot.
 
 - [Bun](https://bun.sh)
-- `typescript ^6.0.3` (peer dependency)
+- `typescript 7.0.2` (peer dependency)
 - A bot token from [@BotFather](https://t.me/BotFather)
 
 ### 2. Install and scaffold
@@ -1199,15 +1199,4 @@ If this project saves you time, you can support its development:
 
 Apache-2.0: Copyright (c) 2026 Gramstax. The four published packages carry `"license": "Apache-2.0"` in their `package.json`. See [LICENSE](https://github.com/gramstax/gramstax/blob/main/LICENSE).
 
-Published history is part of the record and is not rewritten. `gramstax@0.0.1`
-through `gramstax@0.3.19` (54 versions, November 2025 to January 2026) went out
-under **MIT**, and that grant is perpetual: it is not withdrawn by this
-relicensing. `gramstax@0.3.20` through `gramstax@5.0.0` were published under
-proprietary terms. Everything from `gramstax@6.0.0` onward is Apache-2.0.
-
-The same split applies to the other three packages: `create-gramstax` shares
-`gramstax`'s version line, and `@gramstax/lmdb` and `@gramstax/worker-thread`
-were published under proprietary terms until `6.0.0`.
-
-The scaffolder template is MIT, because the generated project's `package.json`
-and README badge already declared MIT.
+The scaffolder template is MIT.
