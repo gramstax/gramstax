@@ -2,8 +2,10 @@
 """Generate images/gramstax.png — the README hero.
 
 Code-built, not AI-generated: flat shapes, the project's real logo mark,
-the README's own words, and a verbatim excerpt of the real StartPage from
-example/2-helloworld. No gradients, no glow, no fake UI, no hallucinated text.
+the README's own words, and the real StartPage template from
+example/2-helloworld, with the handler calling renderText directly
+(no gdefault.show indirection) and data from Math.random(). No gradients,
+no glow, no fake UI, no hallucinated text.
 
 Regenerate: python3 images/generate-hero.py  (needs Pillow + the Liberation fonts)
 Output: images/gramstax.png, 2752x1536.
@@ -46,7 +48,7 @@ for y in range(0, H + 1, 128):
     d.line([(0, y), (W, y)], fill=GRID, width=1)
 
 # --- Left: real logo mark + wordmark + tagline (README's own words) ---
-logo = Image.open("/tmp/gramstax-avatar.png").convert("RGBA").resize((220, 220), Image.LANCZOS)
+logo = Image.open("images/gramstax-logo.png").convert("RGBA").resize((220, 220), Image.LANCZOS)
 mask = Image.new("L", (220, 220), 0)
 ImageDraw.Draw(mask).rounded_rectangle([0, 0, 219, 219], radius=32, fill=255)
 img.paste(logo, (180, 150), mask)
@@ -70,7 +72,7 @@ pill_font = SANS_BOLD(54)
 arrow_font = SANS_BOLD(60)
 pills = ["Pages", "Routes", "Templates"]
 x = 180
-py = 1180
+py = 1240
 for i, label in enumerate(pills):
     tw = d.textlength(label, font=pill_font)
     pw = int(tw + 96)
@@ -81,8 +83,9 @@ for i, label in enumerate(pills):
         d.text((x + 18, py + 20), "→", font=arrow_font, fill=ARROW)
         x += 88
 
-# --- Right: code panel with a verbatim excerpt of the real StartPage ---
-px0, py0, px1, py1 = 1330, 150, 2572, 1300
+# --- Right: code panel with the real StartPage template, handler calling
+# renderText directly (no gdefault.show indirection), data from Math.random() ---
+px0, py0, px1, py1 = 1330, 150, 2572, 1440
 d.rounded_rectangle([px0, py0, px1, py1], radius=18, fill=PANEL, outline=BORDER, width=2)
 d.text((1372, 182), "start.ts · excerpt", font=MONO(40), fill=DIM)
 d.line([(px0, 248), (px1, 248)], fill=BORDER, width=2)
@@ -93,27 +96,33 @@ code_lines = [
     [("  static ", KW), ("data ", BS), ("= ", BS), ("this.buildData()", BS)],
     [],
     [("  async ", KW), ("handleCommandText", BS), ("() {", BS)],
-    [("    await ", KW), ("this.gdefault.show()", BS)],
+    [("    await ", KW), ("this.renderText({", BS)],
+    [("      data: { ", BS), ("time", BS), (": ", BS), ("Math.random()", BS), (" },", BS)],
+    [("    })", BS)],
     [("  }", BS)],
     [],
     [("  static ", KW), ("template ", BS), ("= ", BS), ("`", ST)],
     [("    <g-base>", TG)],
-    [("      <g-message>", TG), ("Hello World!", BS), ("</g-message>", TG)],
+    [("      <g-message>", TG)],
+    [("        Hello World!", BS)],
+    [("        Time now: ", BS), ("{{time}}", BS)],
+    [("      </g-message>", TG)],
     [("      <g-message ", TG), ("lang", AT), ("=", BS), ('"id"', ST), (">", TG)],
     [("        Halo Dunia!", BS)],
+    [("        Waktu: ", BS), ("{{time}}", BS)],
     [("      </g-message>", TG)],
     [("    </g-base>", TG)],
     [("  `", ST)],
     [("}", BS)],
 ]
 mono = MONO(42)
-cy = 292
+cy = 280
 for segments in code_lines:
     cx = 1372
     for text, color in segments:
         d.text((cx, cy), text, font=mono, fill=color)
         cx += d.textlength(text, font=mono)
-    cy += 60
+    cy += 52
 
 img.save("images/gramstax.png", optimize=True)
 print(f"saved images/gramstax.png {img.size}")
