@@ -92,13 +92,14 @@ That structure is what produces the differences below:
 
 ### The template pipeline
 
-- 🧱 **30 PAGE blocks**: `g-base`, `g-message`, `g-keyboard`, `g-media`,
-  `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-price`,
+- 🧱 **34 PAGE blocks**: `g-base`, `g-message`, `g-keyboard`, `g-media`,
+  `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-widget`,
+  `g-widget-caption`, `g-widget-body`, `g-invoice`, `g-price`,
   `g-paid-media`, `g-venue`, `g-dice`, `g-gift`, `g-description`, plus logic
   (`g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`, `g-script`),
   answers (`g-callback-answer`, `g-inline-button`, `g-precheckout-error`,
-  `g-shipping-error`, `g-answer-note`, `g-web-app-answer`) and utilities
-  (`g-import`, `g-space`).
+  `g-shipping-error`, `g-answer-note`, `g-web-app-answer`,
+  `g-widget-answer`) and utilities (`g-import`, `g-space`).
 - 🌐 **54 Telegram HTML tags** validated to Bot API 10.3: 9 legacy tags plus 45
   Rich HTML tags, with per-tag attribute allow-lists.
 - 🧮 **Compile-time filter pipes**: `{{name|upper}}`, `{{price|number:2}}`,
@@ -137,9 +138,9 @@ That structure is what produces the differences below:
 - 🔒 **Distributed session lock**: Redis-only atomic `SET NX PX` lease held for
   the whole update dispatch, so concurrent updates for one user serialise across
   instances; contention modes `skip`, `wait`, `serialize`.
-- 🚦 **Rate limiting and outgoing throttle**: `@grammyjs/ratelimiter` with
-  `hookRateLimited(ctx)` / `hookKeyGenerator(ctx)`, and
-  `@grammyjs/transformer-throttler` via `throttle: {global, group, out}`.
+- 🚦 **Rate limiting and outgoing throttle**: inbound limiting with
+  `hookRateLimited(ctx)` / `hookKeyGenerator(ctx)`, and outgoing throttling
+  via `throttle: {global, group, out}`.
 - ⚙️ **Bounded update queue**: opt-in `UpdateQueue` for polling and webhook; at
   a 600 users/s target on the dev host the sequential drain fell to 377 users/s
   at p95 1828 ms while the queue sustained 601 users/s at p95 124 ms.
@@ -400,7 +401,7 @@ await this.renderText({mode: `edit`, keyboard: this.inlineKeyboardT([this]), edi
 
 #### Route atoms
 
-The twelve atoms are exported, so the contract is documented per route rather than only per method. The **unread** column lists the keys a route never reads, so passing one is a compile error:
+The seventeen atoms are exported, so the contract is documented per route rather than only per method. The **unread** column lists the keys a route never reads, so passing one is a compile error:
 
 | Atom | Route | Unread keys |
 | :--- | :---- | :---------- |
@@ -416,12 +417,17 @@ The twelve atoms are exported, so the contract is documented per route rather th
 | `IRouteMediaBroadcastRevise<T>` | revise stored `broadcast.targets` | `mode`, `options`, `editOptions`, `rich`, `richOptions`, `fallbackOptions`, `captionOptions`, `chunkSize` |
 | `IRouteGroupAuto` | runtime-decided group send | `editOptions`, `rich`, `richOptions`, `fallbackOptions`, `keyboard`, `broadcast`, `chunkSize` |
 | `IRouteGroupReply` | forced group send | `rich`, `richOptions`, `editOptions`, `fallback`, `fallbackOptions`, `keyboard`, `broadcast`, `chunkSize` |
+| `IRouteWidgetReply` | forced widget send, `mode` optional | `rich`, `richOptions`, `broadcast`, `chunkSize`, `fallback`, `editOptions`, `fallbackOptions` |
+| `IRouteWidgetEdit` | forced in-place re-apply of the template onto the held widget message | `rich`, `richOptions`, `broadcast`, `chunkSize`, `fallback`, `options`, `editOptions`, `fallbackOptions`, `is_shared` |
+| `IRouteWidgetUpdateData` | data-only update of the held widget | `rich`, `richOptions`, `broadcast`, `chunkSize`, `fallback`, `options`, `editOptions`, `fallbackOptions`, `keyboard`, `is_shared` |
+| `IRouteWidgetBroadcastSend` | widget fan-out to `broadcast.ids` | `mode`, `rich`, `richOptions`, `chunkSize`, `fallback`, `editOptions`, `fallbackOptions` |
+| `IRouteWidgetBroadcastRevise` | revise stored `broadcast.targets` (non-shared widgets only) | `mode`, `rich`, `richOptions`, `chunkSize`, `fallback`, `options`, `editOptions`, `fallbackOptions`, `keyboard`, `is_shared` |
 
 The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error rather than a silently dropped field: `IRouteEdit` declares `broadcast` as `null | undefined`.
 
 ### Template blocks
 
-30 PAGE blocks, grouped by what they do.
+34 PAGE blocks, grouped by what they do.
 
 **Structure and sharing**
 
@@ -468,6 +474,10 @@ The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error
   <g-option>3</g-option>
   <g-option>4</g-option>
 </g-poll>
+<g-widget allow_queries>
+  <g-widget-caption>Order <b>#{{orderId}}</b></g-widget-caption>
+  <g-widget-body><div id="row"></div><script>TelegramWidget.request("tap")</script></g-widget-body>
+</g-widget>
 <g-invoice title="Pro" description="30 days" payload="sub-42" currency="USD">
   <g-price label="Monthly" amount="999" />
 </g-invoice>
@@ -478,7 +488,7 @@ The uniform key set is why `{mode: 'edit', broadcast: {...}}` is a compile error
 <g-gift>🎁 Gift text</g-gift>
 ```
 
-**Answers**, the text a query is answered with is a template block, so it is localizable: `<g-callback-answer>Saved</g-callback-answer>`, `<g-inline-button text="Search" start-parameter="q" />`, `<g-precheckout-error>Card declined</g-precheckout-error>`, `<g-shipping-error>We cannot ship there</g-shipping-error>`, `<g-answer-note>Note appended to the inline result</g-answer-note>`, `<g-web-app-answer>Note appended to the web-app result</g-web-app-answer>`.
+**Answers**, the text a query is answered with is a template block, so it is localizable: `<g-callback-answer>Saved</g-callback-answer>`, `<g-inline-button text="Search" start-parameter="q" />`, `<g-precheckout-error>Card declined</g-precheckout-error>`, `<g-shipping-error>We cannot ship there</g-shipping-error>`, `<g-answer-note>Note appended to the inline result</g-answer-note>`, `<g-web-app-answer>Note appended to the web-app result</g-web-app-answer>`, `<g-widget-answer>ok</g-widget-answer>`.
 
 **Telegram HTML.** 54 tags pass straight through to the message `html` field: 9 legacy tags (`b`, `i`, `u`, `s`, `code`, `pre`, `a`, `blockquote`, `blockquote expandable`) plus 45 Rich HTML tags spanning inline (`del`, `em`, `ins`, `mark`, `strike`, `strong`, `sub`, `sup`, `tg-spoiler`), block (`aside`, `details`, `footer`, `h1`-`h6`, `li`, `ol`, `p`, `summary`, `table`, `td`, `th`, `tr`, `ul`), `tg-*` specifics (`tg-collage`, `tg-emoji`, `tg-map`, `tg-math`, `tg-math-block`, `tg-reference`, `tg-slideshow`, `tg-time`), media (`audio`, `cite`, `figcaption`, `figure`, `img`, `video`) and forms (`input`). Void elements must self-close (`<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>`). Required attributes, value formats and the per-tag allowlist are all validated: `<tg-time unix="1647531900">` is legal, `<tg-time unix="abc">` is not, and `<table ngasal="x">` is rejected by name.
 
@@ -624,7 +634,7 @@ export class BotCore extends Gramstax {
 
 ### Query answers
 
-Six methods take their text from a template block instead of a literal string, so the answer is localizable and lives with the page's markup:
+Seven methods take their text from a template block instead of a literal string, so the answer is localizable and lives with the page's markup:
 
 | Method | Block | Telegram call | Params |
 | :----- | :---- | :------------ | :----- |
@@ -634,6 +644,7 @@ Six methods take their text from a template block instead of a literal string, s
 | `renderInlineAnswer` | `<g-inline-button>` | `answerInlineQuery` | `{results, data?, AGBaseId?, options?, buttonStartParameter?}` |
 | `renderGuestAnswer` | `<g-answer-note>` | `answerGuestQuery` | `{result, data?, AGBaseId?, options?}` |
 | `renderWebAppAnswer` | `<g-web-app-answer>` | `api.answerWebAppQuery` | `{webAppQueryId, result, data?, AGBaseId?, options?}` |
+| `renderWidgetAnswer` | `<g-widget-answer>` | `answerWidgetQuery` | `{data?, AGBaseId?}` |
 
 ```ts
 await this.renderCallbackAnswer({showAlert: true, AGBaseId: Base.denied})
@@ -664,7 +675,9 @@ ginfoDeliverText = {
 | text fan-out | `renderText({broadcast: {ids, languageCode}})` |
 | media fan-out | `renderMedia({broadcast: {ids, languageCode}})`: no `type`; the kind comes from the `<g-media>` block |
 | poll fan-out | `renderPoll({broadcast})` |
+| widget fan-out | `renderWidget({broadcast: {ids, languageCode}})` |
 | revise stored messages | `renderMedia({type, broadcast: {targets}})` |
+| widget revise | `renderWidget({broadcast: {targets}})` |
 | delete stored messages | `renderBroadcastDelete({targets})` |
 
 `IBroadcastSendParams` adds `chunkSize` / `chunkDelayMs` pacing (different from the render-level `chunkSize`, which splits one message), `excludeIds`, `concurrency` (1-10), `startFrom` for resuming a checkpoint, `throwError`, and `onProgress`. The result is `{successCount, failedCount, totalCount, skippedCount, retryable: [{index, id, error}]}`. Retryable failures never abort the run.
@@ -976,7 +989,7 @@ Paths resolve relative to the **project root**, not the config file.
 | `optionsDeploy` | object | `{deploy: 'polling'}` | Nested per-mode branches: see below |
 | `mediaRoots` | `string[] \| null` | `null` | Opt-in local-path jail for media uploads; `[]` and `undefined` leave it off |
 | `botConfig` | `BotConfig` | _none_ | Forwarded to the underlying client (`apiRoot`, …) |
-| `autoRetry` | `boolean` | `true` | Mount `@grammyjs/auto-retry` |
+| `autoRetry` | `boolean` | `true` | Automatic retry with backoff on rate-limit errors |
 | `autoRetryOptions` | `{maxRetryAttempts?, retryOnInternalServerErrors?}` | _none_ | Backoff / retry policy |
 | `rateLimit` | `{windowMs, max}` | _none_ | Inbound limit; both must be positive |
 | `throttle` | `APIThrottlerOptions` | _none_ | Outgoing Bottleneck buckets (`global`, `group`, `out`) |
