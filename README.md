@@ -28,12 +28,13 @@
 
 ## 💡 Why this repository
 
-Most Telegram packages are libraries. You call them, they wrap the Bot API, and
-the shape of the bot stays yours to assemble. Routing, markup, translations,
-send-versus-edit, input checks, the update queue, and the deploy entry point get
-rebuilt in every project, usually a little differently each time.
+Every Telegram bot needs the same skeleton: routing, markup, translations,
+send-versus-edit, input checks, an update queue, and a deploy entry point.
+Most packages hand you the pieces and leave the skeleton to you, so every
+project rebuilds it, usually a little differently each time.
 
-gramstax is a framework, not another library. It owns that shape:
+gramstax is a framework, not another library. It owns that shape, so you
+start from a working bot instead of an empty folder:
 
 - `gramstax.config.ts` is the single composition point.
 - `src/pages` is the route table. The file path *is* the route.
@@ -41,7 +42,8 @@ gramstax is a framework, not another library. It owns that shape:
 - `gramstax start` discovers the pages and runs the bot.
 
 There is no `src/index.ts`, no hand-written `new Gramstax({...})` entry, and no
-registry of routes to keep in sync. Construction *is* boot.
+registry of routes to keep in sync. Construction *is* boot: scaffold a project
+and it already runs.
 
 That structure is what produces the differences below:
 
@@ -50,12 +52,15 @@ That structure is what produces the differences below:
   cannot break an unrelated one.
 - **One message, one template.** Text, buttons, and media sit together, and a
   second language is a sibling block instead of a branch in every handler.
+  34 PAGE blocks and 54 validated Telegram HTML tags cover the message, so
+  there is nothing left to build with strings.
 - **One delivery decision.** Send or edit is resolved from the update, so a
   screen is written once rather than twice.
 - **One production surface.** Sessions, Redis session locking, rate limiting, an
   opt-in update queue with a per-chat gate, Prometheus metrics, an in-process
   e2e harness, and a CLI ship with the framework. A library leaves each of these
-  to you.
+  to you; here they are already wired, and 11 example projects are ready to
+  copy from.
 
 ### Against the usual approach
 
@@ -205,7 +210,7 @@ import {PageBase} from "~/base/page"
 
 export class StartPage extends PageBase {
   async handleCommandText() {
-    await this.renderText({data: {time: Math.random()}})
+    await this.renderText({data: {time: Date.now()}})
   }
 
   static template = `

@@ -4,7 +4,7 @@
 Code-built, not AI-generated: flat shapes, the project's real logo mark,
 the README's own words, and the real StartPage template from
 example/2-helloworld, with the handler calling renderText directly
-(no gdefault.show indirection) and data from Math.random(). No gradients,
+(no gdefault.show indirection) and data from Date.now(). No gradients,
 no glow, no fake UI, no hallucinated text.
 
 Regenerate: python3 images/generate-hero.py  (needs Pillow + the Liberation fonts)
@@ -84,7 +84,7 @@ for i, label in enumerate(pills):
         x += 88
 
 # --- Right: code panel with the real StartPage template, handler calling
-# renderText directly (no gdefault.show indirection), data from Math.random() ---
+# renderText directly (no gdefault.show indirection), data from Date.now() ---
 px0, py0, px1, py1 = 1330, 150, 2572, 1440
 d.rounded_rectangle([px0, py0, px1, py1], radius=18, fill=PANEL, outline=BORDER, width=2)
 d.text((1372, 182), "start.ts · excerpt", font=MONO(40), fill=DIM)
@@ -97,7 +97,7 @@ code_lines = [
     [],
     [("  async ", KW), ("handleCommandText", BS), ("() {", BS)],
     [("    await ", KW), ("this.renderText({", BS)],
-    [("      data: { ", BS), ("time", BS), (": ", BS), ("Math.random()", BS), (" },", BS)],
+    [("      data: { ", BS), ("time", BS), (": ", BS), ("Date.now()", BS), (" },", BS)],
     [("    })", BS)],
     [("  }", BS)],
     [],
