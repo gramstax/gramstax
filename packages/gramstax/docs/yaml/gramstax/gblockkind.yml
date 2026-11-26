@@ -11,5 +11,6 @@ example: []
 isPreview: false
 isDeprecated: false
 syntax: >-
-  type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError`
-  | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`;
+  type GBlockKind = `message` | `media` | `poll` | `widget` | `widgetAnswer` | `venue` | `dice` | `keyboard` |
+  `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` |
+  `invoice` | `paidMedia` | `description`;

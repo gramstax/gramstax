@@ -510,6 +510,34 @@ Gets compiled text from block \<g-web-app-answer>.
 </td></tr>
 <tr><td>
 
+[getGWidget(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgwidget.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled from block \<g-widget>.
+
+
+</td></tr>
+<tr><td>
+
+[getGWidgetAnswer(key, AGBaseId, ALang, data)](./gramstax.templatemanager.getgwidgetanswer.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Gets compiled text from block \<g-widget-answer>.
+
+
+</td></tr>
+<tr><td>
+
 [handleFileAdd(filepath)](./gramstax.templatemanager.handlefileadd.md)
 
 

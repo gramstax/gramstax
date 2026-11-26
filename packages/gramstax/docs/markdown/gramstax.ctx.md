@@ -1670,6 +1670,209 @@ Template manager for message rendering.
 
 
 </td></tr>
+<tr><td>
+
+[WIDGET\_CAPTION\_LIMIT](./gramstax.ctx.widget_caption_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API widget caption limit in characters after entity parsing.
+
+
+</td></tr>
+<tr><td>
+
+[WIDGET\_DATA\_LIMIT](./gramstax.ctx.widget_data_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API widget `chat_data` / `public_data` limit in UTF-8 bytes each.
+
+
+</td></tr>
+<tr><td>
+
+[WIDGET\_HEIGHT\_MAX](./gramstax.ctx.widget_height_max.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[WIDGET\_HEIGHT\_MIN](./gramstax.ctx.widget_height_min.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API widget height range in logical pixels (50–600).
+
+
+</td></tr>
+<tr><td>
+
+[WIDGET\_HTML\_COMPRESSED\_LIMIT](./gramstax.ctx.widget_html_compressed_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API widget HTML limit in bytes after zlib level-9 compression.
+
+
+</td></tr>
+<tr><td>
+
+[WIDGET\_HTML\_COMPRESSED\_SAFE\_LIMIT](./gramstax.ctx.widget_html_compressed_safe_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Safe compile-time target for widget HTML after zlib level-9 compression.
+
+
+</td></tr>
+<tr><td>
+
+[WIDGET\_HTML\_RAW\_LIMIT](./gramstax.ctx.widget_html_raw_limit.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API widget HTML limit in UTF-8 bytes (raw).
+
+
+</td></tr>
+<tr><td>
+
+[WIDGET\_WIDTH\_MAX](./gramstax.ctx.widget_width_max.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[WIDGET\_WIDTH\_MIN](./gramstax.ctx.widget_width_min.md)
+
+
+</td><td>
+
+`static`
+
+`readonly`
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+Bot API widget width range in logical pixels (200–600).
+
+
+</td></tr>
 </tbody></table>
 
 ## Methods
@@ -1939,6 +2142,22 @@ Fail-fast checks for a compiled `<g-poll>` block against Bot API limits.
 </td><td>
 
 Venue fields accepted by [Ctx.renderVenue()](./gramstax.ctx.rendervenue.md) from the compiled `<g-venue>` block.
+
+
+</td></tr>
+<tr><td>
+
+[assertWidget(widget)](./gramstax.ctx.assertwidget.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Fail-fast checks for a compiled `<g-widget>` block against Bot API limits.
 
 
 </td></tr>
@@ -5545,6 +5764,38 @@ Template block: `<g-media>` (read via `renderMedia`<!-- -->).
 Answers a web app query via the Bot API with a caller-built result.
 
 Template block: `<g-web-app-answer>` (read via `getGWebAppAnswer`<!-- -->); `<g-answer-note>` remains a legacy alias for this method.
+
+
+</td></tr>
+<tr><td>
+
+[renderWidget(params)](./gramstax.ctx.renderwidget.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Sends, edits, or data-updates a template-driven HTML widget using the page `<g-widget>` block.
+
+Template block: `<g-widget>` (read via `getGWidget`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
+[renderWidgetAnswer(params)](./gramstax.ctx.renderwidgetanswer.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Answers the active widget query with template data.
+
+Template block: `<g-widget-answer>` (read via `getGWidgetAnswer`<!-- -->).
 
 
 </td></tr>

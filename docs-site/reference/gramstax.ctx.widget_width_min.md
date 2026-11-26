@@ -1,0 +1,15 @@
+---
+title: "Ctx.WIDGET_WIDTH_MIN"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [WIDGET\_WIDTH\_MIN](./gramstax.ctx.widget_width_min.md)
+
+## Ctx.WIDGET\_WIDTH\_MIN property
+
+Bot API widget width range in logical pixels (200–600).
+
+**Signature:**
+
+```typescript
+static readonly WIDGET_WIDTH_MIN = 200;
+```

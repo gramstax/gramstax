@@ -9,7 +9,7 @@ Validates plain-text content of answer blocks.
 **Signature:**
 
 ```typescript
-static _validateAnswerTextContent(template: string, tag: string, maxLength?: number | null): Array<{
+static _validateAnswerTextContent(template: string, tag: string, maxLength?: number | null, maxBytes?: number | null): Array<{
         line: number;
         message: string;
     }>;
@@ -81,6 +81,22 @@ _(Optional)_ Optional static-length cap (or null to skip).
 
 
 </td></tr>
+<tr><td>
+
+maxBytes
+
+
+</td><td>
+
+number \| null
+
+
+</td><td>
+
+_(Optional)_ Optional static UTF-8 byte cap (or null to skip).
+
+
+</td></tr>
 </tbody></table>
 
 **Returns:**
@@ -91,5 +107,5 @@ Validation errors (empty when valid).
 
 ## Remarks
 
-Answer payloads (`<g-callback-answer>`<!-- -->, `<g-precheckout-error>`<!-- -->, `<g-shipping-error>`<!-- -->) reach Telegram fields that accept no HTML (toast text, `error_message`<!-- -->), so any static markup tag inside the block body is rejected. `{{}}` / `{~ ~}` spans are stripped before checking (runtime data is the caller's responsibility, mirroring the `_validateDiceItems` static/dynamic split). When `maxLength` is set, the stripped static length is capped (toast text at most 200 chars per the Bot API `answerCallbackQuery` limits). Errors carry 1-based line numbers.
+Answer payloads (`<g-callback-answer>`<!-- -->, `<g-precheckout-error>`<!-- -->, `<g-shipping-error>`<!-- -->, `<g-widget-answer>`<!-- -->) reach Telegram fields that accept no HTML (toast text, `error_message`<!-- -->, widget-query `data`<!-- -->), so any static markup tag inside the block body is rejected. `{{}}` / `{~ ~}` spans are stripped before checking (runtime data is the caller's responsibility, mirroring the `_validateDiceItems` static/dynamic split). When `maxLength` is set, the stripped static length is capped (toast text at most 200 chars per the Bot API `answerCallbackQuery` limits). When `maxBytes` is set, the stripped static content is capped in UTF-8 bytes via `Buffer.byteLength` (widget-query `data` at most 1024 bytes per the Bot API `answerWidgetQuery` limits — character `.length` is wrong for UTF-8). Errors carry 1-based line numbers.
 

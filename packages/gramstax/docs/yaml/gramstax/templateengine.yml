@@ -108,13 +108,17 @@ properties:
       location, contact - `<g-media shared>` — must be `true` or `false` - `<g-media filename>` — any string, always
       valid - `<g-poll type>` — must be `regular` or `quiz` - `<g-poll correct>` — must be a non-negative option index -
       `<g-poll explanation>` — any string, always valid - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or
-      `false` - `<g-venue title>` / `<g-venue address>` — any string, always valid - `<g-venue latitude>` — must be a
-      number between -90 and 90; `{{}}` values skip the static check (runtime-enforced) - `<g-venue longitude>` — must
-      be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced) - `<g-dice emoji>` — must
-      be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced) - `<g-invoice currency>` — must be a
-      3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced) - `<g-price amount>` — must
-      be a positive integer in smallest currency units - `<g-paid-media stars>` — must be a positive integer 1–25000;
-      `{{}}` values skip the static check (runtime-enforced)
+      `false` - `<g-widget allow_queries>` / `<g-widget is_shared>` / `<g-widget show_caption_above_media>` — must be
+      `true` or `false` - `<g-widget chat_data>` / `<g-widget public_data>` — any string, always valid - `<g-widget
+      width>` — must be an integer 200–600; `{{}}` values skip the static check (runtime-enforced) - `<g-widget height>`
+      — must be an integer 50–600; `{{}}` values skip the static check (runtime-enforced) - `<g-venue title>` /
+      `<g-venue address>` — any string, always valid - `<g-venue latitude>` — must be a number between -90 and 90;
+      `{{}}` values skip the static check (runtime-enforced) - `<g-venue longitude>` — must be a number between -180 and
+      180; `{{}}` values skip the static check (runtime-enforced) - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰;
+      `{{}}` values skip the static check (runtime-enforced) - `<g-invoice currency>` — must be a 3-letter code (`XTR`
+      or fiat); `{{}}` values skip the static check (runtime-enforced) - `<g-price amount>` — must be a positive integer
+      in smallest currency units - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the
+      static check (runtime-enforced)
 
 
       Validators are intentionally lenient — they catch obvious bugs (wrong type, invalid value) but do not enforce
@@ -263,10 +267,11 @@ properties:
     summary: Gramstax `<g-*>` PAGE block allowlist.
     remarks: >-
       Content blocks (`g-base`<!-- -->, `g-message`<!-- -->, `g-keyboard`<!-- -->, `g-media`<!-- -->,
-      `g-media-group`<!-- -->, `g-description`<!-- -->), logic blocks (`g-script`<!-- -->, `g-switch`<!-- -->,
-      `g-case`<!-- -->, `g-default`<!-- -->, `g-map`<!-- -->, `g-div`<!-- -->), and utility blocks (`g-import`<!-- -->,
-      `g-space`<!-- -->). Validated by `validateTemplate` (per-block `validateBlockG*Attributes` methods plus the
-      centralized `_PAGE_REQUIRED_ATTRS` / `_PAGE_ATTR_VALUE_VALIDATORS` specs). Combined with
+      `g-media-group`<!-- -->, `g-poll`<!-- -->, `g-widget`<!-- -->, `g-description`<!-- -->), logic blocks
+      (`g-script`<!-- -->, `g-switch`<!-- -->, `g-case`<!-- -->, `g-default`<!-- -->, `g-map`<!-- -->, `g-div`<!-- -->),
+      and utility blocks (`g-import`<!-- -->, `g-space`<!-- -->). Validated by `validateTemplate` (per-block
+      `validateBlockG*Attributes` methods plus the centralized `_PAGE_REQUIRED_ATTRS` / `_PAGE_ATTR_VALUE_VALIDATORS`
+      specs). Combined with
       [TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM](xref:gramstax!TemplateEngine.ALLOWED_BLOCKS_TELEGRAM:member) into
       [TemplateEngine.ALLOWED\_BLOCKS](xref:gramstax!TemplateEngine.ALLOWED_BLOCKS:member)<!-- -->.
     example: []
@@ -467,6 +472,107 @@ properties:
     isDeprecated: false
     syntax:
       content: 'static MAX_PAID_MEDIA_STARS: number;'
+      return:
+        type: number
+  - name: MAX_WIDGET_ANSWER_BYTES
+    uid: gramstax!TemplateEngine.MAX_WIDGET_ANSWER_BYTES:member
+    package: gramstax!
+    fullName: MAX_WIDGET_ANSWER_BYTES
+    summary: Maximum `<g-widget-answer>` data size in UTF-8 bytes.
+    remarks: >-
+      Matches the Bot API `answerWidgetQuery` `data` limit of 1024 bytes (source:
+      `https://core.telegram.org/bots/api#answerwidgetquery`<!-- -->). Measured with `Buffer.byteLength` — character
+      `.length` is wrong for UTF-8. Enforced at validation time on static content; `{{}}` spans skip the static check
+      (runtime-enforced, mirroring the `<g-callback-answer>` static/dynamic split).
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static MAX_WIDGET_ANSWER_BYTES: number;'
+      return:
+        type: number
+  - name: MAX_WIDGET_CAPTION_CHARS
+    uid: gramstax!TemplateEngine.MAX_WIDGET_CAPTION_CHARS:member
+    package: gramstax!
+    fullName: MAX_WIDGET_CAPTION_CHARS
+    summary: Maximum `<g-widget-caption>` length in characters after entity parsing.
+    remarks: >-
+      Matches the Bot API `sendWidget` caption limit of 1024 characters (source:
+      `https://core.telegram.org/bots/api#sendwidget`<!-- -->). HTML tags do not count — the length is measured on the
+      caption text with tags stripped. Enforced at validation time (static captions) and re-checked at runtime by
+      `Ctx.assertWidget` (rendered captions).
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static MAX_WIDGET_CAPTION_CHARS: number;'
+      return:
+        type: number
+  - name: MAX_WIDGET_DATA_BYTES
+    uid: gramstax!TemplateEngine.MAX_WIDGET_DATA_BYTES:member
+    package: gramstax!
+    fullName: MAX_WIDGET_DATA_BYTES
+    summary: Maximum `<g-widget>` `chat_data` / `public_data` size in UTF-8 bytes.
+    remarks: >-
+      Matches the Bot API `sendWidget` data limits of 1024 bytes each (source:
+      `https://core.telegram.org/bots/api#sendwidget`<!-- -->). Measured with `Buffer.byteLength`<!-- -->. Enforced at
+      validation time (static values) and re-checked at runtime by `Ctx.assertWidget` (rendered values).
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static MAX_WIDGET_DATA_BYTES: number;'
+      return:
+        type: number
+  - name: MAX_WIDGET_HTML_COMPRESSED_BYTES
+    uid: gramstax!TemplateEngine.MAX_WIDGET_HTML_COMPRESSED_BYTES:member
+    package: gramstax!
+    fullName: MAX_WIDGET_HTML_COMPRESSED_BYTES
+    summary: Maximum `<g-widget>` HTML size after zlib level-9 compression.
+    remarks: >-
+      The Bot API `sendWidget` hard limit is 4096 bytes compressed (source:
+      `https://core.telegram.org/bots/api#sendwidget`<!-- -->). Enforced at validation time and re-checked at runtime by
+      `Ctx.assertWidget`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static MAX_WIDGET_HTML_COMPRESSED_BYTES: number;'
+      return:
+        type: number
+  - name: MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES
+    uid: gramstax!TemplateEngine.MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES:member
+    package: gramstax!
+    fullName: MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES
+    summary: Safe compile-time target for `<g-widget>` HTML after zlib level-9 compression.
+    remarks: >-
+      DEFAULT (flip to
+      [TemplateEngine.MAX\_WIDGET\_HTML\_COMPRESSED\_BYTES](xref:gramstax!TemplateEngine.MAX_WIDGET_HTML_COMPRESSED_BYTES:member)
+      while testing if the stricter target rejects widgets Telegram would accept): Node zlib output can differ from
+      Telegram's server-side compression by tens of bytes, so a widget that compresses to 4050 bytes locally can still
+      fail on the server. The validator errors above this target, not above the 4096-byte hard limit, so a passing
+      template is one that will also pass on Telegram's side.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES: number;'
+      return:
+        type: number
+  - name: MAX_WIDGET_HTML_RAW_BYTES
+    uid: gramstax!TemplateEngine.MAX_WIDGET_HTML_RAW_BYTES:member
+    package: gramstax!
+    fullName: MAX_WIDGET_HTML_RAW_BYTES
+    summary: Maximum raw `<g-widget>` HTML size in UTF-8 bytes.
+    remarks: >-
+      Matches the Bot API `sendWidget` `html` limit of 32768 bytes (source:
+      `https://core.telegram.org/bots/api#sendwidget`<!-- -->). Measured with `Buffer.byteLength` — character `.length`
+      is wrong for UTF-8. Enforced at validation time and re-checked at runtime by `Ctx.assertWidget`<!-- -->.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static MAX_WIDGET_HTML_RAW_BYTES: number;'
       return:
         type: number
 methods:
@@ -1860,6 +1966,87 @@ methods:
                   [lang: string]: string;
               }
         description: An object mapping language keys to their raw text content
+  - name: _processGWidgetAnswerBlocks(template)
+    uid: gramstax!TemplateEngine._processGWidgetAnswerBlocks:member(1)
+    package: gramstax!
+    fullName: _processGWidgetAnswerBlocks(template)
+    summary: 'Block: g-widget-answer Extracts `<g-widget-answer>` plain-text blocks from a template string.'
+    remarks: >-
+      Children form only (`<g-widget-answer>text</g-widget-answer>`<!-- -->); content is cleaned exactly like
+      `<g-message>` (leading indent stripped, surrounding newlines trimmed) and keyed by `lang` (`"default"` when
+      absent; last block wins per lang). Raw content is preserved verbatim (including `{{var|filter}}` spans) for later
+      compilation. Plain-text and length rules are enforced by `validateBlockGWidgetAnswerAttributes`<!-- -->, not here.
+    example:
+      - |-
+        ```typescript
+        const blocks = TemplateEngine._processGWidgetAnswerBlocks(`<g-widget-answer>ok {{orderId}}</g-widget-answer>`);
+        // Result: { default: 'ok {{orderId}}' }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGWidgetAnswerBlocks(template: string): {
+                [lang: string]: string;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-widget-answer>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: string;
+              }
+        description: An object mapping language keys to their raw text content
+  - name: _processGWidgetBlocks(template)
+    uid: gramstax!TemplateEngine._processGWidgetBlocks:member(1)
+    package: gramstax!
+    fullName: _processGWidgetBlocks(template)
+    summary: 'Block: g-widget Extracts and parses `<g-widget>` blocks from a template string.'
+    remarks: >-
+      Each block declares one widget per language (`lang` defaults to `"default"`<!-- -->; last block wins per lang).
+      The inner `<g-widget-caption>` becomes `caption` and the inner `<g-widget-body>` becomes the widget `html`<!--
+      -->, which is carried RAW — it never runs the scope pipeline, so JS object literals, `${}` template strings, and
+      `<div>` / `<button>` / `<script>` / `<style>` tags survive verbatim. Dynamic data rides `chat_data` /
+      `public_data` (compiled like any attribute string), never interpolation inside the HTML.
+
+
+      Boolean flags (`allow_queries`<!-- -->, `is_shared`<!-- -->, `show_caption_above_media`<!-- -->) accept a bare
+      attribute (`<g-widget allow_queries>`<!-- -->) or an explicit value (`allow_queries="false"`<!-- -->); a bare flag
+      is `true`<!-- -->, an explicit value must be `"true"` or `"false"`<!-- -->. `width` / `height` parse to numbers
+      when static integers and stay raw strings when dynamic (`{{}}`<!-- -->), for runtime range checks. Structural
+      rules (exactly one caption, exactly one body, non-empty body, no stray content outside caption + body, caption
+      length, HTML byte sizes, data byte sizes) are enforced by `validateBlockGWidgetAttributes`<!-- -->, not here.
+    example:
+      - >-
+        ```typescript
+
+        const widgets = TemplateEngine._processGWidgetBlocks(`<g-widget allow_queries><g-widget-caption>Order
+        <b>#1042</b></g-widget-caption><g-widget-body><div
+        id="row"></div><script>TelegramWidget.request("tap")</script></g-widget-body></g-widget>`);
+
+        // Result: { default: { html: '<div id="row"></div><script>TelegramWidget.request("tap")</script>', caption:
+        'Order <b>#1042</b>', allow_queries: true } }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _processGWidgetBlocks(template: string): {
+                [lang: string]: IWidgetBlock;
+            };
+      parameters:
+        - id: template
+          description: The template string containing `<g-widget>` blocks
+          type: string
+      return:
+        type: |-
+          {
+                  [lang: string]: <xref uid="gramstax!IWidgetBlock:type" />;
+              }
+        description: An object mapping language keys to their widget configurations
   - name: _processMediaGroupItems(groupContent)
     uid: gramstax!TemplateEngine._processMediaGroupItems:member(1)
     package: gramstax!
@@ -2145,24 +2332,27 @@ methods:
                   value: string;
               }&gt;
         description: The token list
-  - name: _validateAnswerTextContent(template, tag, maxLength)
+  - name: _validateAnswerTextContent(template, tag, maxLength, maxBytes)
     uid: gramstax!TemplateEngine._validateAnswerTextContent:member(1)
     package: gramstax!
-    fullName: _validateAnswerTextContent(template, tag, maxLength)
+    fullName: _validateAnswerTextContent(template, tag, maxLength, maxBytes)
     summary: Validates plain-text content of answer blocks.
     remarks: >-
-      Answer payloads (`<g-callback-answer>`<!-- -->, `<g-precheckout-error>`<!-- -->, `<g-shipping-error>`<!-- -->)
-      reach Telegram fields that accept no HTML (toast text, `error_message`<!-- -->), so any static markup tag inside
-      the block body is rejected. `{{}}` / `{~ ~}` spans are stripped before checking (runtime data is the caller's
-      responsibility, mirroring the `_validateDiceItems` static/dynamic split). When `maxLength` is set, the stripped
-      static length is capped (toast text at most 200 chars per the Bot API `answerCallbackQuery` limits). Errors carry
-      1-based line numbers.
+      Answer payloads (`<g-callback-answer>`<!-- -->, `<g-precheckout-error>`<!-- -->, `<g-shipping-error>`<!-- -->,
+      `<g-widget-answer>`<!-- -->) reach Telegram fields that accept no HTML (toast text, `error_message`<!-- -->,
+      widget-query `data`<!-- -->), so any static markup tag inside the block body is rejected. `{{}}` / `{~ ~}` spans
+      are stripped before checking (runtime data is the caller's responsibility, mirroring the `_validateDiceItems`
+      static/dynamic split). When `maxLength` is set, the stripped static length is capped (toast text at most 200 chars
+      per the Bot API `answerCallbackQuery` limits). When `maxBytes` is set, the stripped static content is capped in
+      UTF-8 bytes via `Buffer.byteLength` (widget-query `data` at most 1024 bytes per the Bot API `answerWidgetQuery`
+      limits — character `.length` is wrong for UTF-8). Errors carry 1-based line numbers.
     example: []
     isPreview: false
     isDeprecated: false
     syntax:
-      content: |-
-        static _validateAnswerTextContent(template: string, tag: string, maxLength?: number | null): Array<{
+      content: >-
+        static _validateAnswerTextContent(template: string, tag: string, maxLength?: number | null, maxBytes?: number |
+        null): Array<{
                 line: number;
                 message: string;
             }>;
@@ -2175,6 +2365,9 @@ methods:
           type: string
         - id: maxLength
           description: Optional static-length cap (or null to skip).
+          type: number | null
+        - id: maxBytes
+          description: Optional static UTF-8 byte cap (or null to skip).
           type: number | null
       return:
         type: |-
@@ -2654,6 +2847,45 @@ methods:
     syntax:
       content: |-
         static _validateVenueItems(template: string): Array<{
+                line: number;
+                message: string;
+            }>;
+      parameters:
+        - id: template
+          description: The raw template source to inspect.
+          type: string
+      return:
+        type: |-
+          Array&lt;{
+                  line: number;
+                  message: string;
+              }&gt;
+        description: Validation errors (empty when valid).
+  - name: _validateWidgetItems(template)
+    uid: gramstax!TemplateEngine._validateWidgetItems:member(1)
+    package: gramstax!
+    fullName: _validateWidgetItems(template)
+    summary: Validates `<g-widget-caption>` / `<g-widget-body>` presence and `<g-widget>` size limits.
+    remarks: >-
+      Enforces the Bot API `sendWidget` constraints on the RAW template values (the widget HTML carries no
+      interpolation, so the static check is exact): exactly one `<g-widget-caption>` (required — it is the fallback text
+      on clients without widget support), exactly one `<g-widget-body>` (required — it carries the widget HTML), body
+      content at least 1 UTF-8 byte (the API requires HTML of 1–32768 bytes; an empty body used to slip through compile
+      and fail only at Telegram), no stray content inside `<g-widget>` outside the caption and body blocks, caption text
+      1–1024 characters after entity parsing (HTML tags stripped; skipped when the caption carries `{{}}` / `{~ ~}`
+      interpolation — dynamic lengths are checked at runtime by `Ctx.assertWidget`<!-- -->), HTML at most 32768 UTF-8
+      bytes raw and at most 4000 bytes after zlib level-9 compression (the safe target — see
+      [TemplateEngine.MAX\_WIDGET\_HTML\_COMPRESSED\_SAFE\_BYTES](xref:gramstax!TemplateEngine.MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES:member)<!--
+      -->; the API hard limit is 4096), `chat_data` / `public_data` at most 1024 UTF-8 bytes each (skipped when
+      dynamic). Called by
+      [TemplateEngine.validateBlockGWidgetAttributes()](xref:gramstax!TemplateEngine.validateBlockGWidgetAttributes:member(1))<!--
+      -->; errors carry 1-based line numbers.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static _validateWidgetItems(template: string): Array<{
                 line: number;
                 message: string;
             }>;
@@ -3460,6 +3692,108 @@ methods:
                   };
               }
         description: Functions indexed by base ID and language
+  - name: compileBlockGWidget(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGWidget:member(1)
+    package: gramstax!
+    fullName: compileBlockGWidget(template, baseBlocks)
+    summary: Compiles widget blocks from a template into executable functions.
+    remarks: >-
+      Parses `<g-widget>` blocks per base and compiles the caption, `chat_data`<!-- -->, `public_data`<!-- -->,
+      `width`<!-- -->, and `height` through the same pipeline as poll questions (script → map → switch → exec →
+      variables), so `{{var|filter}}` works in all five. The widget `html` is the exception by design: it is carried RAW
+      and never runs the pipeline — JS object literals, `${}` template strings, and HTML tags inside the widget stay
+      verbatim, because the scope pipeline would reject them (`validateScopes`<!-- -->) or miscompile them. Static
+      fields (`allow_queries`<!-- -->, `is_shared`<!-- -->, `show_caption_above_media`<!-- -->) pass through untouched.
+    example:
+      - >-
+        ```typescript
+
+        const widgets = TemplateEngine.compileBlockGWidget(`<g-base><g-widget allow_queries chat_data='{"order_id":
+        "{{orderId}}"}'><g-widget-caption>Order <b>#{{orderId}}</b></g-widget-caption><g-widget-body><div
+        id="row"></div><script>const state = {'order': 1};</script></g-widget-body></g-widget></g-base>`);
+
+        const result = widgets.default?.default?.({ orderId: '1042' });
+
+        // Result: { html: '<div id="row"></div><script>const state = {\'order\': 1};</script>', caption: 'Order
+        <b>#1042</b>', allow_queries: true, chat_data: '{"order_id": "1042"}' }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGWidget(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITemplateData) => IWidgetBlock;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-widget>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; <xref uid="gramstax!IWidgetBlock:type" />;
+                  };
+              }
+        description: Compiled widget functions organized by base ID and language
+  - name: compileBlockGWidgetAnswer(template, baseBlocks)
+    uid: gramstax!TemplateEngine.compileBlockGWidgetAnswer:member(1)
+    package: gramstax!
+    fullName: compileBlockGWidgetAnswer(template, baseBlocks)
+    summary: Compiles widget-answer blocks from a template into executable functions.
+    remarks: >-
+      This method parses `<g-widget-answer>` blocks from the template and compiles them into functions that generate
+      rendered answer data. The result is organized by base ID and language. Each content string runs the same pipeline
+      as `<g-message>` (script → map → switch → scope-exec → scope-variables → function).
+
+
+      Output shape: - First level key: `AGBaseId` (from `<g-base id="...">`<!-- -->, or `"default"` if omitted) - Second
+      level key: `ALang` (from `lang="..."`<!-- -->, or `"default"` if omitted) - Value: `(data?: Record<string,
+      unknown>) => string`
+    example:
+      - >-
+        ```typescript
+
+        const compiled = TemplateEngine.compileBlockGWidgetAnswer(`<g-base><g-widget-answer>ok
+        {{orderId}}</g-widget-answer></g-base>`);
+
+        const text = compiled.default?.default?.({orderId: `1042`});
+
+        // Result: 'ok 1042'
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        static compileBlockGWidgetAnswer(template: string, baseBlocks?: ReturnType<typeof
+        TemplateEngine._processGBaseBlocks>): {
+                [AGBaseId: string]: {
+                    [ALang: string]: (data?: ITemplateData) => string;
+                };
+            };
+      parameters:
+        - id: template
+          description: Raw template string containing `<g-base>` and `<g-widget-answer>` blocks
+          type: string
+        - id: baseBlocks
+          description: Optional pre-parsed base blocks for reuse
+          type: ReturnType&lt;typeof <xref uid="gramstax!TemplateEngine._processGBaseBlocks:member" />&gt;
+      return:
+        type: |-
+          {
+                  [AGBaseId: string]: {
+                      [ALang: string]: (data?: <xref uid="gramstax!~ITemplateData:type" />) =&gt; string;
+                  };
+              }
+        description: Compiled widget-answer functions organized by base ID and language
   - name: processGImportBlocks(template, resolver, depth, importCache)
     uid: gramstax!TemplateEngine.processGImportBlocks:member(1)
     package: gramstax!
@@ -4356,6 +4690,14 @@ methods:
       — checks value formats on `<g-*>` PAGE block attributes (centralized)
 
 
+      Widget HTML is raw by design, so every validator above runs on the widget-stripped template (<!-- -->) — the raw
+      HTML (with its `<div>` / `<button>` / `<script>` / `<style>` tags and JS object literals) never reaches the
+      name/scope/format/ position/telegram checks — except
+      [TemplateEngine.validateBlockGWidgetAttributes()](xref:gramstax!TemplateEngine.validateBlockGWidgetAttributes:member(1))<!--
+      -->, which runs on the full template right after the poll step and checks the block attributes, caption presence,
+      and size limits.
+
+
       Errors from all validators are combined into a single result.
     example:
       - |-
@@ -4790,6 +5132,91 @@ methods:
                   }&gt;;
               }
         description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGWidgetAnswerAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGWidgetAnswerAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGWidgetAnswerAttributes(template)
+    summary: Validates attributes and content on `<g-widget-answer>` blocks.
+    remarks: >-
+      Allowed attributes are `lang` only. Content must be plain text without HTML (widget-query `data` is an opaque
+      payload for the widget's JS, not user-facing copy) and at most 1024 UTF-8 bytes of static text (Bot API
+      `answerWidgetQuery` limits, measured with `Buffer.byteLength`<!-- -->); `{{}}` spans skip the static checks
+      (runtime-enforced).
+    example:
+      - >-
+        ```typescript
+
+        const result =
+        TemplateEngine.validateBlockGWidgetAnswerAttributes(`<g-base><g-widget-answer>ok</g-widget-answer></g-base>`);
+
+        // Result: { valid: true, errors: [] }
+
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGWidgetAnswerAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template string to validate
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: An object with a `valid` boolean and an `errors` array
+  - name: validateBlockGWidgetAttributes(template)
+    uid: gramstax!TemplateEngine.validateBlockGWidgetAttributes:member(1)
+    package: gramstax!
+    fullName: validateBlockGWidgetAttributes(template)
+    summary: Validates attributes and structural rules on `<g-widget>` blocks.
+    remarks: >-
+      Step 14 of the `validateTemplate` pipeline. Checks the block-level attributes (`lang`<!-- -->, `allow_queries`<!--
+      -->, `is_shared`<!-- -->, `show_caption_above_media`<!-- -->, `chat_data`<!-- -->, `public_data`<!-- -->,
+      `width`<!-- -->, `height`<!-- -->) via `_validateBlockAttributes` — note there is deliberately no `caption`
+      attribute: the caption comes only from the required `<g-widget-caption>` child block — then delegates structural
+      rules (exactly one caption, exactly one body, non-empty body, no stray content outside caption + body, caption
+      length, HTML raw/compressed byte sizes, data byte sizes) to
+      [TemplateEngine.\_validateWidgetItems()](xref:gramstax!TemplateEngine._validateWidgetItems:member(1))<!-- -->.
+      Returns `valid: false` with per-line errors instead of throwing, so callers can aggregate across blocks.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: |-
+        static validateBlockGWidgetAttributes(template: string): {
+                valid: boolean;
+                errors: Array<{
+                    line: number;
+                    message: string;
+                }>;
+            };
+      parameters:
+        - id: template
+          description: The raw template source to validate.
+          type: string
+      return:
+        type: |-
+          {
+                  valid: boolean;
+                  errors: Array&lt;{
+                      line: number;
+                      message: string;
+                  }&gt;;
+              }
+        description: '`{valid, errors}`<!-- -->; `errors` carry 1-based line numbers.'
   - name: validateFormatBlock(template)
     uid: gramstax!TemplateEngine.validateFormatBlock:member(1)
     package: gramstax!
@@ -4808,15 +5235,19 @@ methods:
       \*\*Must NOT be self-closing (must use open/close tags):\*\* - `<g-base>...</g-base>`<!-- -->,
       `<g-message>...</g-message>`<!-- -->, `<g-keyboard>...</g-keyboard>`<!-- -->, `<g-media>...</g-media>`<!-- -->,
       `<g-poll>...</g-poll>`<!-- -->, `<g-question>...</g-question>`<!-- -->, `<g-option>...</g-option>`<!-- -->,
-      `<g-invoice>...</g-invoice>`<!-- -->, `<g-paid-media>...</g-paid-media>`<!-- -->,
-      `<g-description>...</g-description>`<!-- -->, `<g-script>...</g-script>`<!-- -->, `<g-switch>...</g-switch>`<!--
-      -->, `<g-case>...</g-case>`<!-- -->, `<g-default>...</g-default>`<!-- -->, `<g-map>...</g-map>`<!-- -->,
-      `<g-div>...</g-div>`<!-- -->, `<g-web-app-answer>...</g-web-app-answer>`
+      `<g-widget>...</g-widget>`<!-- -->, `<g-widget-caption>...</g-widget-caption>`<!-- -->,
+      `<g-widget-body>...</g-widget-body>`<!-- -->, `<g-invoice>...</g-invoice>`<!-- -->,
+      `<g-paid-media>...</g-paid-media>`<!-- -->, `<g-description>...</g-description>`<!-- -->,
+      `<g-script>...</g-script>`<!-- -->, `<g-switch>...</g-switch>`<!-- -->, `<g-case>...</g-case>`<!-- -->,
+      `<g-default>...</g-default>`<!-- -->, `<g-map>...</g-map>`<!-- -->, `<g-div>...</g-div>`<!-- -->,
+      `<g-web-app-answer>...</g-web-app-answer>`<!-- -->, `<g-callback-answer>...</g-callback-answer>`<!-- -->,
+      `<g-precheckout-error>...</g-precheckout-error>`<!-- -->, `<g-shipping-error>...</g-shipping-error>`<!-- -->,
+      `<g-answer-note>...</g-answer-note>`<!-- -->, `<g-gift>...</g-gift>`
 
 
-      Nine page blocks appear in neither set and accept either form: `<g-price>`<!-- -->, `<g-venue>`<!-- -->,
-      `<g-dice>`<!-- -->, `<g-gift>`<!-- -->, `<g-callback-answer>`<!-- -->, `<g-precheckout-error>`<!-- -->,
-      `<g-shipping-error>`<!-- -->, `<g-inline-button>`<!-- -->, `<g-answer-note>`<!-- -->.
+      Four page blocks appear in neither set and accept either form: `<g-price>`<!-- -->, `<g-venue>`<!-- -->,
+      `<g-dice>`<!-- -->, `<g-inline-button>`<!-- -->. Their extractors accept both spellings identically
+      (attribute-only blocks / line items that carry no children), so neither spelling is rejected here.
 
 
       Telegram HTML formatting tags with content (e.g. `<b>`<!-- -->, `<p>`<!-- -->, `<table>`<!-- -->) passthrough and
@@ -4957,13 +5388,17 @@ methods:
       location, contact - `<g-media shared>` — must be `true` or `false` - `<g-media filename>` — any string, always
       valid - `<g-poll type>` — must be `regular` or `quiz` - `<g-poll correct>` — must be a non-negative option index -
       `<g-poll explanation>` — any string, always valid - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or
-      `false` - `<g-venue title>` / `<g-venue address>` — any string, always valid - `<g-venue latitude>` — must be a
-      number between -90 and 90; `{{}}` values skip the static check (runtime-enforced) - `<g-venue longitude>` — must
-      be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced) - `<g-dice emoji>` — must
-      be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced) - `<g-invoice currency>` — must be a
-      3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced) - `<g-price amount>` — must
-      be a positive integer in smallest currency units - `<g-paid-media stars>` — must be a positive integer 1–25000;
-      `{{}}` values skip the static check (runtime-enforced)
+      `false` - `<g-widget allow_queries>` / `<g-widget is_shared>` / `<g-widget show_caption_above_media>` — must be
+      `true` or `false` - `<g-widget chat_data>` / `<g-widget public_data>` — any string, always valid - `<g-widget
+      width>` — must be an integer 200–600; `{{}}` values skip the static check (runtime-enforced) - `<g-widget height>`
+      — must be an integer 50–600; `{{}}` values skip the static check (runtime-enforced) - `<g-venue title>` /
+      `<g-venue address>` — any string, always valid - `<g-venue latitude>` — must be a number between -90 and 90;
+      `{{}}` values skip the static check (runtime-enforced) - `<g-venue longitude>` — must be a number between -180 and
+      180; `{{}}` values skip the static check (runtime-enforced) - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰;
+      `{{}}` values skip the static check (runtime-enforced) - `<g-invoice currency>` — must be a 3-letter code (`XTR`
+      or fiat); `{{}}` values skip the static check (runtime-enforced) - `<g-price amount>` — must be a positive integer
+      in smallest currency units - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the
+      static check (runtime-enforced)
 
 
       Tags without value validators (e.g. `<g-message>`<!-- -->, `<g-script>`<!-- -->, `<g-div>`<!-- -->) are skipped.
@@ -5071,17 +5506,18 @@ methods:
 
       \*\*Enforced rules:\*\* - `<g-base>` must be at the outermost level and cannot be nested inside any other block. -
       `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, `<g-media-group>`<!-- -->, `<g-poll>`<!-- -->,
-      `<g-invoice>`<!-- -->, `<g-paid-media>`<!-- -->, `<g-venue>`<!-- -->, `<g-dice>`<!-- -->, `<g-description>`<!--
-      -->, `<g-import>`<!-- -->, `<g-script>`<!-- -->, `<g-space>` can only appear directly inside `<g-base>`<!-- -->. -
-      `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside `<g-paid-media>` as a
-      paywall item. - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`<!-- -->. - `<g-price>`
-      can only appear directly inside `<g-invoice>`<!-- -->. - `<g-switch>`<!-- -->, `<g-map>` can only appear inside
-      `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, or `<g-description>`<!-- -->. - `<g-case>` and
-      `<g-default>` can only appear inside `<g-switch>`<!-- -->. - `<g-map>` is also allowed inside `<g-case>` and
-      `<g-default>` (explicitly and via parent-child inheritance — see `inheritsContentFromParent`<!-- -->). - Telegram
-      formatting tags (`<b>`<!-- -->, `<i>`<!-- -->, `<u>`<!-- -->, `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->,
-      `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote expandable>`<!-- -->) are passthrough and ignored during
-      validation.
+      `<g-widget>`<!-- -->, `<g-invoice>`<!-- -->, `<g-paid-media>`<!-- -->, `<g-venue>`<!-- -->, `<g-dice>`<!-- -->,
+      `<g-description>`<!-- -->, `<g-import>`<!-- -->, `<g-script>`<!-- -->, `<g-space>` can only appear directly inside
+      `<g-base>`<!-- -->. - `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside
+      `<g-paid-media>` as a paywall item. - `<g-question>` and `<g-option>` can only appear directly inside
+      `<g-poll>`<!-- -->. - `<g-widget-caption>` and `<g-widget-body>` can only appear directly inside `<g-widget>`<!--
+      -->. - `<g-price>` can only appear directly inside `<g-invoice>`<!-- -->. - `<g-switch>`<!-- -->, `<g-map>` can
+      only appear inside `<g-message>`<!-- -->, `<g-keyboard>`<!-- -->, `<g-media>`<!-- -->, or `<g-description>`<!--
+      -->. - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`<!-- -->. - `<g-map>` is also allowed
+      inside `<g-case>` and `<g-default>` (explicitly and via parent-child inheritance — see
+      `inheritsContentFromParent`<!-- -->). - Telegram formatting tags (`<b>`<!-- -->, `<i>`<!-- -->, `<u>`<!-- -->,
+      `<s>`<!-- -->, `<code>`<!-- -->, `<pre>`<!-- -->, `<a>`<!-- -->, `<blockquote>`<!-- -->, `<blockquote
+      expandable>`<!-- -->) are passthrough and ignored during validation.
     example:
       - |-
         ```typescript
@@ -5351,11 +5787,9 @@ methods:
     fullName: validateTemplate(template)
     summary: Full template validation — runs all validation passes.
     remarks: >-
-      Executes every registered validator in sequence and collects all errors. Validation steps:
-
-
-      1. [TemplateEngine.validateNamesBlock()](xref:gramstax!TemplateEngine.validateNamesBlock:member(1)) — checks that
-      all tags are known 2. [TemplateEngine.validateScopes()](xref:gramstax!TemplateEngine.validateScopes:member(1)) —
+      Executes every registered validator in sequence and collects all errors. Validation steps: 1.
+      [TemplateEngine.validateNamesBlock()](xref:gramstax!TemplateEngine.validateNamesBlock:member(1)) — checks that all
+      tags are known 2. [TemplateEngine.validateScopes()](xref:gramstax!TemplateEngine.validateScopes:member(1)) —
       checks that all interpolation scopes are known 3.
       [TemplateEngine.validateFormatBlock()](xref:gramstax!TemplateEngine.validateFormatBlock:member(1)) — checks
       self-closing vs regular tag syntax 4.
@@ -5379,46 +5813,58 @@ methods:
       — checks `<g-media-group>` block attributes 13.
       [TemplateEngine.validateBlockGPollAttributes()](xref:gramstax!TemplateEngine.validateBlockGPollAttributes:member(1))
       — checks `<g-poll>` block attributes 14.
+      [TemplateEngine.validateBlockGWidgetAttributes()](xref:gramstax!TemplateEngine.validateBlockGWidgetAttributes:member(1))
+      — checks `<g-widget>` block attributes, caption/body presence, and size limits 15.
       [TemplateEngine.validateBlockGDescriptionAttributes()](xref:gramstax!TemplateEngine.validateBlockGDescriptionAttributes:member(1))
-      — checks `<g-description>` block attributes 15.
+      — checks `<g-description>` block attributes 16.
       [TemplateEngine.validateBlockGScriptAttributes()](xref:gramstax!TemplateEngine.validateBlockGScriptAttributes:member(1))
-      — checks `<g-script>` block attributes 16.
+      — checks `<g-script>` block attributes 17.
       [TemplateEngine.validateBlockGSwitchAttributes()](xref:gramstax!TemplateEngine.validateBlockGSwitchAttributes:member(1))
-      — checks `<g-switch>` block attributes 17.
+      — checks `<g-switch>` block attributes 18.
       [TemplateEngine.validateBlockGCaseAttributes()](xref:gramstax!TemplateEngine.validateBlockGCaseAttributes:member(1))
-      — checks `<g-case>` block attributes 18.
+      — checks `<g-case>` block attributes 19.
       [TemplateEngine.validateBlockGDefaultAttributes()](xref:gramstax!TemplateEngine.validateBlockGDefaultAttributes:member(1))
-      — checks `<g-default>` block attributes 19.
+      — checks `<g-default>` block attributes 20.
       [TemplateEngine.validateBlockGMapAttributes()](xref:gramstax!TemplateEngine.validateBlockGMapAttributes:member(1))
-      — checks `<g-map>` block attributes 20.
+      — checks `<g-map>` block attributes 21.
       [TemplateEngine.validateBlockGDivAttributes()](xref:gramstax!TemplateEngine.validateBlockGDivAttributes:member(1))
-      — checks `<g-div>` block attributes 21.
+      — checks `<g-div>` block attributes 22.
       [TemplateEngine.validateBlockGImportAttributes()](xref:gramstax!TemplateEngine.validateBlockGImportAttributes:member(1))
-      — checks `<g-import>` block attributes 22.
+      — checks `<g-import>` block attributes 23.
       [TemplateEngine.validateBlockGSpaceAttributes()](xref:gramstax!TemplateEngine.validateBlockGSpaceAttributes:member(1))
-      — checks `<g-space>` block attributes 23.
+      — checks `<g-space>` block attributes 24.
       [TemplateEngine.validateBlockGVenueAttributes()](xref:gramstax!TemplateEngine.validateBlockGVenueAttributes:member(1))
-      — checks `<g-venue>` block attributes 24.
+      — checks `<g-venue>` block attributes 25.
       [TemplateEngine.validateBlockGDiceAttributes()](xref:gramstax!TemplateEngine.validateBlockGDiceAttributes:member(1))
-      — checks `<g-dice>` block attributes 25.
+      — checks `<g-dice>` block attributes 26.
       [TemplateEngine.validateBlockGCallbackAnswerAttributes()](xref:gramstax!TemplateEngine.validateBlockGCallbackAnswerAttributes:member(1))
-      — checks `<g-callback-answer>` block attributes and plain-text content 26.
+      — checks `<g-callback-answer>` block attributes and plain-text content 27.
+      [TemplateEngine.validateBlockGWidgetAnswerAttributes()](xref:gramstax!TemplateEngine.validateBlockGWidgetAnswerAttributes:member(1))
+      — checks `<g-widget-answer>` block attributes and plain-text content 28.
       [TemplateEngine.validateBlockGPrecheckoutErrorAttributes()](xref:gramstax!TemplateEngine.validateBlockGPrecheckoutErrorAttributes:member(1))
-      — checks `<g-precheckout-error>` block attributes and plain-text content 27.
+      — checks `<g-precheckout-error>` block attributes and plain-text content 29.
       [TemplateEngine.validateBlockGShippingErrorAttributes()](xref:gramstax!TemplateEngine.validateBlockGShippingErrorAttributes:member(1))
-      — checks `<g-shipping-error>` block attributes and plain-text content 28.
+      — checks `<g-shipping-error>` block attributes and plain-text content 30.
       [TemplateEngine.validateBlockGInlineButtonAttributes()](xref:gramstax!TemplateEngine.validateBlockGInlineButtonAttributes:member(1))
-      — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29.
+      — checks `<g-inline-button>` block attributes, required text, and start-parameter format 31.
       [TemplateEngine.validateBlockGAnswerNoteAttributes()](xref:gramstax!TemplateEngine.validateBlockGAnswerNoteAttributes:member(1))
-      — checks `<g-answer-note>` block attributes and plain-text content 30.
+      — checks `<g-answer-note>` block attributes and plain-text content 32.
       [TemplateEngine.validateBlockGWebAppAnswerAttributes()](xref:gramstax!TemplateEngine.validateBlockGWebAppAnswerAttributes:member(1))
-      — checks `<g-web-app-answer>` block attributes and plain-text content 31.
+      — checks `<g-web-app-answer>` block attributes and plain-text content 33.
       [TemplateEngine.validateBlockGGiftAttributes()](xref:gramstax!TemplateEngine.validateBlockGGiftAttributes:member(1))
-      — checks `<g-gift>` block attributes (HTML content is legal) 32.
+      — checks `<g-gift>` block attributes (HTML content is legal) 34.
       [TemplateEngine.validatePageAttributesBlock()](xref:gramstax!TemplateEngine.validatePageAttributesBlock:member(1))
-      — checks required attributes on `<g-*>` PAGE blocks (centralized) 33.
+      — checks required attributes on `<g-*>` PAGE blocks (centralized) 35.
       [TemplateEngine.validatePageAttributeValuesBlock()](xref:gramstax!TemplateEngine.validatePageAttributeValuesBlock:member(1))
       — checks value formats on `<g-*>` PAGE block attributes (centralized)
+
+
+      Widget HTML is raw by design, so every validator above runs on the widget-stripped template (<!-- -->) — the raw
+      HTML (with its `<div>` / `<button>` / `<script>` / `<style>` tags and JS object literals) never reaches the
+      name/scope/format/ position/telegram checks — except
+      [TemplateEngine.validateBlockGWidgetAttributes()](xref:gramstax!TemplateEngine.validateBlockGWidgetAttributes:member(1))<!--
+      -->, which runs on the full template right after the poll step and checks the block attributes, caption presence,
+      and size limits.
 
 
       Errors from all validators are combined into a single result.

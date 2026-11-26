@@ -1647,6 +1647,55 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx.assertWidget:member(1)",
+              "docComment": "/**\n * Fail-fast checks for a compiled `<g-widget>` block against Bot API limits.\n *\n * @remarks\n *\n * Measures the COMPILED strings (post-interpolation): HTML at most 32768 UTF-8 bytes raw and at most 4000 bytes after zlib level-9 compression (the safe target — see {@link Ctx.WIDGET_HTML_COMPRESSED_SAFE_LIMIT}; the API hard limit is 4096), caption required and 1–1024 characters after entity parsing (HTML tags stripped), `chat_data` / `public_data` at most 1024 UTF-8 bytes each, `width` an integer 200–600 and `height` an integer 50–600 when present. Programmer error — always throws, never falls back or notifies.\n *\n * @param widget - Compiled widget block from `getGWidget`.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static assertWidget(widget: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IWidgetBlock",
+                  "canonicalReference": "gramstax!IWidgetBlock:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "widget",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "assertWidget"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#bottomKeyboard:member(1)",
               "docComment": "/**\n * Creates a bottom (reply) keyboard using a builder callback.\n *\n * @remarks\n *\n * The callback receives the keyboard instance and an array of button labels from the template. Automatically applies `resized()` to the keyboard.\n *\n * @param callback - Builder function that receives keyboard and labels.\n *\n * @param params - Optional parameters (or null to omit). {@link IBottomKbParams} for details.\n *\n * @returns The bottom keyboard instance.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   const kb = this.bottomKeyboard((k, labels) => {\n *     labels.forEach(label => k.text(label))\n *     return k\n *   })\n *   await this.renderText({keyboard: kb})\n * }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -16903,6 +16952,186 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#renderWidget:member(1)",
+              "docComment": "/**\n * Sends, edits, or data-updates a template-driven HTML widget using the page `<g-widget>` block.\n *\n * Template block: `<g-widget>` (read via `getGWidget`).\n *\n * @remarks\n *\n * Modes are explicit — there is NO `auto` mode: a tap inside the widget (`widget_query`) wants `update-data` while a keyboard button under it (`callbackQuery`) wants `edit`, so no single runtime guess is honest. `mode` defaults to `reply`.\n *\n * - `reply` (default): sends a new widget via `replyWithWidget` with the template caption and a hardcoded `parse_mode: \"HTML\"` (never `caption_entities`, like `renderMedia` / `renderPoll`). The chat resolves from `widgetQuery.chat` on a tap update too, so a tap handler can reply with a fresh widget in the same chat. - `edit`: re-applies the template's state, caption, and keyboard to the widget message held by the context — never the HTML, which the Bot API cannot replace (there is no `editMessageWidget`). NOT atomic: up to three API calls (`editMessageWidgetData` / `editSharedWidgetData`, `editMessageCaption`, `editMessageReplyMarkup`), so a failure mid-way leaves part of the message updated and the error is rethrown. Whether the widget is shared is auto-detected from the update (see `_isSharedWidget`) — the template's `is_shared` is ignored here. On a detected shared widget the state edit goes to `editSharedWidgetData` (public data, every message showing the widget) while the caption and keyboard edits still target only the context-held message. Target resolution uses the ctx shortcuts: `chatId` / `msgId` resolve from `widgetQuery.chat` / `widgetQuery.message_id` on a tap update (verified in grammY 1.48.0 `context.js` and `@grammyjs/types` 5.2.0), so the tapped message is the edit target with no manual resolution. (One edge: a widget inside an INLINE message carries neither — the query has `inline_message_id` instead — and the data edit then takes grammY's Inline variant while the caption/keyboard edits throw grammY's \"Missing information\" error.) - `update-data`: changes only the widget state in exactly one API call (atomic) — `chat_data` via `editMessageWidgetData` for a regular widget, `public_data` via `editSharedWidgetData` for a shared one. Shared-ness is auto-detected from the update (see `_isSharedWidget`); the template's `is_shared` is ignored here. This is the hot path for widget taps and the only mode meaningful for shared widgets. It does NOT answer the widget query: the handler must still call `ctx.answerWidgetQuery` within 15 seconds. Target resolution uses the ctx shortcuts (see the edit route above): the regular-widget target comes from `widgetQuery.chat` / `widgetQuery.message_id`, the shared target from `widgetQuery.widget_id ?? sharedWidgetQuery.widget_id ?? msg.widget.id` (the widget_id path grammY resolves).\n *\n * `is_shared` is a send-time declaration only: it is passed to `replyWithWidget` when a new widget is created — the `is_shared` render param (reply and broadcast-send routes) overrides the template block's value, and the `options` bag is still spread last, so `options.is_shared` wins over the param. The broadcast-revise route still reads it from the template (stored targets carry no update to detect from). The `edit` and `update-data` routes ignore it and detect shared-ness from the context instead.\n *\n * Fail-fast validation (`Ctx.assertWidget`) runs BEFORE any API call on the COMPILED strings — programmer errors always throw, never fall back.\n *\n * Send failures follow `Ctx.classifySendError`, except the fallback content is the widget caption (sent as text with `parse_mode: \"HTML\"`) instead of the generic page fallback text — DEFAULT (flip to rethrow, `renderPoll` style, while testing if needed): the caption is designed to stand alone as the widget's replacement on clients without widget support.\n *\n * @param params - Optional params object (defaults to `{}`): `mode` one of `reply` (default), `edit`, `update-data`; `keyboard` optional keyboard markup (or null to omit) — inline-only on the `edit` route, `editMessageReplyMarkup` rejects a bottom keyboard; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block widget (or null to use default); `options` optional extra `sendWidget` fields, spread last over the template fields (or null to omit); `is_shared` optional first-class override of the template block's `is_shared` on the send routes (reply and broadcast-send; or null to keep the template value); `broadcast` optional fan-out — `{ids, languageCode, ...}` sends to many recipients, `{targets, reviseOptions}` data-updates stored widget messages (non-shared widgets only).\n *\n * @returns The sent widget message, `true` for an edit / data-update, `undefined` when the send fell back to the caption text, or the broadcast counts.\n *\n * @example\n * ```typescript\n * async handleCallbackQueryData() {\n *   await this.renderWidget() // send the widget from the <g-widget> block\n * }\n * ```\n *\n * @example\n * ```typescript\n * async handleFreeWidgetQuery() {\n *   await this.renderWidgetAnswer({AGBaseId: `rate-ack`}) // template-backed answer (underlying call: ctx.answerWidgetQuery)\n *   await this.renderWidget({mode: \"update-data\", data: {stars: 4}}) // tap -> new widget state\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "renderWidget(params?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IRenderWidgetParams",
+                  "canonicalReference": "gramstax!IRenderWidgetParams:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Awaited",
+                  "canonicalReference": "!Awaited:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ReturnType",
+                  "canonicalReference": "!ReturnType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[`replyWithWidget`]>> | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Awaited",
+                  "canonicalReference": "!Awaited:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ReturnType",
+                  "canonicalReference": "!ReturnType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Ctx",
+                  "canonicalReference": "gramstax!Ctx:class"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[`reply`]>> | true | undefined | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IBroadcastSendResult",
+                  "canonicalReference": "gramstax!IBroadcastSendResult:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IBroadcastEditResult",
+                  "canonicalReference": "gramstax!IBroadcastEditResult:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 21
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "renderWidget"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!Ctx#renderWidgetAnswer:member(1)",
+              "docComment": "/**\n * Answers the active widget query with template data.\n *\n * Template block: `<g-widget-answer>` (read via `getGWidgetAnswer`).\n *\n * @remarks\n *\n * Template-backed counterpart to answering widget taps: the `<g-widget-answer>` block supplies the answer data (multilang via `data`). There is no message to send, so this takes no keyboard and never falls back to a reply.\n *\n * The answer is received only by the widget that sent the query and does NOT change the widget's data — that is `renderWidget` mode `update-data`. One method covers both `widget_query` and `shared_widget_query`: the ctx shortcut resolves the query id from either update. The answer must be sent within 15 seconds of the query.\n *\n * Observe-only send-error coverage (mirrors `renderCallbackAnswer`): failures are classified via `Ctx.classifySendError`, reported to `notifySendError`, and logged (`retryable` → `log.error`, `fallback-text` → `log.warn`). After notify+log the original error is ALWAYS rethrown untouched.\n *\n * Answer data is limited by Telegram to 1024 bytes — keep the block short (the limit is bytes, not characters; multibyte text counts more).\n *\n * @param params - Answer params: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for the answer data (or null to use default).\n *\n * @returns True on success.\n *\n * @example\n * ```typescript\n * async handleFreeWidgetQuery() {\n *   await this.renderWidgetAnswer({AGBaseId: `rate-ack`})\n *   await this.renderWidget({mode: `update-data`, data: {stars: 4}}) // tap -> new widget state\n * }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "renderWidgetAnswer(params?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IRenderWidgetAnswerParams",
+                  "canonicalReference": "gramstax!IRenderWidgetAnswerParams:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<true>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "params",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "renderWidgetAnswer"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!Ctx#replyFallbackText:member(1)",
               "docComment": "/**\n * Best-effort fallback-text reply; never throws (nested failures are ignored).\n *\n * @remarks\n *\n * A nested fallback failure is logged via `log.warn` (null-safe) and reported as `undefined` — the outer send already recorded the primary error, so this warn only marks the last-resort delivery loss.\n *\n * @returns The fallback message, or `undefined` when the fallback reply also failed.\n *\n * @public\n */\n",
               "excerptTokens": [
@@ -26389,6 +26618,312 @@
               "isStatic": false,
               "isProtected": false,
               "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx.WIDGET_CAPTION_LIMIT:member",
+              "docComment": "/**\n * Bot API widget caption limit in characters after entity parsing.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static readonly WIDGET_CAPTION_LIMIT = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "1024"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "WIDGET_CAPTION_LIMIT",
+              "propertyTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx.WIDGET_DATA_LIMIT:member",
+              "docComment": "/**\n * Bot API widget `chat_data` / `public_data` limit in UTF-8 bytes each.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static readonly WIDGET_DATA_LIMIT = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "1024"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "WIDGET_DATA_LIMIT",
+              "propertyTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx.WIDGET_HEIGHT_MAX:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static readonly WIDGET_HEIGHT_MAX = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "600"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "WIDGET_HEIGHT_MAX",
+              "propertyTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx.WIDGET_HEIGHT_MIN:member",
+              "docComment": "/**\n * Bot API widget height range in logical pixels (50–600).\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static readonly WIDGET_HEIGHT_MIN = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "50"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "WIDGET_HEIGHT_MIN",
+              "propertyTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx.WIDGET_HTML_COMPRESSED_LIMIT:member",
+              "docComment": "/**\n * Bot API widget HTML limit in bytes after zlib level-9 compression.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static readonly WIDGET_HTML_COMPRESSED_LIMIT = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "4096"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "WIDGET_HTML_COMPRESSED_LIMIT",
+              "propertyTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx.WIDGET_HTML_COMPRESSED_SAFE_LIMIT:member",
+              "docComment": "/**\n * Safe compile-time target for widget HTML after zlib level-9 compression.\n *\n * @remarks\n *\n * DEFAULT (flip to {@link Ctx.WIDGET_HTML_COMPRESSED_LIMIT} while testing if the stricter target rejects widgets Telegram would accept): Node zlib output can differ from Telegram's server-side compression by tens of bytes, so the runtime assert errors above this target, not above the 4096-byte hard limit.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static readonly WIDGET_HTML_COMPRESSED_SAFE_LIMIT = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "4000"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "WIDGET_HTML_COMPRESSED_SAFE_LIMIT",
+              "propertyTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx.WIDGET_HTML_RAW_LIMIT:member",
+              "docComment": "/**\n * Bot API widget HTML limit in UTF-8 bytes (raw).\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static readonly WIDGET_HTML_RAW_LIMIT = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "32768"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "WIDGET_HTML_RAW_LIMIT",
+              "propertyTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx.WIDGET_WIDTH_MAX:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static readonly WIDGET_WIDTH_MAX = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "600"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "WIDGET_WIDTH_MAX",
+              "propertyTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!Ctx.WIDGET_WIDTH_MIN:member",
+              "docComment": "/**\n * Bot API widget width range in logical pixels (200–600).\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static readonly WIDGET_WIDTH_MIN = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "200"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "WIDGET_WIDTH_MIN",
+              "propertyTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
             }
           ],
           "extendsTokenRange": {
@@ -29188,7 +29723,7 @@
             },
             {
               "kind": "Content",
-              "text": "`message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`"
+              "text": "`message` | `media` | `poll` | `widget` | `widgetAnswer` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`"
             },
             {
               "kind": "Content",
@@ -31541,6 +32076,63 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!GWidgetAnswerResult:type",
+          "docComment": "/**\n * Result of `TemplateManager.getGWidgetAnswer` for a `<g-widget-answer>` block.\n *\n * @remarks\n *\n * `text` is the rendered answer data; the getter throws when the block is missing (widget answers always need data).\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type GWidgetAnswerResult = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    kind: `widgetAnswer`;\n    text: string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "GWidgetAnswerResult",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!GWidgetResult:type",
+          "docComment": "/**\n * Result of `TemplateManager.getGWidget` for a `<g-widget>` block.\n *\n * @remarks\n *\n * Extends {@link IWidgetBlock} with the `widget` kind discriminator.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type GWidgetResult = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    kind: `widget`;\n} & "
+            },
+            {
+              "kind": "Reference",
+              "text": "IWidgetBlock",
+              "canonicalReference": "gramstax!IWidgetBlock:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "GWidgetResult",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 3
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!IAnswerNoteBlock:type",
           "docComment": "/**\n * Answer-note block for query answers without template content.\n *\n * @remarks\n *\n * Declared with `<g-answer-note>` blocks. Guest answers carry caller-built results, so the block exists only as fail-fast validation that the template provides the required `AGBaseId` (plus a future content slot). `text` supports the same `{{var|filter}}` interpolation pipeline as poll questions.\n *\n * This block belongs to `renderGuestAnswer`. `renderWebAppAnswer` accepts it only as a legacy alias and prefers the dedicated `<g-web-app-answer>` block.\n *\n * @example\n * ```typescript\n * const note: IAnswerNoteBlock = {\n *   text: `Guest answer`\n * }\n * ```\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -32246,6 +32838,24 @@
             },
             {
               "kind": "Content",
+              "text": ">;\n    widget: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ReturnType",
+              "canonicalReference": "!ReturnType:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<typeof "
+            },
+            {
+              "kind": "Reference",
+              "text": "TemplateEngine.compileBlockGWidget",
+              "canonicalReference": "gramstax!TemplateEngine.compileBlockGWidget:member"
+            },
+            {
+              "kind": "Content",
               "text": ">;\n    venue: "
             },
             {
@@ -32297,6 +32907,24 @@
               "kind": "Reference",
               "text": "TemplateEngine.compileBlockGCallbackAnswer",
               "canonicalReference": "gramstax!TemplateEngine.compileBlockGCallbackAnswer:member"
+            },
+            {
+              "kind": "Content",
+              "text": ">;\n    widgetAnswer: "
+            },
+            {
+              "kind": "Reference",
+              "text": "ReturnType",
+              "canonicalReference": "!ReturnType:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<typeof "
+            },
+            {
+              "kind": "Reference",
+              "text": "TemplateEngine.compileBlockGWidgetAnswer",
+              "canonicalReference": "gramstax!TemplateEngine.compileBlockGWidgetAnswer:member"
             },
             {
               "kind": "Content",
@@ -32510,7 +33138,7 @@
           "name": "ICompiledTemplate",
           "typeTokenRange": {
             "startIndex": 1,
-            "endIndex": 66
+            "endIndex": 74
           }
         },
         {
@@ -36971,6 +37599,46 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IOptWidget:type",
+          "docComment": "/**\n * Widget send options — `Ctx.replyWithWidget` argument index `[1]` (the `other` bag of `sendWidget`).\n *\n * @remarks\n *\n * Spread LAST over the template fields, like `renderPoll`'s `options`: a caller-supplied `caption` / `parse_mode` / `chat_data` overrides the template value. The template defaults are the contract — `caption` with a hardcoded `parse_mode: \"HTML\"` — and `options` is the power-user escape hatch, not a second template.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IOptWidget = "
+            },
+            {
+              "kind": "Reference",
+              "text": "Parameters",
+              "canonicalReference": "!Parameters:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "Ctx",
+              "canonicalReference": "gramstax!Ctx:class"
+            },
+            {
+              "kind": "Content",
+              "text": "[`replyWithWidget`]>[1]"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IOptWidget",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 5
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!IPageData:type",
           "docComment": "/**\n * Page routing data configuration.\n *\n * @remarks\n *\n * Full page data with typed `callbackQueryData` according to the args configured via `buildData`. Every page SHOULD define `static data` via `buildData(...)` to enable callback query routing.\n *\n * - `buildData()` (no args) → `callbackQueryData(): {result, page, args: []}` — 0 args only - `buildData((a: string, b: string) => ...)` → `callbackQueryData(a, b): {result, page, args: [a, b]}` - `buildData((a?: string) => ...)` → `callbackQueryData(a?): {result, page, args}` (optional still supported)\n *\n * The page class is NOT carried by `static data` (TS cannot infer it without a circular annotation) — pass it explicitly when you want route validation: `Page.data.callbackQueryData<Page>(\"42\")` is compile-error checked against `handleArgsCallbackQueryData`; without the type argument the object is accepted as-is and the route is only resolved at runtime.\n *\n * @typeParam T - Tuple type representing the callback arg parameters.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -38544,6 +39212,117 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IRenderWidgetAnswerParams:type",
+          "docComment": "/**\n * Parameters for `renderWidgetAnswer`.\n *\n * @remarks\n *\n * Template-backed counterpart to answering widget taps: the `<g-widget-answer>` block supplies the answer data. There is no message to send, so this takes no keyboard and never falls back to a reply. The answer data is an opaque payload for the widget's JS (not user-facing copy), at most 1024 UTF-8 bytes per the Bot API `answerWidgetQuery` limits. It must be sent within 15 seconds of the query, and it does not change the widget's data — that is `renderWidget` mode `update-data`.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IRenderWidgetAnswerParams = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    data?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IData",
+              "canonicalReference": "gramstax!IData:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | null;\n    AGBaseId?: string | null;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IRenderWidgetAnswerParams",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 4
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IRenderWidgetParams:type",
+          "docComment": "/**\n * Parameters for `renderWidget`.\n *\n * @remarks\n *\n * `params = CONTENT & ROUTE`: the shared template content (`data`, `AGBaseId`, read from the `<g-widget>` block) on one of five routes — forced send (`IRouteWidgetReply`, the default), forced edit (`IRouteWidgetEdit`), data-only update (`IRouteWidgetUpdateData`), broadcast send (`IRouteWidgetBroadcastSend`), or broadcast revise (`IRouteWidgetBroadcastRevise`).\n *\n * Modes are explicit and there is NO `auto` mode: a tap inside the widget (`widget_query`) wants `update-data` while a keyboard button under it (`callbackQuery`) wants `edit`, so no single runtime guess is honest. `mode` defaults to `reply` when omitted.\n *\n * The widget HTML can never be replaced — the Bot API offers no `editMessageWidget`. `edit` re-applies state + caption + keyboard to the message held by the context (up to three API calls, NOT atomic); `update-data` changes only the state in exactly one call (atomic), and is the only mode meaningful for shared widgets. Neither edit mode answers the widget query — the handler must still call `ctx.answerWidgetQuery` within 15 seconds.\n *\n * `is_shared` is a send-route-only param (`reply` and broadcast-send): it overrides the template block's `is_shared` at send time, while the edit routes auto-detect shared-ness from the context and take no `is_shared` field.\n *\n * Send failures follow `Ctx.classifySendError`, except the fallback content is the widget caption (sent as text with `parse_mode: \"HTML\"`) instead of the generic page fallback text — DEFAULT (flip to rethrow, `renderPoll` style, while testing if needed): the caption is designed to stand alone as the widget's replacement on clients without widget support.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IRenderWidgetParams = "
+            },
+            {
+              "kind": "Reference",
+              "text": "IContent",
+              "canonicalReference": "gramstax!IContent:type"
+            },
+            {
+              "kind": "Content",
+              "text": " & ("
+            },
+            {
+              "kind": "Reference",
+              "text": "IRouteWidgetReply",
+              "canonicalReference": "gramstax!IRouteWidgetReply:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | "
+            },
+            {
+              "kind": "Reference",
+              "text": "IRouteWidgetEdit",
+              "canonicalReference": "gramstax!IRouteWidgetEdit:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | "
+            },
+            {
+              "kind": "Reference",
+              "text": "IRouteWidgetUpdateData",
+              "canonicalReference": "gramstax!IRouteWidgetUpdateData:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | "
+            },
+            {
+              "kind": "Reference",
+              "text": "IRouteWidgetBroadcastSend",
+              "canonicalReference": "gramstax!IRouteWidgetBroadcastSend:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | "
+            },
+            {
+              "kind": "Reference",
+              "text": "IRouteWidgetBroadcastRevise",
+              "canonicalReference": "gramstax!IRouteWidgetBroadcastRevise:type"
+            },
+            {
+              "kind": "Content",
+              "text": ")"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IRenderWidgetParams",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 13
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!IReplyAction:type",
           "docComment": "/**\n * Action parameter mirroring `Context.replyWithChatAction`.\n *\n * @remarks\n *\n * Used to show typing indicators, upload status, etc.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -39515,6 +40294,242 @@
         },
         {
           "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IRouteWidgetBroadcastRevise:type",
+          "docComment": "/**\n * Widget route atom: broadcast revise fan-out (data-only).\n *\n * @remarks\n *\n * Re-applies the template's `chat_data` to stored widget messages (`broadcast.targets`) via `editMessageWidgetData` — the `update-data` mode fanned out. There is no delete-and-resend fallback here (unlike `renderMedia` revise): a failed per-recipient update is classified via `Ctx.classifySendError` (`fallback-text` sends the caption as text to that recipient, `retryable` is recorded), so `reviseOptions.fallback` is omitted from the type. Shared widgets are rejected fail-fast: one `editSharedWidgetData` call updates every message showing the widget, so a fan-out over stored messages is the wrong tool — use `mode: \"update-data\"` once instead. This route takes no `is_shared` field.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IRouteWidgetBroadcastRevise = "
+            },
+            {
+              "kind": "Reference",
+              "text": "INeverFields",
+              "canonicalReference": "gramstax!INeverFields:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<`mode` | `rich` | `richOptions` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `keyboard` | `is_shared`> & {\n    broadcast: {\n        targets: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IBroadcastEditTarget",
+              "canonicalReference": "gramstax!IBroadcastEditTarget:type"
+            },
+            {
+              "kind": "Content",
+              "text": "[];\n        reviseOptions?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Omit",
+              "canonicalReference": "!Omit:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "IBroadcastEditOpts",
+              "canonicalReference": "gramstax!IBroadcastEditOpts:type"
+            },
+            {
+              "kind": "Content",
+              "text": ", `fallback`> | null;\n    };\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IRouteWidgetBroadcastRevise",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 9
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IRouteWidgetBroadcastSend:type",
+          "docComment": "/**\n * Widget route atom: broadcast send fan-out.\n *\n * @remarks\n *\n * Fans the compiled `<g-widget>` block out to every entry of `broadcast.ids` with its own language code. Per-recipient failures follow `Ctx.classifySendError`: `fallback-text` triggers a best-effort caption send to that recipient (the caption is the designed standalone fallback), `retryable` is recorded and the loop continues. No private-chat-only restriction is enforced in code — DEFAULT (flip while testing if needed): a widget sent to a group chat fails per recipient and is counted, not pre-rejected.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IRouteWidgetBroadcastSend = "
+            },
+            {
+              "kind": "Reference",
+              "text": "INeverFields",
+              "canonicalReference": "gramstax!INeverFields:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<`mode` | `rich` | `richOptions` | `chunkSize` | `fallback` | `editOptions` | `fallbackOptions`> & {\n    broadcast: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IBroadcastSendParams",
+              "canonicalReference": "gramstax!IBroadcastSendParams:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    keyboard?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IInBoKb",
+              "canonicalReference": "gramstax!IInBoKb:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | null;\n    options?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IOptWidget",
+              "canonicalReference": "gramstax!IOptWidget:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | null;\n    is_shared?: boolean | null;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IRouteWidgetBroadcastSend",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 9
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IRouteWidgetEdit:type",
+          "docComment": "/**\n * Widget route atom: forced single-widget edit.\n *\n * @remarks\n *\n * Re-applies the template's `chat_data` / `public_data`, caption, and keyboard to the widget message held by the context — never the HTML, which the Bot API cannot replace. NOT atomic: up to three API calls (`editMessageWidgetData` / `editSharedWidgetData`, `editMessageCaption`, `editMessageReplyMarkup`), so a failure mid-way leaves part of the message updated. The keyboard slot is inline-only: `editMessageReplyMarkup` rejects a bottom keyboard.\n *\n * On a shared widget the state edit goes to `editSharedWidgetData` (public data, every message showing the widget), while the caption and keyboard edits still target only the context-held message. Shared-ness is auto-detected from the context, so this route takes no `is_shared` field.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IRouteWidgetEdit = "
+            },
+            {
+              "kind": "Reference",
+              "text": "INeverFields",
+              "canonicalReference": "gramstax!INeverFields:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `is_shared`> & {\n    mode: `edit`;\n    keyboard?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IInlineKb",
+              "canonicalReference": "gramstax!IInlineKb:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | null;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IRouteWidgetEdit",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 5
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IRouteWidgetReply:type",
+          "docComment": "/**\n * Widget route atom: forced single-widget send.\n *\n * @remarks\n *\n * `mode` is optional and defaults to `reply` — there is no `auto` mode for widgets (see {@link IRenderWidgetParams}): a tap inside the widget wants `update-data` while a keyboard button under it wants `edit`, so no single runtime guess is honest. Every route atom declares the full UNIVERSAL key set (`mode`, `keyboard`, `rich`, `richOptions`, `broadcast`, `chunkSize`, `fallback`, `options`, `editOptions`, `fallbackOptions`) with `never` where the route never reads the field, so the render-params symmetry suite keeps holding.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IRouteWidgetReply = "
+            },
+            {
+              "kind": "Reference",
+              "text": "INeverFields",
+              "canonicalReference": "gramstax!INeverFields:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `editOptions` | `fallbackOptions`> & {\n    mode?: `reply`;\n    keyboard?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IInBoKb",
+              "canonicalReference": "gramstax!IInBoKb:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | null;\n    options?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "IOptWidget",
+              "canonicalReference": "gramstax!IOptWidget:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | null;\n    is_shared?: boolean | null;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IRouteWidgetReply",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 7
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IRouteWidgetUpdateData:type",
+          "docComment": "/**\n * Widget route atom: data-only update of the held widget.\n *\n * @remarks\n *\n * The hot path for widget taps: exactly ONE API call, so it is atomic where `edit` is not. A regular widget updates its per-message `chat_data` via `editMessageWidgetData`; a shared widget updates its `public_data` via `editSharedWidgetData` (every message showing the widget). No caption, no keyboard, no options — and it does NOT answer the widget query: the handler must still call `ctx.answerWidgetQuery` within 15 seconds. Shared-ness is auto-detected from the update, so this route takes no `is_shared` field.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IRouteWidgetUpdateData = "
+            },
+            {
+              "kind": "Reference",
+              "text": "INeverFields",
+              "canonicalReference": "gramstax!INeverFields:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `keyboard` | `is_shared`> & {\n    mode: `update-data`;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IRouteWidgetUpdateData",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 3
+          }
+        },
+        {
+          "kind": "TypeAlias",
           "canonicalReference": "gramstax!ISendErrorHook:type",
           "docComment": "/**\n * Best-effort send-error hook.\n *\n * @remarks\n *\n * Invoked at every site where a send error is classified via `Ctx.classifySendError` — both `fallback-text` and `retryable` outcomes. Pre-upload validation throws are programmer errors and stay hook-free. A throwing hook is swallowed and never breaks the send flow.\n *\n * @public\n */\n",
           "excerptTokens": [
@@ -40182,6 +41197,58 @@
           "fileUrlPath": "dist/src/index.d.ts",
           "releaseTag": "Public",
           "name": "IWebhookQueueConfig",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IWidgetAnswerBlock:type",
+          "docComment": "/**\n * Widget-answer block for Telegram widget-query feedback.\n *\n * @remarks\n *\n * Declared with `<g-widget-answer>` blocks. `text` supports the same `{{var|filter}}` interpolation pipeline as callback answers; the compiled value is an opaque data payload for the widget's JS (not user-facing copy), plain text without HTML, at most 1024 UTF-8 bytes per the Bot API `answerWidgetQuery` limits.\n *\n * @example\n * ```typescript\n * const answer: IWidgetAnswerBlock = {\n *   text: `ok {{orderId}}`\n * }\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWidgetAnswerBlock = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    text: string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWidgetAnswerBlock",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "gramstax!IWidgetBlock:type",
+          "docComment": "/**\n * Widget block for Telegram HTML widgets (Bot API 10.4).\n *\n * @remarks\n *\n * Declared with `<g-widget>` blocks. The widget HTML comes from the required `<g-widget-body>` child block and is carried RAW — it never runs the scope pipeline (`{{}}` interpolation, `<g-script>`, `<g-switch>` and friends are inert text inside the widget), so JS object literals and `${}` template strings survive compilation untouched. Dynamic data rides `chat_data` / `public_data` instead. The caption comes from the required `<g-widget-caption>` child block and runs the same rich pipeline as poll questions (HTML tags + `{{var|filter}}` interpolation); it is sent with a hardcoded `parse_mode: \"HTML\"`, never `caption_entities`.\n *\n * There is no way to replace the HTML of a sent widget — the Bot API offers no `editMessageWidget`. \"Edit\" only re-applies `chat_data` / `public_data`, the caption, and the keyboard to the message that holds the widget.\n *\n * @example\n * ```typescript\n * const block: IWidgetBlock = {html: `<div id=\"row\"></div><script>TelegramWidget.request(\"tap\")</script>`, caption: `Order <b>#1042</b>`, allow_queries: true}\n * ```\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "type IWidgetBlock = "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    html: string;\n    caption: string;\n    allow_queries?: boolean;\n    is_shared?: boolean;\n    show_caption_above_media?: boolean;\n    chat_data?: string;\n    public_data?: string;\n    width?: number | string;\n    height?: number | string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/src/index.d.ts",
+          "releaseTag": "Public",
+          "name": "IWidgetBlock",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 2
@@ -45594,7 +46661,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS:member",
-              "docComment": "/**\n * Attribute value validators for `<g-*>` PAGE blocks.\n *\n * @remarks\n *\n * Per-tag, per-attribute map of validators. Each validator receives the raw attribute value (after quote-stripping) and returns either `null` (valid) or a descriptive error string. The value validation runs after the per-block attribute validation, so unknown attributes are reported separately by `validateBlockG*Attributes` methods.\n *\n * Currently covers: - `<g-base id>` — must not be empty - `<g-keyboard type>` — must be `inline` or `bottom` - `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video_note, sticker, location, contact - `<g-media shared>` — must be `true` or `false` - `<g-media filename>` — any string, always valid - `<g-poll type>` — must be `regular` or `quiz` - `<g-poll correct>` — must be a non-negative option index - `<g-poll explanation>` — any string, always valid - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false` - `<g-venue title>` / `<g-venue address>` — any string, always valid - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced) - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced) - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced) - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced) - `<g-price amount>` — must be a positive integer in smallest currency units - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)\n *\n * Validators are intentionally lenient — they catch obvious bugs (wrong type, invalid value) but do not enforce every framework-level constraint.\n *\n * @example\n * ```typescript\n * TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS[\"g-keyboard\"].type(\"inline\")   // => null\n * TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS[\"g-keyboard\"].type(\"sidebar\") // => \"Attribute \\\"type\\\" on <g-keyboard> must be \\\"inline\\\" or \\\"bottom\\\", got \\\"sidebar\\\"\"\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Attribute value validators for `<g-*>` PAGE blocks.\n *\n * @remarks\n *\n * Per-tag, per-attribute map of validators. Each validator receives the raw attribute value (after quote-stripping) and returns either `null` (valid) or a descriptive error string. The value validation runs after the per-block attribute validation, so unknown attributes are reported separately by `validateBlockG*Attributes` methods.\n *\n * Currently covers: - `<g-base id>` — must not be empty - `<g-keyboard type>` — must be `inline` or `bottom` - `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video_note, sticker, location, contact - `<g-media shared>` — must be `true` or `false` - `<g-media filename>` — any string, always valid - `<g-poll type>` — must be `regular` or `quiz` - `<g-poll correct>` — must be a non-negative option index - `<g-poll explanation>` — any string, always valid - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false` - `<g-widget allow_queries>` / `<g-widget is_shared>` / `<g-widget show_caption_above_media>` — must be `true` or `false` - `<g-widget chat_data>` / `<g-widget public_data>` — any string, always valid - `<g-widget width>` — must be an integer 200–600; `{{}}` values skip the static check (runtime-enforced) - `<g-widget height>` — must be an integer 50–600; `{{}}` values skip the static check (runtime-enforced) - `<g-venue title>` / `<g-venue address>` — any string, always valid - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced) - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced) - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced) - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced) - `<g-price amount>` — must be a positive integer in smallest currency units - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)\n *\n * Validators are intentionally lenient — they catch obvious bugs (wrong type, invalid value) but do not enforce every framework-level constraint.\n *\n * @example\n * ```typescript\n * TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS[\"g-keyboard\"].type(\"inline\")   // => null\n * TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS[\"g-keyboard\"].type(\"sidebar\") // => \"Attribute \\\"type\\\" on <g-keyboard> must be \\\"inline\\\" or \\\"bottom\\\", got \\\"sidebar\\\"\"\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -46944,6 +48011,111 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine._processGWidgetAnswerBlocks:member(1)",
+              "docComment": "/**\n * Block: g-widget-answer Extracts `<g-widget-answer>` plain-text blocks from a template string.\n *\n * @remarks\n *\n * Children form only (`<g-widget-answer>text</g-widget-answer>`); content is cleaned exactly like `<g-message>` (leading indent stripped, surrounding newlines trimmed) and keyed by `lang` (`\"default\"` when absent; last block wins per lang). Raw content is preserved verbatim (including `{{var|filter}}` spans) for later compilation. Plain-text and length rules are enforced by `validateBlockGWidgetAnswerAttributes`, not here.\n *\n * @param template - The template string containing `<g-widget-answer>` blocks\n *\n * @returns An object mapping language keys to their raw text content\n *\n * @example\n * ```typescript\n * const blocks = TemplateEngine._processGWidgetAnswerBlocks(`<g-widget-answer>ok {{orderId}}</g-widget-answer>`);\n * // Result: { default: 'ok {{orderId}}' }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static _processGWidgetAnswerBlocks(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        [lang: string]: string;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_processGWidgetAnswerBlocks"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine._processGWidgetBlocks:member(1)",
+              "docComment": "/**\n * Block: g-widget Extracts and parses `<g-widget>` blocks from a template string.\n *\n * @remarks\n *\n * Each block declares one widget per language (`lang` defaults to `\"default\"`; last block wins per lang). The inner `<g-widget-caption>` becomes `caption` and the inner `<g-widget-body>` becomes the widget `html`, which is carried RAW — it never runs the scope pipeline, so JS object literals, `${}` template strings, and `<div>` / `<button>` / `<script>` / `<style>` tags survive verbatim. Dynamic data rides `chat_data` / `public_data` (compiled like any attribute string), never interpolation inside the HTML.\n *\n * Boolean flags (`allow_queries`, `is_shared`, `show_caption_above_media`) accept a bare attribute (`<g-widget allow_queries>`) or an explicit value (`allow_queries=\"false\"`); a bare flag is `true`, an explicit value must be `\"true\"` or `\"false\"`. `width` / `height` parse to numbers when static integers and stay raw strings when dynamic (`{{}}`), for runtime range checks. Structural rules (exactly one caption, exactly one body, non-empty body, no stray content outside caption + body, caption length, HTML byte sizes, data byte sizes) are enforced by `validateBlockGWidgetAttributes`, not here.\n *\n * @param template - The template string containing `<g-widget>` blocks\n *\n * @returns An object mapping language keys to their widget configurations\n *\n * @example\n * ```typescript\n * const widgets = TemplateEngine._processGWidgetBlocks(`<g-widget allow_queries><g-widget-caption>Order <b>#1042</b></g-widget-caption><g-widget-body><div id=\"row\"></div><script>TelegramWidget.request(\"tap\")</script></g-widget-body></g-widget>`);\n * // Result: { default: { html: '<div id=\"row\"></div><script>TelegramWidget.request(\"tap\")</script>', caption: 'Order <b>#1042</b>', allow_queries: true } }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static _processGWidgetBlocks(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        [lang: string]: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IWidgetBlock",
+                  "canonicalReference": "gramstax!IWidgetBlock:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_processGWidgetBlocks"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._processMediaGroupItems:member(1)",
               "docComment": "/**\n * Parses inner `<g-media>` items inside a `<g-media-group>` block body.\n *\n * Extracts `type`, `src`, `lang`, and `shared` attributes plus the caption body for each inner `<g-media>` element. `shared` supports both standalone boolean (`<g-media shared>`) and explicit (`<g-media shared=\"true\">`) syntax.\n *\n * @param groupContent - The content between `<g-media-group>` and `</g-media-group>`\n *\n * @returns An array of parsed media item descriptors, preserving document order\n */\n",
               "excerptTokens": [
@@ -47522,7 +48694,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine._validateAnswerTextContent:member(1)",
-              "docComment": "/**\n * Validates plain-text content of answer blocks.\n *\n * @remarks\n *\n * Answer payloads (`<g-callback-answer>`, `<g-precheckout-error>`, `<g-shipping-error>`) reach Telegram fields that accept no HTML (toast text, `error_message`), so any static markup tag inside the block body is rejected. `{{}}` / `{~ ~}` spans are stripped before checking (runtime data is the caller's responsibility, mirroring the `_validateDiceItems` static/dynamic split). When `maxLength` is set, the stripped static length is capped (toast text at most 200 chars per the Bot API `answerCallbackQuery` limits). Errors carry 1-based line numbers.\n *\n * @param template - The raw template source to inspect.\n *\n * @param tag - The block tag name without brackets (e.g. `g-callback-answer`).\n *\n * @param maxLength - Optional static-length cap (or null to skip).\n *\n * @returns Validation errors (empty when valid).\n *\n * @public\n */\n",
+              "docComment": "/**\n * Validates plain-text content of answer blocks.\n *\n * @remarks\n *\n * Answer payloads (`<g-callback-answer>`, `<g-precheckout-error>`, `<g-shipping-error>`, `<g-widget-answer>`) reach Telegram fields that accept no HTML (toast text, `error_message`, widget-query `data`), so any static markup tag inside the block body is rejected. `{{}}` / `{~ ~}` spans are stripped before checking (runtime data is the caller's responsibility, mirroring the `_validateDiceItems` static/dynamic split). When `maxLength` is set, the stripped static length is capped (toast text at most 200 chars per the Bot API `answerCallbackQuery` limits). When `maxBytes` is set, the stripped static content is capped in UTF-8 bytes via `Buffer.byteLength` (widget-query `data` at most 1024 bytes per the Bot API `answerWidgetQuery` limits — character `.length` is wrong for UTF-8). Errors carry 1-based line numbers.\n *\n * @param template - The raw template source to inspect.\n *\n * @param tag - The block tag name without brackets (e.g. `g-callback-answer`).\n *\n * @param maxLength - Optional static-length cap (or null to skip).\n *\n * @param maxBytes - Optional static UTF-8 byte cap (or null to skip).\n *\n * @returns Validation errors (empty when valid).\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -47550,6 +48722,14 @@
                 },
                 {
                   "kind": "Content",
+                  "text": ", maxBytes?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number | null"
+                },
+                {
+                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -47568,8 +48748,8 @@
               ],
               "isStatic": true,
               "returnTypeTokenRange": {
-                "startIndex": 7,
-                "endIndex": 9
+                "startIndex": 9,
+                "endIndex": 11
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -47596,6 +48776,14 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "maxBytes",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
                   },
                   "isOptional": true
                 }
@@ -48368,9 +49556,62 @@
               "name": "_validateVenueItems"
             },
             {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine._validateWidgetItems:member(1)",
+              "docComment": "/**\n * Validates `<g-widget-caption>` / `<g-widget-body>` presence and `<g-widget>` size limits.\n *\n * @remarks\n *\n * Enforces the Bot API `sendWidget` constraints on the RAW template values (the widget HTML carries no interpolation, so the static check is exact): exactly one `<g-widget-caption>` (required — it is the fallback text on clients without widget support), exactly one `<g-widget-body>` (required — it carries the widget HTML), body content at least 1 UTF-8 byte (the API requires HTML of 1–32768 bytes; an empty body used to slip through compile and fail only at Telegram), no stray content inside `<g-widget>` outside the caption and body blocks, caption text 1–1024 characters after entity parsing (HTML tags stripped; skipped when the caption carries `{{}}` / `{~ ~}` interpolation — dynamic lengths are checked at runtime by `Ctx.assertWidget`), HTML at most 32768 UTF-8 bytes raw and at most 4000 bytes after zlib level-9 compression (the safe target — see {@link TemplateEngine.MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES}; the API hard limit is 4096), `chat_data` / `public_data` at most 1024 UTF-8 bytes each (skipped when dynamic). Called by {@link TemplateEngine.validateBlockGWidgetAttributes}; errors carry 1-based line numbers.\n *\n * @param template - The raw template source to inspect.\n *\n * @returns Validation errors (empty when valid).\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static _validateWidgetItems(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n        line: number;\n        message: string;\n    }>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "_validateWidgetItems"
+            },
+            {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateEngine.ALLOWED_BLOCKS_PAGE:member",
-              "docComment": "/**\n * Gramstax `<g-*>` PAGE block allowlist.\n *\n * @remarks\n *\n * Content blocks (`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-description`), logic blocks (`g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`), and utility blocks (`g-import`, `g-space`). Validated by `validateTemplate` (per-block `validateBlockG*Attributes` methods plus the centralized `_PAGE_REQUIRED_ATTRS` / `_PAGE_ATTR_VALUE_VALIDATORS` specs). Combined with {@link TemplateEngine.ALLOWED_BLOCKS_TELEGRAM} into {@link TemplateEngine.ALLOWED_BLOCKS}.\n *\n * @public\n */\n",
+              "docComment": "/**\n * Gramstax `<g-*>` PAGE block allowlist.\n *\n * @remarks\n *\n * Content blocks (`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-widget`, `g-description`), logic blocks (`g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`), and utility blocks (`g-import`, `g-space`). Validated by `validateTemplate` (per-block `validateBlockG*Attributes` methods plus the centralized `_PAGE_REQUIRED_ATTRS` / `_PAGE_ATTR_VALUE_VALIDATORS` specs). Combined with {@link TemplateEngine.ALLOWED_BLOCKS_TELEGRAM} into {@link TemplateEngine.ALLOWED_BLOCKS}.\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -50072,6 +51313,189 @@
               "name": "compileBlockGWebAppAnswer"
             },
             {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.compileBlockGWidget:member(1)",
+              "docComment": "/**\n * Compiles widget blocks from a template into executable functions.\n *\n * @remarks\n *\n * Parses `<g-widget>` blocks per base and compiles the caption, `chat_data`, `public_data`, `width`, and `height` through the same pipeline as poll questions (script → map → switch → exec → variables), so `{{var|filter}}` works in all five. The widget `html` is the exception by design: it is carried RAW and never runs the pipeline — JS object literals, `${}` template strings, and HTML tags inside the widget stay verbatim, because the scope pipeline would reject them (`validateScopes`) or miscompile them. Static fields (`allow_queries`, `is_shared`, `show_caption_above_media`) pass through untouched.\n *\n * @param template - Raw template string containing `<g-base>` and `<g-widget>` blocks\n *\n * @param baseBlocks - Optional pre-parsed base blocks for reuse\n *\n * @returns Compiled widget functions organized by base ID and language\n *\n * @example\n * ```typescript\n * const widgets = TemplateEngine.compileBlockGWidget(`<g-base><g-widget allow_queries chat_data='{\"order_id\": \"{{orderId}}\"}'><g-widget-caption>Order <b>#{{orderId}}</b></g-widget-caption><g-widget-body><div id=\"row\"></div><script>const state = {'order': 1};</script></g-widget-body></g-widget></g-base>`);\n * const result = widgets.default?.default?.({ orderId: '1042' });\n * // Result: { html: '<div id=\"row\"></div><script>const state = {\\'order\\': 1};</script>', caption: 'Order <b>#1042</b>', allow_queries: true, chat_data: '{\"order_id\": \"1042\"}' }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static compileBlockGWidget(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseBlocks?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ReturnType",
+                  "canonicalReference": "!ReturnType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<typeof "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TemplateEngine._processGBaseBlocks",
+                  "canonicalReference": "gramstax!TemplateEngine._processGBaseBlocks:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        [AGBaseId: string]: {\n            [ALang: string]: (data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITemplateData",
+                  "canonicalReference": "gramstax!~ITemplateData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "IWidgetBlock",
+                  "canonicalReference": "gramstax!IWidgetBlock:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        };\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 8,
+                "endIndex": 13
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "baseBlocks",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 7
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "compileBlockGWidget"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.compileBlockGWidgetAnswer:member(1)",
+              "docComment": "/**\n * Compiles widget-answer blocks from a template into executable functions.\n *\n * @remarks\n *\n * This method parses `<g-widget-answer>` blocks from the template and compiles them into functions that generate rendered answer data. The result is organized by base ID and language. Each content string runs the same pipeline as `<g-message>` (script → map → switch → scope-exec → scope-variables → function).\n *\n * Output shape: - First level key: `AGBaseId` (from `<g-base id=\"...\">`, or `\"default\"` if omitted) - Second level key: `ALang` (from `lang=\"...\"`, or `\"default\"` if omitted) - Value: `(data?: Record<string, unknown>) => string`\n *\n * @param template - Raw template string containing `<g-base>` and `<g-widget-answer>` blocks\n *\n * @param baseBlocks - Optional pre-parsed base blocks for reuse\n *\n * @returns Compiled widget-answer functions organized by base ID and language\n *\n * @example\n * ```typescript\n * const compiled = TemplateEngine.compileBlockGWidgetAnswer(`<g-base><g-widget-answer>ok {{orderId}}</g-widget-answer></g-base>`);\n * const text = compiled.default?.default?.({orderId: `1042`});\n * // Result: 'ok 1042'\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static compileBlockGWidgetAnswer(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", baseBlocks?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ReturnType",
+                  "canonicalReference": "!ReturnType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<typeof "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TemplateEngine._processGBaseBlocks",
+                  "canonicalReference": "gramstax!TemplateEngine._processGBaseBlocks:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        [AGBaseId: string]: {\n            [ALang: string]: (data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ITemplateData",
+                  "canonicalReference": "gramstax!~ITemplateData:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => string;\n        };\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 8,
+                "endIndex": 11
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "baseBlocks",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 7
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "compileBlockGWidgetAnswer"
+            },
+            {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateEngine.DICE_EMOJI:member",
               "docComment": "/**\n * Bot API dice emoji values accepted by `<g-dice emoji>`.\n *\n * @remarks\n *\n * Single source of truth shared by the `g-dice` validators and `Ctx.DICE_EMOJI`/`Ctx.assertDiceEmoji`: exactly the six `sendDice` emoji (`🎲🎯🏀⚽🎳🎰`).\n *\n * @public\n */\n",
@@ -50188,6 +51612,186 @@
               "isOptional": false,
               "releaseTag": "Public",
               "name": "MAX_PAID_MEDIA_STARS",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!TemplateEngine.MAX_WIDGET_ANSWER_BYTES:member",
+              "docComment": "/**\n * Maximum `<g-widget-answer>` data size in UTF-8 bytes.\n *\n * @remarks\n *\n * Matches the Bot API `answerWidgetQuery` `data` limit of 1024 bytes (source: `https://core.telegram.org/bots/api#answerwidgetquery`). Measured with `Buffer.byteLength` — character `.length` is wrong for UTF-8. Enforced at validation time on static content; `{{}}` spans skip the static check (runtime-enforced, mirroring the `<g-callback-answer>` static/dynamic split).\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static MAX_WIDGET_ANSWER_BYTES: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "MAX_WIDGET_ANSWER_BYTES",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!TemplateEngine.MAX_WIDGET_CAPTION_CHARS:member",
+              "docComment": "/**\n * Maximum `<g-widget-caption>` length in characters after entity parsing.\n *\n * @remarks\n *\n * Matches the Bot API `sendWidget` caption limit of 1024 characters (source: `https://core.telegram.org/bots/api#sendwidget`). HTML tags do not count — the length is measured on the caption text with tags stripped. Enforced at validation time (static captions) and re-checked at runtime by `Ctx.assertWidget` (rendered captions).\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static MAX_WIDGET_CAPTION_CHARS: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "MAX_WIDGET_CAPTION_CHARS",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!TemplateEngine.MAX_WIDGET_DATA_BYTES:member",
+              "docComment": "/**\n * Maximum `<g-widget>` `chat_data` / `public_data` size in UTF-8 bytes.\n *\n * @remarks\n *\n * Matches the Bot API `sendWidget` data limits of 1024 bytes each (source: `https://core.telegram.org/bots/api#sendwidget`). Measured with `Buffer.byteLength`. Enforced at validation time (static values) and re-checked at runtime by `Ctx.assertWidget` (rendered values).\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static MAX_WIDGET_DATA_BYTES: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "MAX_WIDGET_DATA_BYTES",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!TemplateEngine.MAX_WIDGET_HTML_COMPRESSED_BYTES:member",
+              "docComment": "/**\n * Maximum `<g-widget>` HTML size after zlib level-9 compression.\n *\n * @remarks\n *\n * The Bot API `sendWidget` hard limit is 4096 bytes compressed (source: `https://core.telegram.org/bots/api#sendwidget`). Enforced at validation time and re-checked at runtime by `Ctx.assertWidget`.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static MAX_WIDGET_HTML_COMPRESSED_BYTES: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "MAX_WIDGET_HTML_COMPRESSED_BYTES",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!TemplateEngine.MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES:member",
+              "docComment": "/**\n * Safe compile-time target for `<g-widget>` HTML after zlib level-9 compression.\n *\n * @remarks\n *\n * DEFAULT (flip to {@link TemplateEngine.MAX_WIDGET_HTML_COMPRESSED_BYTES} while testing if the stricter target rejects widgets Telegram would accept): Node zlib output can differ from Telegram's server-side compression by tens of bytes, so a widget that compresses to 4050 bytes locally can still fail on the server. The validator errors above this target, not above the 4096-byte hard limit, so a passing template is one that will also pass on Telegram's side.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": true,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "gramstax!TemplateEngine.MAX_WIDGET_HTML_RAW_BYTES:member",
+              "docComment": "/**\n * Maximum raw `<g-widget>` HTML size in UTF-8 bytes.\n *\n * @remarks\n *\n * Matches the Bot API `sendWidget` `html` limit of 32768 bytes (source: `https://core.telegram.org/bots/api#sendwidget`). Measured with `Buffer.byteLength` — character `.length` is wrong for UTF-8. Enforced at validation time and re-checked at runtime by `Ctx.assertWidget`.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static MAX_WIDGET_HTML_RAW_BYTES: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "MAX_WIDGET_HTML_RAW_BYTES",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -51383,7 +52987,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validateBlockGMessageRich:member(1)",
-              "docComment": "/**\n * Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.\n *\n * @remarks\n *\n * This is a convenience method that runs all validators in order:\n *\n * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes 7. {@link TemplateEngine.validateTelegramUnknownAttributesBlock} — rejects unknown attribute names on Telegram Rich HTML tags 8. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content 30. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content 31. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal) 32. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized) 33. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Validates all aspects of a template: block names, scopes, block format, block positioning, and base attributes.\n *\n * @remarks\n *\n * This is a convenience method that runs all validators in order:\n *\n * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes 7. {@link TemplateEngine.validateTelegramUnknownAttributesBlock} — rejects unknown attribute names on Telegram Rich HTML tags 8. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content 30. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content 31. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal) 32. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized) 33. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)\n *\n * Widget HTML is raw by design, so every validator above runs on the widget-stripped template ({@link TemplateEngine._stripGWidgetBody}) — the raw HTML (with its `<div>` / `<button>` / `<script>` / `<style>` tags and JS object literals) never reaches the name/scope/format/ position/telegram checks — except {@link TemplateEngine.validateBlockGWidgetAttributes}, which runs on the full template right after the poll step and checks the block attributes, caption presence, and size limits.\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -52009,8 +53613,122 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockGWidgetAnswerAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes and content on `<g-widget-answer>` blocks.\n *\n * @remarks\n *\n * Allowed attributes are `lang` only. Content must be plain text without HTML (widget-query `data` is an opaque payload for the widget's JS, not user-facing copy) and at most 1024 UTF-8 bytes of static text (Bot API `answerWidgetQuery` limits, measured with `Buffer.byteLength`); `{{}}` spans skip the static checks (runtime-enforced).\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateBlockGWidgetAnswerAttributes(`<g-base><g-widget-answer>ok</g-widget-answer></g-base>`);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockGWidgetAnswerAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockGWidgetAnswerAttributes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateEngine.validateBlockGWidgetAttributes:member(1)",
+              "docComment": "/**\n * Validates attributes and structural rules on `<g-widget>` blocks.\n *\n * @remarks\n *\n * Step 14 of the `validateTemplate` pipeline. Checks the block-level attributes (`lang`, `allow_queries`, `is_shared`, `show_caption_above_media`, `chat_data`, `public_data`, `width`, `height`) via `_validateBlockAttributes` — note there is deliberately no `caption` attribute: the caption comes only from the required `<g-widget-caption>` child block — then delegates structural rules (exactly one caption, exactly one body, non-empty body, no stray content outside caption + body, caption length, HTML raw/compressed byte sizes, data byte sizes) to {@link TemplateEngine._validateWidgetItems}. Returns `valid: false` with per-line errors instead of throwing, so callers can aggregate across blocks.\n *\n * @param template - The raw template source to validate.\n *\n * @returns `{valid, errors}`; `errors` carry 1-based line numbers.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static validateBlockGWidgetAttributes(template: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        valid: boolean;\n        errors: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Array",
+                  "canonicalReference": "!Array:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<{\n            line: number;\n            message: string;\n        }>;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": true,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "template",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "validateBlockGWidgetAttributes"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validateFormatBlock:member(1)",
-              "docComment": "/**\n * Validates block syntax format (self-closing vs regular open/close).\n *\n * @remarks\n *\n * This method checks that each block tag uses the correct syntax format:\n *\n * **Must be self-closing:** the set holds `space`, `import`, `hr`, `img`, `input`, `br` and `tg-map`. - `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>` — Telegram Rich HTML void elements - `space` and `import` are listed, but the captured tag name is `g-space` / `g-import`, so that branch never matches those two. Write them self-closing by convention.\n *\n * **Must NOT be self-closing (must use open/close tags):** - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`, `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`, `<g-option>...</g-option>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`, `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`, `<g-map>...</g-map>`, `<g-div>...</g-div>`, `<g-web-app-answer>...</g-web-app-answer>`\n *\n * Nine page blocks appear in neither set and accept either form: `<g-price>`, `<g-venue>`, `<g-dice>`, `<g-gift>`, `<g-callback-answer>`, `<g-precheckout-error>`, `<g-shipping-error>`, `<g-inline-button>`, `<g-answer-note>`.\n *\n * Telegram HTML formatting tags with content (e.g. `<b>`, `<p>`, `<table>`) passthrough and are not format-checked — both `<b>text</b>` and `<b/>` are accepted.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each format violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateFormatBlock(`<hr>`);\n * // Result: { valid: false, errors: [{ line: 1, message: 'Block <hr> must be self-closing: use <hr /> instead' }] }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Validates block syntax format (self-closing vs regular open/close).\n *\n * @remarks\n *\n * This method checks that each block tag uses the correct syntax format:\n *\n * **Must be self-closing:** the set holds `space`, `import`, `hr`, `img`, `input`, `br` and `tg-map`. - `<hr/>`, `<img/>`, `<input/>`, `<br/>`, `<tg-map/>` — Telegram Rich HTML void elements - `space` and `import` are listed, but the captured tag name is `g-space` / `g-import`, so that branch never matches those two. Write them self-closing by convention.\n *\n * **Must NOT be self-closing (must use open/close tags):** - `<g-base>...</g-base>`, `<g-message>...</g-message>`, `<g-keyboard>...</g-keyboard>`, `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`, `<g-option>...</g-option>`, `<g-widget>...</g-widget>`, `<g-widget-caption>...</g-widget-caption>`, `<g-widget-body>...</g-widget-body>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`, `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`, `<g-map>...</g-map>`, `<g-div>...</g-div>`, `<g-web-app-answer>...</g-web-app-answer>`, `<g-callback-answer>...</g-callback-answer>`, `<g-precheckout-error>...</g-precheckout-error>`, `<g-shipping-error>...</g-shipping-error>`, `<g-answer-note>...</g-answer-note>`, `<g-gift>...</g-gift>`\n *\n * Four page blocks appear in neither set and accept either form: `<g-price>`, `<g-venue>`, `<g-dice>`, `<g-inline-button>`. Their extractors accept both spellings identically (attribute-only blocks / line items that carry no children), so neither spelling is rejected here.\n *\n * Telegram HTML formatting tags with content (e.g. `<b>`, `<p>`, `<table>`) passthrough and are not format-checked — both `<b>text</b>` and `<b/>` are accepted.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each format violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateFormatBlock(`<hr>`);\n * // Result: { valid: false, errors: [{ line: 1, message: 'Block <hr> must be self-closing: use <hr /> instead' }] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -52181,7 +53899,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validatePageAttributeValuesBlock:member(1)",
-              "docComment": "/**\n * Validates that `<g-*>` PAGE block attribute values match their expected formats.\n *\n * @remarks\n *\n * Runs after `TemplateEngine.validateBlockG*Attributes` (which check allowed attrs) to catch format-level issues. Currently validates: - `<g-base id>` — must not be empty - `<g-keyboard type>` — must be `inline` or `bottom` - `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video_note, sticker, location, contact - `<g-media shared>` — must be `true` or `false` - `<g-media filename>` — any string, always valid - `<g-poll type>` — must be `regular` or `quiz` - `<g-poll correct>` — must be a non-negative option index - `<g-poll explanation>` — any string, always valid - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false` - `<g-venue title>` / `<g-venue address>` — any string, always valid - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced) - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced) - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced) - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced) - `<g-price amount>` — must be a positive integer in smallest currency units - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)\n *\n * Tags without value validators (e.g. `<g-message>`, `<g-script>`, `<g-div>`) are skipped. See {@link TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS} for the full spec.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validatePageAttributeValuesBlock(`\n *   <g-base>\n *     <g-keyboard type=\"inline\">A, B</g-keyboard>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n *\n * const bad = TemplateEngine.validatePageAttributeValuesBlock(`\n *   <g-base>\n *     <g-keyboard type=\"sidebar\">A, B</g-keyboard>\n *   </g-base>\n * `);\n * // Result: { valid: false, errors: [{ line: 3, message: 'Attribute \"type\" on <g-keyboard> must be \"inline\" or \"bottom\", got \"sidebar\"' }] }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Validates that `<g-*>` PAGE block attribute values match their expected formats.\n *\n * @remarks\n *\n * Runs after `TemplateEngine.validateBlockG*Attributes` (which check allowed attrs) to catch format-level issues. Currently validates: - `<g-base id>` — must not be empty - `<g-keyboard type>` — must be `inline` or `bottom` - `<g-media type>` — must be one of: photo, video, audio, document, animation, voice, video_note, sticker, location, contact - `<g-media shared>` — must be `true` or `false` - `<g-media filename>` — any string, always valid - `<g-poll type>` — must be `regular` or `quiz` - `<g-poll correct>` — must be a non-negative option index - `<g-poll explanation>` — any string, always valid - `<g-poll anonymous>` / `<g-poll multiple>` — must be `true` or `false` - `<g-widget allow_queries>` / `<g-widget is_shared>` / `<g-widget show_caption_above_media>` — must be `true` or `false` - `<g-widget chat_data>` / `<g-widget public_data>` — any string, always valid - `<g-widget width>` — must be an integer 200–600; `{{}}` values skip the static check (runtime-enforced) - `<g-widget height>` — must be an integer 50–600; `{{}}` values skip the static check (runtime-enforced) - `<g-venue title>` / `<g-venue address>` — any string, always valid - `<g-venue latitude>` — must be a number between -90 and 90; `{{}}` values skip the static check (runtime-enforced) - `<g-venue longitude>` — must be a number between -180 and 180; `{{}}` values skip the static check (runtime-enforced) - `<g-dice emoji>` — must be one of 🎲🎯🏀⚽🎳🎰; `{{}}` values skip the static check (runtime-enforced) - `<g-invoice currency>` — must be a 3-letter code (`XTR` or fiat); `{{}}` values skip the static check (runtime-enforced) - `<g-price amount>` — must be a positive integer in smallest currency units - `<g-paid-media stars>` — must be a positive integer 1–25000; `{{}}` values skip the static check (runtime-enforced)\n *\n * Tags without value validators (e.g. `<g-message>`, `<g-script>`, `<g-div>`) are skipped. See {@link TemplateEngine._PAGE_ATTR_VALUE_VALIDATORS} for the full spec.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validatePageAttributeValuesBlock(`\n *   <g-base>\n *     <g-keyboard type=\"inline\">A, B</g-keyboard>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n *\n * const bad = TemplateEngine.validatePageAttributeValuesBlock(`\n *   <g-base>\n *     <g-keyboard type=\"sidebar\">A, B</g-keyboard>\n *   </g-base>\n * `);\n * // Result: { valid: false, errors: [{ line: 3, message: 'Attribute \"type\" on <g-keyboard> must be \"inline\" or \"bottom\", got \"sidebar\"' }] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -52238,7 +53956,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validatePositionsBlock:member(1)",
-              "docComment": "/**\n * Validates block positioning and nesting rules in a template string.\n *\n * @remarks\n *\n * This method checks a template string for structural block nesting violations. It ensures that blocks are placed in their allowed parent contexts.\n *\n * **Nesting hierarchy:**\n * ```\n * __root__\n *   ├── g-base             (root level only)\n *   │   ├── g-message      (content block)\n *   │   │   ├── g-switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── g-map      (logic block)\n *   │   │   ├── g-script   (logic block)\n *   │   │   └── g-space    (utility)\n *   │   ├── g-keyboard     (content block)\n *   │   │   ├── g-switch   (logic block)\n *   │   │   │   ├── g-case\n *   │   │   │   └── g-default\n *   │   │   ├── g-map      (logic block)\n *   │   │   ├── g-script   (logic block)\n *   │   │   └── g-space    (utility)\n *   │   ├── g-media        (content block)\n *   │   │   ├── g-switch   (logic block)\n *   │   │   │   ├── g-case\n *   │   │   │   └── g-default\n *   │   │   ├── g-map      (logic block)\n *   │   │   ├── g-script   (logic block)\n *   │   │   └── g-space    (utility)\n *   │   ├── g-description  (content block)\n *   │   │   ├── g-switch   (logic block)\n *   │   │   │   ├── g-case\n *   │   │   │   └── g-default\n *   │   │   ├── g-map      (logic block)\n *   │   │   ├── g-script   (logic block)\n *   │   │   └── g-space    (utility)\n *   │   ├── g-import       (utility)\n *   │   ├── g-description  (utility)\n *   │   ├── g-script       (logic block)\n *   └   └── g-space        (utility)\n * ```\n *\n * **Enforced rules:** - `<g-base>` must be at the outermost level and cannot be nested inside any other block. - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-invoice>`, `<g-paid-media>`, `<g-venue>`, `<g-dice>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`. - `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside `<g-paid-media>` as a paywall item. - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`. - `<g-price>` can only appear directly inside `<g-invoice>`. - `<g-switch>`, `<g-map>` can only appear inside `<g-message>`, `<g-keyboard>`, `<g-media>`, or `<g-description>`. - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`. - `<g-map>` is also allowed inside `<g-case>` and `<g-default>` (explicitly and via parent-child inheritance — see `inheritsContentFromParent`). - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`, `<blockquote expandable>`) are passthrough and ignored during validation.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each violation found\n *\n * @example\n * ```typescript\n * // Valid template\n * const result = TemplateEngine.validatePositionsBlock(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *     <g-keyboard>Yes, No</g-keyboard>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n *\n * // Invalid: <g-base> nested inside <g-message>\n * const bad = TemplateEngine.validatePositionsBlock(`\n *   <g-base>\n *     <g-message>\n *       <g-base>Nested base</g-base>\n *     </g-message>\n *   </g-base>\n * `);\n * // Result: { valid: false, errors: [{ line: 4, message: 'Block <g-base> is not allowed inside <g-message>' }] }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Validates block positioning and nesting rules in a template string.\n *\n * @remarks\n *\n * This method checks a template string for structural block nesting violations. It ensures that blocks are placed in their allowed parent contexts.\n *\n * **Nesting hierarchy:**\n * ```\n * __root__\n *   ├── g-base             (root level only)\n *   │   ├── g-message      (content block)\n *   │   │   ├── g-switch   (logic block)\n *   │   │   │   ├── case\n *   │   │   │   └── default\n *   │   │   ├── g-map      (logic block)\n *   │   │   ├── g-script   (logic block)\n *   │   │   └── g-space    (utility)\n *   │   ├── g-keyboard     (content block)\n *   │   │   ├── g-switch   (logic block)\n *   │   │   │   ├── g-case\n *   │   │   │   └── g-default\n *   │   │   ├── g-map      (logic block)\n *   │   │   ├── g-script   (logic block)\n *   │   │   └── g-space    (utility)\n *   │   ├── g-media        (content block)\n *   │   │   ├── g-switch   (logic block)\n *   │   │   │   ├── g-case\n *   │   │   │   └── g-default\n *   │   │   ├── g-map      (logic block)\n *   │   │   ├── g-script   (logic block)\n *   │   │   └── g-space    (utility)\n *   │   ├── g-description  (content block)\n *   │   │   ├── g-switch   (logic block)\n *   │   │   │   ├── g-case\n *   │   │   │   └── g-default\n *   │   │   ├── g-map      (logic block)\n *   │   │   ├── g-script   (logic block)\n *   │   │   └── g-space    (utility)\n *   │   ├── g-import       (utility)\n *   │   ├── g-description  (utility)\n *   │   ├── g-script       (logic block)\n *   └   └── g-space        (utility)\n * ```\n *\n * **Enforced rules:** - `<g-base>` must be at the outermost level and cannot be nested inside any other block. - `<g-message>`, `<g-keyboard>`, `<g-media>`, `<g-media-group>`, `<g-poll>`, `<g-widget>`, `<g-invoice>`, `<g-paid-media>`, `<g-venue>`, `<g-dice>`, `<g-description>`, `<g-import>`, `<g-script>`, `<g-space>` can only appear directly inside `<g-base>`. - `<g-media>` can also appear directly inside `<g-media-group>` as a group item, or inside `<g-paid-media>` as a paywall item. - `<g-question>` and `<g-option>` can only appear directly inside `<g-poll>`. - `<g-widget-caption>` and `<g-widget-body>` can only appear directly inside `<g-widget>`. - `<g-price>` can only appear directly inside `<g-invoice>`. - `<g-switch>`, `<g-map>` can only appear inside `<g-message>`, `<g-keyboard>`, `<g-media>`, or `<g-description>`. - `<g-case>` and `<g-default>` can only appear inside `<g-switch>`. - `<g-map>` is also allowed inside `<g-case>` and `<g-default>` (explicitly and via parent-child inheritance — see `inheritsContentFromParent`). - Telegram formatting tags (`<b>`, `<i>`, `<u>`, `<s>`, `<code>`, `<pre>`, `<a>`, `<blockquote>`, `<blockquote expandable>`) are passthrough and ignored during validation.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and an `errors` array containing line numbers and descriptive messages for each violation found\n *\n * @example\n * ```typescript\n * // Valid template\n * const result = TemplateEngine.validatePositionsBlock(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *     <g-keyboard>Yes, No</g-keyboard>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n *\n * // Invalid: <g-base> nested inside <g-message>\n * const bad = TemplateEngine.validatePositionsBlock(`\n *   <g-base>\n *     <g-message>\n *       <g-base>Nested base</g-base>\n *     </g-message>\n *   </g-base>\n * `);\n * // Result: { valid: false, errors: [{ line: 4, message: 'Block <g-base> is not allowed inside <g-message>' }] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -52523,7 +54241,7 @@
             {
               "kind": "Method",
               "canonicalReference": "gramstax!TemplateEngine.validateTemplate:member(1)",
-              "docComment": "/**\n * Full template validation — runs all validation passes.\n *\n * @remarks\n *\n * Executes every registered validator in sequence and collects all errors. Validation steps:\n *\n * 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes 7. {@link TemplateEngine.validateTelegramUnknownAttributesBlock} — rejects unknown attribute names on Telegram Rich HTML tags 8. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes 14. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes 15. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes 16. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes 17. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes 18. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes 19. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes 20. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes 21. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes 22. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes 23. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes 24. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes 25. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content 26. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content 27. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content 28. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format 29. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content 30. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content 31. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal) 32. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized) 33. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Full template validation — runs all validation passes.\n *\n * @remarks\n *\n * Executes every registered validator in sequence and collects all errors. Validation steps: 1. {@link TemplateEngine.validateNamesBlock} — checks that all tags are known 2. {@link TemplateEngine.validateScopes} — checks that all interpolation scopes are known 3. {@link TemplateEngine.validateFormatBlock} — checks self-closing vs regular tag syntax 4. {@link TemplateEngine.validatePositionsBlock} — checks structural nesting rules 5. {@link TemplateEngine.validateTelegramAttributesBlock} — checks required attributes on Telegram Rich HTML tags 6. {@link TemplateEngine.validateTelegramAttributeValuesBlock} — checks value formats on Telegram Rich HTML tag attributes 7. {@link TemplateEngine.validateTelegramUnknownAttributesBlock} — rejects unknown attribute names on Telegram Rich HTML tags 8. {@link TemplateEngine.validateBlockGBaseAttributes} — checks `<g-base>` block attributes 9. {@link TemplateEngine.validateBlockGMessageAttributes} — checks `<g-message>` block attributes 10. {@link TemplateEngine.validateBlockGKeyboardAttributes} — checks `<g-keyboard>` block attributes 11. {@link TemplateEngine.validateBlockGMediaAttributes} — checks `<g-media>` block attributes 12. {@link TemplateEngine.validateBlockGMediaGroupAttributes} — checks `<g-media-group>` block attributes 13. {@link TemplateEngine.validateBlockGPollAttributes} — checks `<g-poll>` block attributes 14. {@link TemplateEngine.validateBlockGWidgetAttributes} — checks `<g-widget>` block attributes, caption/body presence, and size limits 15. {@link TemplateEngine.validateBlockGDescriptionAttributes} — checks `<g-description>` block attributes 16. {@link TemplateEngine.validateBlockGScriptAttributes} — checks `<g-script>` block attributes 17. {@link TemplateEngine.validateBlockGSwitchAttributes} — checks `<g-switch>` block attributes 18. {@link TemplateEngine.validateBlockGCaseAttributes} — checks `<g-case>` block attributes 19. {@link TemplateEngine.validateBlockGDefaultAttributes} — checks `<g-default>` block attributes 20. {@link TemplateEngine.validateBlockGMapAttributes} — checks `<g-map>` block attributes 21. {@link TemplateEngine.validateBlockGDivAttributes} — checks `<g-div>` block attributes 22. {@link TemplateEngine.validateBlockGImportAttributes} — checks `<g-import>` block attributes 23. {@link TemplateEngine.validateBlockGSpaceAttributes} — checks `<g-space>` block attributes 24. {@link TemplateEngine.validateBlockGVenueAttributes} — checks `<g-venue>` block attributes 25. {@link TemplateEngine.validateBlockGDiceAttributes} — checks `<g-dice>` block attributes 26. {@link TemplateEngine.validateBlockGCallbackAnswerAttributes} — checks `<g-callback-answer>` block attributes and plain-text content 27. {@link TemplateEngine.validateBlockGWidgetAnswerAttributes} — checks `<g-widget-answer>` block attributes and plain-text content 28. {@link TemplateEngine.validateBlockGPrecheckoutErrorAttributes} — checks `<g-precheckout-error>` block attributes and plain-text content 29. {@link TemplateEngine.validateBlockGShippingErrorAttributes} — checks `<g-shipping-error>` block attributes and plain-text content 30. {@link TemplateEngine.validateBlockGInlineButtonAttributes} — checks `<g-inline-button>` block attributes, required text, and start-parameter format 31. {@link TemplateEngine.validateBlockGAnswerNoteAttributes} — checks `<g-answer-note>` block attributes and plain-text content 32. {@link TemplateEngine.validateBlockGWebAppAnswerAttributes} — checks `<g-web-app-answer>` block attributes and plain-text content 33. {@link TemplateEngine.validateBlockGGiftAttributes} — checks `<g-gift>` block attributes (HTML content is legal) 34. {@link TemplateEngine.validatePageAttributesBlock} — checks required attributes on `<g-*>` PAGE blocks (centralized) 35. {@link TemplateEngine.validatePageAttributeValuesBlock} — checks value formats on `<g-*>` PAGE block attributes (centralized)\n *\n * Widget HTML is raw by design, so every validator above runs on the widget-stripped template ({@link TemplateEngine._stripGWidgetBody}) — the raw HTML (with its `<div>` / `<button>` / `<script>` / `<style>` tags and JS object literals) never reaches the name/scope/format/ position/telegram checks — except {@link TemplateEngine.validateBlockGWidgetAttributes}, which runs on the full template right after the poll step and checks the block attributes, caption presence, and size limits.\n *\n * Errors from all validators are combined into a single result.\n *\n * @param template - The raw template string to validate\n *\n * @returns An object with a `valid` boolean and a combined `errors` array containing line numbers and descriptive messages for every violation found\n *\n * @example\n * ```typescript\n * const result = TemplateEngine.validateTemplate(`\n *   <g-base>\n *     <g-message>Hello {{name}}!</g-message>\n *   </g-base>\n * `);\n * // Result: { valid: true, errors: [] }\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -54843,6 +56561,210 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "getGWebAppAnswer"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#getGWidget:member(1)",
+              "docComment": "/**\n * Gets compiled from block <g-widget>.\n *\n * @remarks\n *\n * Retrieves the compiled widget function for the specified template and language, then executes it with the provided data to generate the widget payload. The widget HTML rides raw (no interpolation); only the caption, `chat_data`, `public_data`, `width`, and `height` are interpolated from `data`.\n *\n * @param key - Template identifier (filename without extension)\n *\n * @param AGBaseId - Base block ID matching `<g-base id=\"...\">`\n *\n * @param ALang - Target language code (falls back to `default`)\n *\n * @param data - Template variables for interpolation\n *\n * @returns {@link GWidgetResult} with the widget payload flat under `kind: \"widget\"`\n *\n * @example\n * ```typescript\n * const widget = tm.getGWidget(\"rate-page\", \"default\", \"en\", {orderId: \"1042\"})\n * // => {kind: \"widget\", html: \"<div>...</div>\", caption: \"Order <b>#1042</b>\", allow_queries: true}\n * ```\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getGWidget(key: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", AGBaseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", ALang?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "GWidgetResult",
+                  "canonicalReference": "gramstax!GWidgetResult:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 10,
+                "endIndex": 11
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "key",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "AGBaseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "ALang",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 9
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getGWidget"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "gramstax!TemplateManager#getGWidgetAnswer:member(1)",
+              "docComment": "/**\n * Gets compiled text from block <g-widget-answer>.\n *\n * @remarks\n *\n * Strict lookup (mirrors `getGCallbackAnswer`): a missing block throws instead of returning an empty string, because widget answers always need data.\n *\n * @public\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getGWidgetAnswer(key: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", AGBaseId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", ALang?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "GWidgetAnswerResult",
+                  "canonicalReference": "gramstax!GWidgetAnswerResult:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 10,
+                "endIndex": 11
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "key",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "AGBaseId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "ALang",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  },
+                  "isOptional": true
+                },
+                {
+                  "parameterName": "data",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 9
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getGWidgetAnswer"
             },
             {
               "kind": "Method",

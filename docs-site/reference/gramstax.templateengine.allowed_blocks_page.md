@@ -16,5 +16,5 @@ static ALLOWED_BLOCKS_PAGE: ReadonlySet<string>;
 
 ## Remarks
 
-Content blocks (`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-description`), logic blocks (`g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`), and utility blocks (`g-import`, `g-space`). Validated by `validateTemplate` (per-block `validateBlockG*Attributes` methods plus the centralized `_PAGE_REQUIRED_ATTRS` / `_PAGE_ATTR_VALUE_VALIDATORS` specs). Combined with [TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM](./gramstax.templateengine.allowed_blocks_telegram.md) into [TemplateEngine.ALLOWED\_BLOCKS](./gramstax.templateengine.allowed_blocks.md).
+Content blocks (`g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-widget`, `g-description`), logic blocks (`g-script`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`), and utility blocks (`g-import`, `g-space`). Validated by `validateTemplate` (per-block `validateBlockG*Attributes` methods plus the centralized `_PAGE_REQUIRED_ATTRS` / `_PAGE_ATTR_VALUE_VALIDATORS` specs). Combined with [TemplateEngine.ALLOWED\_BLOCKS\_TELEGRAM](./gramstax.templateengine.allowed_blocks_telegram.md) into [TemplateEngine.ALLOWED\_BLOCKS](./gramstax.templateengine.allowed_blocks.md).
 

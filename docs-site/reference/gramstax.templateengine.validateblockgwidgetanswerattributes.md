@@ -1,0 +1,76 @@
+---
+title: "TemplateEngine.validateBlockGWidgetAnswerAttributes()"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [validateBlockGWidgetAnswerAttributes](./gramstax.templateengine.validateblockgwidgetanswerattributes.md)
+
+## TemplateEngine.validateBlockGWidgetAnswerAttributes() method
+
+Validates attributes and content on `<g-widget-answer>` blocks.
+
+**Signature:**
+
+```typescript
+static validateBlockGWidgetAnswerAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The raw template string to validate
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; valid: boolean; errors: Array&lt;&#123; line: number; message: string; &#125;&gt;; &#125;
+
+An object with a `valid` boolean and an `errors` array
+
+## Remarks
+
+Allowed attributes are `lang` only. Content must be plain text without HTML (widget-query `data` is an opaque payload for the widget's JS, not user-facing copy) and at most 1024 UTF-8 bytes of static text (Bot API `answerWidgetQuery` limits, measured with `Buffer.byteLength`); `{{}}` spans skip the static checks (runtime-enforced).
+
+## Example
+
+
+```typescript
+const result = TemplateEngine.validateBlockGWidgetAnswerAttributes(`<g-base><g-widget-answer>ok</g-widget-answer></g-base>`);
+// Result: { valid: true, errors: [] }
+```
+

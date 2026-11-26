@@ -51,6 +51,10 @@ items:
             uid: gramstax!GVenueResult:type
           - name: GWebAppAnswerResult
             uid: gramstax!GWebAppAnswerResult:type
+          - name: GWidgetAnswerResult
+            uid: gramstax!GWidgetAnswerResult:type
+          - name: GWidgetResult
+            uid: gramstax!GWidgetResult:type
           - name: IAnswerNoteBlock
             uid: gramstax!IAnswerNoteBlock:type
           - name: IAppManifest
@@ -287,6 +291,8 @@ items:
             uid: gramstax!IOptVenue:type
           - name: IOptWebAppAnswer
             uid: gramstax!IOptWebAppAnswer:type
+          - name: IOptWidget
+            uid: gramstax!IOptWidget:type
           - name: IPageData
             uid: gramstax!IPageData:type
           - name: IPageDataBase
@@ -343,6 +349,10 @@ items:
             uid: gramstax!IRenderVenueParams:type
           - name: IRenderWebAppAnswerParams
             uid: gramstax!IRenderWebAppAnswerParams:type
+          - name: IRenderWidgetAnswerParams
+            uid: gramstax!IRenderWidgetAnswerParams:type
+          - name: IRenderWidgetParams
+            uid: gramstax!IRenderWidgetParams:type
           - name: IReplyAction
             uid: gramstax!IReplyAction:type
           - name: IRouteAuto
@@ -371,6 +381,16 @@ items:
             uid: gramstax!IRouteMediaReply:type
           - name: IRouteReply
             uid: gramstax!IRouteReply:type
+          - name: IRouteWidgetBroadcastRevise
+            uid: gramstax!IRouteWidgetBroadcastRevise:type
+          - name: IRouteWidgetBroadcastSend
+            uid: gramstax!IRouteWidgetBroadcastSend:type
+          - name: IRouteWidgetEdit
+            uid: gramstax!IRouteWidgetEdit:type
+          - name: IRouteWidgetReply
+            uid: gramstax!IRouteWidgetReply:type
+          - name: IRouteWidgetUpdateData
+            uid: gramstax!IRouteWidgetUpdateData:type
           - name: ISendErrorHook
             uid: gramstax!ISendErrorHook:type
           - name: ISendErrorInfo
@@ -411,6 +431,10 @@ items:
             uid: gramstax!IWebAppAnswerBlock:type
           - name: IWebhookQueueConfig
             uid: gramstax!IWebhookQueueConfig:type
+          - name: IWidgetAnswerBlock
+            uid: gramstax!IWidgetAnswerBlock:type
+          - name: IWidgetBlock
+            uid: gramstax!IWidgetBlock:type
           - name: LabelGKeyboard
             uid: gramstax!LabelGKeyboard:class
           - name: LoggingHelper

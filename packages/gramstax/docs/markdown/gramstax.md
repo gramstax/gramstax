@@ -596,6 +596,28 @@ Result of `TemplateManager.getGWebAppAnswer` for a `<g-web-app-answer>` block.
 </td></tr>
 <tr><td>
 
+[GWidgetAnswerResult](./gramstax.gwidgetanswerresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGWidgetAnswer` for a `<g-widget-answer>` block.
+
+
+</td></tr>
+<tr><td>
+
+[GWidgetResult](./gramstax.gwidgetresult.md)
+
+
+</td><td>
+
+Result of `TemplateManager.getGWidget` for a `<g-widget>` block.
+
+
+</td></tr>
+<tr><td>
+
 [IAnswerNoteBlock](./gramstax.ianswernoteblock.md)
 
 
@@ -1872,6 +1894,17 @@ Options parameter mirroring `Context.api.answerWebAppQuery` argument index `[2]`
 </td></tr>
 <tr><td>
 
+[IOptWidget](./gramstax.ioptwidget.md)
+
+
+</td><td>
+
+Widget send options — `Ctx.replyWithWidget` argument index `[1]` (the `other` bag of `sendWidget`<!-- -->).
+
+
+</td></tr>
+<tr><td>
+
 [IPageData](./gramstax.ipagedata.md)
 
 
@@ -2180,6 +2213,28 @@ Parameters for `renderWebAppAnswer`<!-- -->.
 </td></tr>
 <tr><td>
 
+[IRenderWidgetAnswerParams](./gramstax.irenderwidgetanswerparams.md)
+
+
+</td><td>
+
+Parameters for `renderWidgetAnswer`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IRenderWidgetParams](./gramstax.irenderwidgetparams.md)
+
+
+</td><td>
+
+Parameters for `renderWidget`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
 [IReplyAction](./gramstax.ireplyaction.md)
 
 
@@ -2329,6 +2384,61 @@ Media route atom: forced single-media send.
 </td><td>
 
 Route atom: forced single-message send.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteWidgetBroadcastRevise](./gramstax.iroutewidgetbroadcastrevise.md)
+
+
+</td><td>
+
+Widget route atom: broadcast revise fan-out (data-only).
+
+
+</td></tr>
+<tr><td>
+
+[IRouteWidgetBroadcastSend](./gramstax.iroutewidgetbroadcastsend.md)
+
+
+</td><td>
+
+Widget route atom: broadcast send fan-out.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteWidgetEdit](./gramstax.iroutewidgetedit.md)
+
+
+</td><td>
+
+Widget route atom: forced single-widget edit.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteWidgetReply](./gramstax.iroutewidgetreply.md)
+
+
+</td><td>
+
+Widget route atom: forced single-widget send.
+
+
+</td></tr>
+<tr><td>
+
+[IRouteWidgetUpdateData](./gramstax.iroutewidgetupdatedata.md)
+
+
+</td><td>
+
+Widget route atom: data-only update of the held widget.
 
 
 </td></tr>
@@ -2549,6 +2659,28 @@ Web-app answer block for query answers without template content.
 </td><td>
 
 Legacy alias for [IUpdateQueueConfig](./gramstax.iupdatequeueconfig.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[IWidgetAnswerBlock](./gramstax.iwidgetanswerblock.md)
+
+
+</td><td>
+
+Widget-answer block for Telegram widget-query feedback.
+
+
+</td></tr>
+<tr><td>
+
+[IWidgetBlock](./gramstax.iwidgetblock.md)
+
+
+</td><td>
+
+Widget block for Telegram HTML widgets (Bot API 10.4).
 
 
 </td></tr>

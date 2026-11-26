@@ -1,0 +1,23 @@
+---
+title: "GWidgetAnswerResult"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [GWidgetAnswerResult](./gramstax.gwidgetanswerresult.md)
+
+## GWidgetAnswerResult type
+
+Result of `TemplateManager.getGWidgetAnswer` for a `<g-widget-answer>` block.
+
+**Signature:**
+
+```typescript
+type GWidgetAnswerResult = {
+    kind: `widgetAnswer`;
+    text: string;
+};
+```
+
+## Remarks
+
+`text` is the rendered answer data; the getter throws when the block is missing (widget answers always need data).
+

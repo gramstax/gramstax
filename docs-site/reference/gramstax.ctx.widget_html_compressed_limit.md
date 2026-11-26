@@ -1,0 +1,15 @@
+---
+title: "Ctx.WIDGET_HTML_COMPRESSED_LIMIT"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [WIDGET\_HTML\_COMPRESSED\_LIMIT](./gramstax.ctx.widget_html_compressed_limit.md)
+
+## Ctx.WIDGET\_HTML\_COMPRESSED\_LIMIT property
+
+Bot API widget HTML limit in bytes after zlib level-9 compression.
+
+**Signature:**
+
+```typescript
+static readonly WIDGET_HTML_COMPRESSED_LIMIT = 4096;
+```

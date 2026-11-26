@@ -14,9 +14,11 @@ syntax: |-
   type ICompiledTemplate = {
       media: ReturnType<typeof TemplateEngine.compileBlockGMedia>;
       poll: ReturnType<typeof TemplateEngine.compileBlockGPoll>;
+      widget: ReturnType<typeof TemplateEngine.compileBlockGWidget>;
       venue: ReturnType<typeof TemplateEngine.compileBlockGVenue>;
       dice: ReturnType<typeof TemplateEngine.compileBlockGDice>;
       callbackAnswer: ReturnType<typeof TemplateEngine.compileBlockGCallbackAnswer>;
+      widgetAnswer: ReturnType<typeof TemplateEngine.compileBlockGWidgetAnswer>;
       precheckoutError: ReturnType<typeof TemplateEngine.compileBlockGPrecheckoutError>;
       shippingError: ReturnType<typeof TemplateEngine.compileBlockGShippingError>;
       inlineButton: ReturnType<typeof TemplateEngine.compileBlockGInlineButton>;

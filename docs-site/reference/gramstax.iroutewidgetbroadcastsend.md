@@ -1,0 +1,26 @@
+---
+title: "IRouteWidgetBroadcastSend"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRouteWidgetBroadcastSend](./gramstax.iroutewidgetbroadcastsend.md)
+
+## IRouteWidgetBroadcastSend type
+
+Widget route atom: broadcast send fan-out.
+
+**Signature:**
+
+```typescript
+type IRouteWidgetBroadcastSend = INeverFields<`mode` | `rich` | `richOptions` | `chunkSize` | `fallback` | `editOptions` | `fallbackOptions`> & {
+    broadcast: IBroadcastSendParams;
+    keyboard?: IInBoKb | null;
+    options?: IOptWidget | null;
+    is_shared?: boolean | null;
+};
+```
+**References:** [INeverFields](./gramstax.ineverfields.md), [IBroadcastSendParams](./gramstax.ibroadcastsendparams.md), [IInBoKb](./gramstax.iinbokb.md), [IOptWidget](./gramstax.ioptwidget.md)
+
+## Remarks
+
+Fans the compiled `<g-widget>` block out to every entry of `broadcast.ids` with its own language code. Per-recipient failures follow `Ctx.classifySendError`: `fallback-text` triggers a best-effort caption send to that recipient (the caption is the designed standalone fallback), `retryable` is recorded and the loop continues. No private-chat-only restriction is enforced in code — DEFAULT (flip while testing if needed): a widget sent to a group chat fails per recipient and is counted, not pre-rejected.
+

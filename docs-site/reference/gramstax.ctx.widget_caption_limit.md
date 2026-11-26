@@ -1,0 +1,15 @@
+---
+title: "Ctx.WIDGET_CAPTION_LIMIT"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [WIDGET\_CAPTION\_LIMIT](./gramstax.ctx.widget_caption_limit.md)
+
+## Ctx.WIDGET\_CAPTION\_LIMIT property
+
+Bot API widget caption limit in characters after entity parsing.
+
+**Signature:**
+
+```typescript
+static readonly WIDGET_CAPTION_LIMIT = 1024;
+```

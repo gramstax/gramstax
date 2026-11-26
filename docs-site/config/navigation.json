@@ -164,6 +164,8 @@
             "reference/gramstax.gshippingerrorresult",
             "reference/gramstax.gvenueresult",
             "reference/gramstax.gwebappanswerresult",
+            "reference/gramstax.gwidgetanswerresult",
+            "reference/gramstax.gwidgetresult",
             "reference/gramstax.ianswernoteblock",
             "reference/lmdb.ianycolumnbuilder",
             "reference/gramstax.iappmanifest",
@@ -310,6 +312,7 @@
             "reference/gramstax.ioptshipping",
             "reference/gramstax.ioptvenue",
             "reference/gramstax.ioptwebappanswer",
+            "reference/gramstax.ioptwidget",
             "reference/gramstax.ipagedata",
             "reference/gramstax.ipagedatabase",
             "reference/gramstax.ipagemanifestentry",
@@ -341,6 +344,8 @@
             "reference/gramstax.irendertextparams",
             "reference/gramstax.irendervenueparams",
             "reference/gramstax.irenderwebappanswerparams",
+            "reference/gramstax.irenderwidgetanswerparams",
+            "reference/gramstax.irenderwidgetparams",
             "reference/gramstax.ireplyaction",
             "reference/gramstax.irouteauto",
             "reference/gramstax.iroutebroadcastsend",
@@ -355,6 +360,11 @@
             "reference/gramstax.iroutemediabroadcastsend",
             "reference/gramstax.iroutemediareply",
             "reference/gramstax.iroutereply",
+            "reference/gramstax.iroutewidgetbroadcastrevise",
+            "reference/gramstax.iroutewidgetbroadcastsend",
+            "reference/gramstax.iroutewidgetedit",
+            "reference/gramstax.iroutewidgetreply",
+            "reference/gramstax.iroutewidgetupdatedata",
             "reference/worker-thread.irpccontext",
             "reference/worker-thread.irpcmiddleware",
             "reference/lmdb.ischemaindexesof",
@@ -382,6 +392,8 @@
             "reference/gramstax.ivenueblock",
             "reference/gramstax.iwebappanswerblock",
             "reference/gramstax.iwebhookqueueconfig",
+            "reference/gramstax.iwidgetanswerblock",
+            "reference/gramstax.iwidgetblock",
             "reference/worker-thread.iworkerthreadasyncmethods",
             "reference/worker-thread.iworkerthreadexportopt",
             "reference/worker-thread.iworkerthreadexportresult",
@@ -801,6 +813,18 @@
               ]
             },
             {
+              "group": "_processgwidgetanswerblocks",
+              "pages": [
+                "reference/gramstax.templateengine._processgwidgetanswerblocks"
+              ]
+            },
+            {
+              "group": "_processgwidgetblocks",
+              "pages": [
+                "reference/gramstax.templateengine._processgwidgetblocks"
+              ]
+            },
+            {
               "group": "_processmediagroupitems",
               "pages": [
                 "reference/gramstax.templateengine._processmediagroupitems"
@@ -984,6 +1008,12 @@
               "group": "_validatevenueitems",
               "pages": [
                 "reference/gramstax.templateengine._validatevenueitems"
+              ]
+            },
+            {
+              "group": "_validatewidgetitems",
+              "pages": [
+                "reference/gramstax.templateengine._validatewidgetitems"
               ]
             },
             {
@@ -1172,6 +1202,12 @@
               "group": "assertvenue",
               "pages": [
                 "reference/gramstax.ctx.assertvenue"
+              ]
+            },
+            {
+              "group": "assertwidget",
+              "pages": [
+                "reference/gramstax.ctx.assertwidget"
               ]
             },
             {
@@ -1632,6 +1668,18 @@
               "group": "compileblockgwebappanswer",
               "pages": [
                 "reference/gramstax.templateengine.compileblockgwebappanswer"
+              ]
+            },
+            {
+              "group": "compileblockgwidget",
+              "pages": [
+                "reference/gramstax.templateengine.compileblockgwidget"
+              ]
+            },
+            {
+              "group": "compileblockgwidgetanswer",
+              "pages": [
+                "reference/gramstax.templateengine.compileblockgwidgetanswer"
               ]
             },
             {
@@ -2320,6 +2368,18 @@
               "group": "getgwebappanswer",
               "pages": [
                 "reference/gramstax.templatemanager.getgwebappanswer"
+              ]
+            },
+            {
+              "group": "getgwidget",
+              "pages": [
+                "reference/gramstax.templatemanager.getgwidget"
+              ]
+            },
+            {
+              "group": "getgwidgetanswer",
+              "pages": [
+                "reference/gramstax.templatemanager.getgwidgetanswer"
               ]
             },
             {
@@ -3535,6 +3595,42 @@
               "group": "max_paid_media_stars",
               "pages": [
                 "reference/gramstax.templateengine.max_paid_media_stars"
+              ]
+            },
+            {
+              "group": "max_widget_answer_bytes",
+              "pages": [
+                "reference/gramstax.templateengine.max_widget_answer_bytes"
+              ]
+            },
+            {
+              "group": "max_widget_caption_chars",
+              "pages": [
+                "reference/gramstax.templateengine.max_widget_caption_chars"
+              ]
+            },
+            {
+              "group": "max_widget_data_bytes",
+              "pages": [
+                "reference/gramstax.templateengine.max_widget_data_bytes"
+              ]
+            },
+            {
+              "group": "max_widget_html_compressed_bytes",
+              "pages": [
+                "reference/gramstax.templateengine.max_widget_html_compressed_bytes"
+              ]
+            },
+            {
+              "group": "max_widget_html_compressed_safe_bytes",
+              "pages": [
+                "reference/gramstax.templateengine.max_widget_html_compressed_safe_bytes"
+              ]
+            },
+            {
+              "group": "max_widget_html_raw_bytes",
+              "pages": [
+                "reference/gramstax.templateengine.max_widget_html_raw_bytes"
               ]
             },
             {
@@ -5060,6 +5156,18 @@
               "group": "renderwebappanswer",
               "pages": [
                 "reference/gramstax.ctx.renderwebappanswer"
+              ]
+            },
+            {
+              "group": "renderwidget",
+              "pages": [
+                "reference/gramstax.ctx.renderwidget"
+              ]
+            },
+            {
+              "group": "renderwidgetanswer",
+              "pages": [
+                "reference/gramstax.ctx.renderwidgetanswer"
               ]
             },
             {
@@ -6696,6 +6804,18 @@
               ]
             },
             {
+              "group": "validateblockgwidgetanswerattributes",
+              "pages": [
+                "reference/gramstax.templateengine.validateblockgwidgetanswerattributes"
+              ]
+            },
+            {
+              "group": "validateblockgwidgetattributes",
+              "pages": [
+                "reference/gramstax.templateengine.validateblockgwidgetattributes"
+              ]
+            },
+            {
               "group": "validateformatblock",
               "pages": [
                 "reference/gramstax.templateengine.validateformatblock"
@@ -6804,6 +6924,60 @@
               "group": "webhookurl",
               "pages": [
                 "reference/gramstax.mocktelegramserver.webhookurl"
+              ]
+            },
+            {
+              "group": "widget_caption_limit",
+              "pages": [
+                "reference/gramstax.ctx.widget_caption_limit"
+              ]
+            },
+            {
+              "group": "widget_data_limit",
+              "pages": [
+                "reference/gramstax.ctx.widget_data_limit"
+              ]
+            },
+            {
+              "group": "widget_height_max",
+              "pages": [
+                "reference/gramstax.ctx.widget_height_max"
+              ]
+            },
+            {
+              "group": "widget_height_min",
+              "pages": [
+                "reference/gramstax.ctx.widget_height_min"
+              ]
+            },
+            {
+              "group": "widget_html_compressed_limit",
+              "pages": [
+                "reference/gramstax.ctx.widget_html_compressed_limit"
+              ]
+            },
+            {
+              "group": "widget_html_compressed_safe_limit",
+              "pages": [
+                "reference/gramstax.ctx.widget_html_compressed_safe_limit"
+              ]
+            },
+            {
+              "group": "widget_html_raw_limit",
+              "pages": [
+                "reference/gramstax.ctx.widget_html_raw_limit"
+              ]
+            },
+            {
+              "group": "widget_width_max",
+              "pages": [
+                "reference/gramstax.ctx.widget_width_max"
+              ]
+            },
+            {
+              "group": "widget_width_min",
+              "pages": [
+                "reference/gramstax.ctx.widget_width_min"
               ]
             },
             {

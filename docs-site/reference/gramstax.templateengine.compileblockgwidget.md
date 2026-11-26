@@ -1,0 +1,91 @@
+---
+title: "TemplateEngine.compileBlockGWidget()"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [TemplateEngine](./gramstax.templateengine.md) &gt; [compileBlockGWidget](./gramstax.templateengine.compileblockgwidget.md)
+
+## TemplateEngine.compileBlockGWidget() method
+
+Compiles widget blocks from a template into executable functions.
+
+**Signature:**
+
+```typescript
+static compileBlockGWidget(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITemplateData) => IWidgetBlock;
+        };
+    };
+```
+
+## Parameters
+
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+template
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Raw template string containing `<g-base>` and `<g-widget>` blocks
+
+
+</td></tr>
+<tr><td>
+
+baseBlocks
+
+
+</td><td>
+
+ReturnType&lt;typeof TemplateEngine.\_processGBaseBlocks&gt;
+
+
+</td><td>
+
+_(Optional)_ Optional pre-parsed base blocks for reuse
+
+
+</td></tr>
+</tbody></table>
+
+**Returns:**
+
+&#123; \[AGBaseId: string\]: &#123; \[ALang: string\]: (data?: ITemplateData) =&gt; [IWidgetBlock](./gramstax.iwidgetblock.md); &#125;; &#125;
+
+Compiled widget functions organized by base ID and language
+
+## Remarks
+
+Parses `<g-widget>` blocks per base and compiles the caption, `chat_data`, `public_data`, `width`, and `height` through the same pipeline as poll questions (script → map → switch → exec → variables), so `{{var|filter}}` works in all five. The widget `html` is the exception by design: it is carried RAW and never runs the pipeline — JS object literals, `${}` template strings, and HTML tags inside the widget stay verbatim, because the scope pipeline would reject them (`validateScopes`) or miscompile them. Static fields (`allow_queries`, `is_shared`, `show_caption_above_media`) pass through untouched.
+
+## Example
+
+
+```typescript
+const widgets = TemplateEngine.compileBlockGWidget(`<g-base><g-widget allow_queries chat_data='{"order_id": "{{orderId}}"}'><g-widget-caption>Order <b>#{{orderId}}</b></g-widget-caption><g-widget-body><div id="row"></div><script>const state = {'order': 1};</script></g-widget-body></g-widget></g-base>`);
+const result = widgets.default?.default?.({ orderId: '1042' });
+// Result: { html: '<div id="row"></div><script>const state = {\'order\': 1};</script>', caption: 'Order <b>#1042</b>', allow_queries: true, chat_data: '{"order_id": "1042"}' }
+```
+

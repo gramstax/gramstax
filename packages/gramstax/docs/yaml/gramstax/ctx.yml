@@ -1211,6 +1211,109 @@ properties:
       content: 'templateManager: TemplateManager;'
       return:
         type: <xref uid="gramstax!TemplateManager:class" />
+  - name: WIDGET_CAPTION_LIMIT
+    uid: gramstax!Ctx.WIDGET_CAPTION_LIMIT:member
+    package: gramstax!
+    fullName: WIDGET_CAPTION_LIMIT
+    summary: Bot API widget caption limit in characters after entity parsing.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: static readonly WIDGET_CAPTION_LIMIT = 1024;
+  - name: WIDGET_DATA_LIMIT
+    uid: gramstax!Ctx.WIDGET_DATA_LIMIT:member
+    package: gramstax!
+    fullName: WIDGET_DATA_LIMIT
+    summary: Bot API widget `chat_data` / `public_data` limit in UTF-8 bytes each.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: static readonly WIDGET_DATA_LIMIT = 1024;
+  - name: WIDGET_HEIGHT_MAX
+    uid: gramstax!Ctx.WIDGET_HEIGHT_MAX:member
+    package: gramstax!
+    fullName: WIDGET_HEIGHT_MAX
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: static readonly WIDGET_HEIGHT_MAX = 600;
+  - name: WIDGET_HEIGHT_MIN
+    uid: gramstax!Ctx.WIDGET_HEIGHT_MIN:member
+    package: gramstax!
+    fullName: WIDGET_HEIGHT_MIN
+    summary: Bot API widget height range in logical pixels (50–600).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: static readonly WIDGET_HEIGHT_MIN = 50;
+  - name: WIDGET_HTML_COMPRESSED_LIMIT
+    uid: gramstax!Ctx.WIDGET_HTML_COMPRESSED_LIMIT:member
+    package: gramstax!
+    fullName: WIDGET_HTML_COMPRESSED_LIMIT
+    summary: Bot API widget HTML limit in bytes after zlib level-9 compression.
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: static readonly WIDGET_HTML_COMPRESSED_LIMIT = 4096;
+  - name: WIDGET_HTML_COMPRESSED_SAFE_LIMIT
+    uid: gramstax!Ctx.WIDGET_HTML_COMPRESSED_SAFE_LIMIT:member
+    package: gramstax!
+    fullName: WIDGET_HTML_COMPRESSED_SAFE_LIMIT
+    summary: Safe compile-time target for widget HTML after zlib level-9 compression.
+    remarks: >-
+      DEFAULT (flip to [Ctx.WIDGET\_HTML\_COMPRESSED\_LIMIT](xref:gramstax!Ctx.WIDGET_HTML_COMPRESSED_LIMIT:member)
+      while testing if the stricter target rejects widgets Telegram would accept): Node zlib output can differ from
+      Telegram's server-side compression by tens of bytes, so the runtime assert errors above this target, not above the
+      4096-byte hard limit.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: static readonly WIDGET_HTML_COMPRESSED_SAFE_LIMIT = 4000;
+  - name: WIDGET_HTML_RAW_LIMIT
+    uid: gramstax!Ctx.WIDGET_HTML_RAW_LIMIT:member
+    package: gramstax!
+    fullName: WIDGET_HTML_RAW_LIMIT
+    summary: Bot API widget HTML limit in UTF-8 bytes (raw).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: static readonly WIDGET_HTML_RAW_LIMIT = 32768;
+  - name: WIDGET_WIDTH_MAX
+    uid: gramstax!Ctx.WIDGET_WIDTH_MAX:member
+    package: gramstax!
+    fullName: WIDGET_WIDTH_MAX
+    summary: ''
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: static readonly WIDGET_WIDTH_MAX = 600;
+  - name: WIDGET_WIDTH_MIN
+    uid: gramstax!Ctx.WIDGET_WIDTH_MIN:member
+    package: gramstax!
+    fullName: WIDGET_WIDTH_MIN
+    summary: Bot API widget width range in logical pixels (200–600).
+    remarks: ''
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: static readonly WIDGET_WIDTH_MIN = 200;
 methods:
   - name: addArgs(str, mtd, pld)
     uid: gramstax!Ctx#addArgs:member(1)
@@ -1627,6 +1730,30 @@ methods:
                   latitude: number;
                   longitude: number;
               }
+        description: ''
+  - name: assertWidget(widget)
+    uid: gramstax!Ctx.assertWidget:member(1)
+    package: gramstax!
+    fullName: assertWidget(widget)
+    summary: Fail-fast checks for a compiled `<g-widget>` block against Bot API limits.
+    remarks: >-
+      Measures the COMPILED strings (post-interpolation): HTML at most 32768 UTF-8 bytes raw and at most 4000 bytes
+      after zlib level-9 compression (the safe target — see
+      [Ctx.WIDGET\_HTML\_COMPRESSED\_SAFE\_LIMIT](xref:gramstax!Ctx.WIDGET_HTML_COMPRESSED_SAFE_LIMIT:member)<!-- -->;
+      the API hard limit is 4096), caption required and 1–1024 characters after entity parsing (HTML tags stripped),
+      `chat_data` / `public_data` at most 1024 UTF-8 bytes each, `width` an integer 200–600 and `height` an integer
+      50–600 when present. Programmer error — always throws, never falls back or notifies.
+    example: []
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'static assertWidget(widget: IWidgetBlock): void;'
+      parameters:
+        - id: widget
+          description: Compiled widget block from `getGWidget`<!-- -->.
+          type: <xref uid="gramstax!IWidgetBlock:type" />
+      return:
+        type: void
         description: ''
   - name: bottomKeyboard(callback, params)
     uid: gramstax!Ctx#bottomKeyboard:member(1)
@@ -8180,6 +8307,148 @@ methods:
       return:
         type: Promise&lt;<xref uid="@grammyjs/types!SentWebAppMessage:interface" />&gt;
         description: The sent web app message object.
+  - name: renderWidget(params)
+    uid: gramstax!Ctx#renderWidget:member(1)
+    package: gramstax!
+    fullName: renderWidget(params)
+    summary: |-
+      Sends, edits, or data-updates a template-driven HTML widget using the page `<g-widget>` block.
+
+      Template block: `<g-widget>` (read via `getGWidget`<!-- -->).
+    remarks: >-
+      Modes are explicit — there is NO `auto` mode: a tap inside the widget (`widget_query`<!-- -->) wants `update-data`
+      while a keyboard button under it (`callbackQuery`<!-- -->) wants `edit`<!-- -->, so no single runtime guess is
+      honest. `mode` defaults to `reply`<!-- -->.
+
+
+      - `reply` (default): sends a new widget via `replyWithWidget` with the template caption and a hardcoded
+      `parse_mode: "HTML"` (never `caption_entities`<!-- -->, like `renderMedia` / `renderPoll`<!-- -->). The chat
+      resolves from `widgetQuery.chat` on a tap update too, so a tap handler can reply with a fresh widget in the same
+      chat. - `edit`<!-- -->: re-applies the template's state, caption, and keyboard to the widget message held by the
+      context — never the HTML, which the Bot API cannot replace (there is no `editMessageWidget`<!-- -->). NOT atomic:
+      up to three API calls (`editMessageWidgetData` / `editSharedWidgetData`<!-- -->, `editMessageCaption`<!-- -->,
+      `editMessageReplyMarkup`<!-- -->), so a failure mid-way leaves part of the message updated and the error is
+      rethrown. Whether the widget is shared is auto-detected from the update (see `_isSharedWidget`<!-- -->) — the
+      template's `is_shared` is ignored here. On a detected shared widget the state edit goes to `editSharedWidgetData`
+      (public data, every message showing the widget) while the caption and keyboard edits still target only the
+      context-held message. Target resolution uses the ctx shortcuts: `chatId` / `msgId` resolve from `widgetQuery.chat`
+      / `widgetQuery.message_id` on a tap update (verified in grammY 1.48.0 `context.js` and `@grammyjs/types` 5.2.0),
+      so the tapped message is the edit target with no manual resolution. (One edge: a widget inside an INLINE message
+      carries neither — the query has `inline_message_id` instead — and the data edit then takes grammY's Inline variant
+      while the caption/keyboard edits throw grammY's "Missing information" error.) - `update-data`<!-- -->: changes
+      only the widget state in exactly one API call (atomic) — `chat_data` via `editMessageWidgetData` for a regular
+      widget, `public_data` via `editSharedWidgetData` for a shared one. Shared-ness is auto-detected from the update
+      (see `_isSharedWidget`<!-- -->); the template's `is_shared` is ignored here. This is the hot path for widget taps
+      and the only mode meaningful for shared widgets. It does NOT answer the widget query: the handler must still call
+      `ctx.answerWidgetQuery` within 15 seconds. Target resolution uses the ctx shortcuts (see the edit route above):
+      the regular-widget target comes from `widgetQuery.chat` / `widgetQuery.message_id`<!-- -->, the shared target from
+      `widgetQuery.widget_id ?? sharedWidgetQuery.widget_id ?? msg.widget.id` (the widget\_id path grammY resolves).
+
+
+      `is_shared` is a send-time declaration only: it is passed to `replyWithWidget` when a new widget is created — the
+      `is_shared` render param (reply and broadcast-send routes) overrides the template block's value, and the `options`
+      bag is still spread last, so `options.is_shared` wins over the param. The broadcast-revise route still reads it
+      from the template (stored targets carry no update to detect from). The `edit` and `update-data` routes ignore it
+      and detect shared-ness from the context instead.
+
+
+      Fail-fast validation (`Ctx.assertWidget`<!-- -->) runs BEFORE any API call on the COMPILED strings — programmer
+      errors always throw, never fall back.
+
+
+      Send failures follow `Ctx.classifySendError`<!-- -->, except the fallback content is the widget caption (sent as
+      text with `parse_mode: "HTML"`<!-- -->) instead of the generic page fallback text — DEFAULT (flip to rethrow,
+      `renderPoll` style, while testing if needed): the caption is designed to stand alone as the widget's replacement
+      on clients without widget support.
+    example:
+      - |-
+        ```typescript
+        async handleCallbackQueryData() {
+          await this.renderWidget() // send the widget from the <g-widget> block
+        }
+        ```
+      - |-
+        ```typescript
+        async handleFreeWidgetQuery() {
+          await this.renderWidgetAnswer({AGBaseId: `rate-ack`}) // template-backed answer (underlying call: ctx.answerWidgetQuery)
+          await this.renderWidget({mode: "update-data", data: {stars: 4}}) // tap -> new widget state
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: >-
+        renderWidget(params?: IRenderWidgetParams): Promise<Awaited<ReturnType<Ctx[`replyWithWidget`]>> |
+        Awaited<ReturnType<Ctx[`reply`]>> | true | undefined | IBroadcastSendResult | IBroadcastEditResult>;
+      parameters:
+        - id: params
+          description: >-
+            Optional params object (defaults to `{}`<!-- -->): `mode` one of `reply` (default), `edit`<!-- -->,
+            `update-data`<!-- -->; `keyboard` optional keyboard markup (or null to omit) — inline-only on the `edit`
+            route, `editMessageReplyMarkup` rejects a bottom keyboard; `data` optional template interpolation data (or
+            null to omit); `AGBaseId` optional template base ID position for block widget (or null to use default);
+            `options` optional extra `sendWidget` fields, spread last over the template fields (or null to omit);
+            `is_shared` optional first-class override of the template block's `is_shared` on the send routes (reply and
+            broadcast-send; or null to keep the template value); `broadcast` optional fan-out — `{ids, languageCode,
+            ...}` sends to many recipients, `{targets, reviseOptions}` data-updates stored widget messages (non-shared
+            widgets only).
+          type: <xref uid="gramstax!IRenderWidgetParams:type" />
+      return:
+        type: >-
+          Promise&lt;Awaited&lt;ReturnType&lt;<xref uid="gramstax!Ctx:class" />[`replyWithWidget`]&gt;&gt; |
+          Awaited&lt;ReturnType&lt;<xref uid="gramstax!Ctx:class" />[`reply`]&gt;&gt; | true | undefined | <xref
+          uid="gramstax!IBroadcastSendResult:type" /> | <xref uid="gramstax!IBroadcastEditResult:type" />&gt;
+        description: >-
+          The sent widget message, `true` for an edit / data-update, `undefined` when the send fell back to the caption
+          text, or the broadcast counts.
+  - name: renderWidgetAnswer(params)
+    uid: gramstax!Ctx#renderWidgetAnswer:member(1)
+    package: gramstax!
+    fullName: renderWidgetAnswer(params)
+    summary: |-
+      Answers the active widget query with template data.
+
+      Template block: `<g-widget-answer>` (read via `getGWidgetAnswer`<!-- -->).
+    remarks: >-
+      Template-backed counterpart to answering widget taps: the `<g-widget-answer>` block supplies the answer data
+      (multilang via `data`<!-- -->). There is no message to send, so this takes no keyboard and never falls back to a
+      reply.
+
+
+      The answer is received only by the widget that sent the query and does NOT change the widget's data — that is
+      `renderWidget` mode `update-data`<!-- -->. One method covers both `widget_query` and `shared_widget_query`<!--
+      -->: the ctx shortcut resolves the query id from either update. The answer must be sent within 15 seconds of the
+      query.
+
+
+      Observe-only send-error coverage (mirrors `renderCallbackAnswer`<!-- -->): failures are classified via
+      `Ctx.classifySendError`<!-- -->, reported to `notifySendError`<!-- -->, and logged (`retryable` → `log.error`<!--
+      -->, `fallback-text` → `log.warn`<!-- -->). After notify+log the original error is ALWAYS rethrown untouched.
+
+
+      Answer data is limited by Telegram to 1024 bytes — keep the block short (the limit is bytes, not characters;
+      multibyte text counts more).
+    example:
+      - |-
+        ```typescript
+        async handleFreeWidgetQuery() {
+          await this.renderWidgetAnswer({AGBaseId: `rate-ack`})
+          await this.renderWidget({mode: `update-data`, data: {stars: 4}}) // tap -> new widget state
+        }
+        ```
+    isPreview: false
+    isDeprecated: false
+    syntax:
+      content: 'renderWidgetAnswer(params?: IRenderWidgetAnswerParams): Promise<true>;'
+      parameters:
+        - id: params
+          description: >-
+            Answer params: `data` optional template interpolation data (or null to omit); `AGBaseId` optional template
+            base ID position for the answer data (or null to use default).
+          type: <xref uid="gramstax!IRenderWidgetAnswerParams:type" />
+      return:
+        type: Promise&lt;true&gt;
+        description: True on success.
   - name: replyFallbackText()
     uid: gramstax!Ctx#replyFallbackText:member(1)
     package: gramstax!

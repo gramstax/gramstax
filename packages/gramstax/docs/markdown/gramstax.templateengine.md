@@ -460,6 +460,132 @@ Maximum Stars price for a `<g-paid-media>` paywall.
 
 
 </td></tr>
+<tr><td>
+
+[MAX\_WIDGET\_ANSWER\_BYTES](./gramstax.templateengine.max_widget_answer_bytes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Maximum `<g-widget-answer>` data size in UTF-8 bytes.
+
+
+</td></tr>
+<tr><td>
+
+[MAX\_WIDGET\_CAPTION\_CHARS](./gramstax.templateengine.max_widget_caption_chars.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Maximum `<g-widget-caption>` length in characters after entity parsing.
+
+
+</td></tr>
+<tr><td>
+
+[MAX\_WIDGET\_DATA\_BYTES](./gramstax.templateengine.max_widget_data_bytes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Maximum `<g-widget>` `chat_data` / `public_data` size in UTF-8 bytes.
+
+
+</td></tr>
+<tr><td>
+
+[MAX\_WIDGET\_HTML\_COMPRESSED\_BYTES](./gramstax.templateengine.max_widget_html_compressed_bytes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Maximum `<g-widget>` HTML size after zlib level-9 compression.
+
+
+</td></tr>
+<tr><td>
+
+[MAX\_WIDGET\_HTML\_COMPRESSED\_SAFE\_BYTES](./gramstax.templateengine.max_widget_html_compressed_safe_bytes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Safe compile-time target for `<g-widget>` HTML after zlib level-9 compression.
+
+
+</td></tr>
+<tr><td>
+
+[MAX\_WIDGET\_HTML\_RAW\_BYTES](./gramstax.templateengine.max_widget_html_raw_bytes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+Maximum raw `<g-widget>` HTML size in UTF-8 bytes.
+
+
+</td></tr>
 </tbody></table>
 
 ## Methods
@@ -1110,6 +1236,38 @@ Block: g-web-app-answer Extracts `<g-web-app-answer>` marker blocks from a templ
 </td></tr>
 <tr><td>
 
+[\_processGWidgetAnswerBlocks(template)](./gramstax.templateengine._processgwidgetanswerblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-widget-answer Extracts `<g-widget-answer>` plain-text blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
+[\_processGWidgetBlocks(template)](./gramstax.templateengine._processgwidgetblocks.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Block: g-widget Extracts and parses `<g-widget>` blocks from a template string.
+
+
+</td></tr>
+<tr><td>
+
 [\_processMediaGroupItems(groupContent)](./gramstax.templateengine._processmediagroupitems.md)
 
 
@@ -1256,7 +1414,7 @@ Splits a `<g-ifelse>` body into tokens so identifiers can be rewritten without a
 </td></tr>
 <tr><td>
 
-[\_validateAnswerTextContent(template, tag, maxLength)](./gramstax.templateengine._validateanswertextcontent.md)
+[\_validateAnswerTextContent(template, tag, maxLength, maxBytes)](./gramstax.templateengine._validateanswertextcontent.md)
 
 
 </td><td>
@@ -1475,6 +1633,22 @@ Scans a template for Telegram Rich HTML tags carrying attribute names outside th
 </td><td>
 
 Validates `<g-venue>` required attributes and static coordinates.
+
+
+</td></tr>
+<tr><td>
+
+[\_validateWidgetItems(template)](./gramstax.templateengine._validatewidgetitems.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates `<g-widget-caption>` / `<g-widget-body>` presence and `<g-widget>` size limits.
 
 
 </td></tr>
@@ -1731,6 +1905,38 @@ Compiles venue blocks from a template into executable functions.
 </td><td>
 
 Compiles web-app answer blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGWidget(template, baseBlocks)](./gramstax.templateengine.compileblockgwidget.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles widget blocks from a template into executable functions.
+
+
+</td></tr>
+<tr><td>
+
+[compileBlockGWidgetAnswer(template, baseBlocks)](./gramstax.templateengine.compileblockgwidgetanswer.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Compiles widget-answer blocks from a template into executable functions.
 
 
 </td></tr>
@@ -2227,6 +2433,38 @@ Validates attributes and presence rules on `<g-venue>` blocks.
 </td><td>
 
 Validates attributes on `<g-web-app-answer>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGWidgetAnswerAttributes(template)](./gramstax.templateengine.validateblockgwidgetanswerattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and content on `<g-widget-answer>` blocks.
+
+
+</td></tr>
+<tr><td>
+
+[validateBlockGWidgetAttributes(template)](./gramstax.templateengine.validateblockgwidgetattributes.md)
+
+
+</td><td>
+
+`static`
+
+
+</td><td>
+
+Validates attributes and structural rules on `<g-widget>` blocks.
 
 
 </td></tr>

@@ -1,0 +1,26 @@
+---
+title: "IRouteWidgetReply"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRouteWidgetReply](./gramstax.iroutewidgetreply.md)
+
+## IRouteWidgetReply type
+
+Widget route atom: forced single-widget send.
+
+**Signature:**
+
+```typescript
+type IRouteWidgetReply = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `editOptions` | `fallbackOptions`> & {
+    mode?: `reply`;
+    keyboard?: IInBoKb | null;
+    options?: IOptWidget | null;
+    is_shared?: boolean | null;
+};
+```
+**References:** [INeverFields](./gramstax.ineverfields.md), [IInBoKb](./gramstax.iinbokb.md), [IOptWidget](./gramstax.ioptwidget.md)
+
+## Remarks
+
+`mode` is optional and defaults to `reply` — there is no `auto` mode for widgets (see [IRenderWidgetParams](./gramstax.irenderwidgetparams.md)): a tap inside the widget wants `update-data` while a keyboard button under it wants `edit`, so no single runtime guess is honest. Every route atom declares the full UNIVERSAL key set (`mode`, `keyboard`, `rich`, `richOptions`, `broadcast`, `chunkSize`, `fallback`, `options`, `editOptions`, `fallbackOptions`) with `never` where the route never reads the field, so the render-params symmetry suite keeps holding.
+

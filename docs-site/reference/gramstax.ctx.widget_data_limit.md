@@ -1,0 +1,15 @@
+---
+title: "Ctx.WIDGET_DATA_LIMIT"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [WIDGET\_DATA\_LIMIT](./gramstax.ctx.widget_data_limit.md)
+
+## Ctx.WIDGET\_DATA\_LIMIT property
+
+Bot API widget `chat_data` / `public_data` limit in UTF-8 bytes each.
+
+**Signature:**
+
+```typescript
+static readonly WIDGET_DATA_LIMIT = 1024;
+```

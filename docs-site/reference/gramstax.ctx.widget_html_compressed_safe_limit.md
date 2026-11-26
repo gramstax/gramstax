@@ -1,0 +1,20 @@
+---
+title: "Ctx.WIDGET_HTML_COMPRESSED_SAFE_LIMIT"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [Ctx](./gramstax.ctx.md) &gt; [WIDGET\_HTML\_COMPRESSED\_SAFE\_LIMIT](./gramstax.ctx.widget_html_compressed_safe_limit.md)
+
+## Ctx.WIDGET\_HTML\_COMPRESSED\_SAFE\_LIMIT property
+
+Safe compile-time target for widget HTML after zlib level-9 compression.
+
+**Signature:**
+
+```typescript
+static readonly WIDGET_HTML_COMPRESSED_SAFE_LIMIT = 4000;
+```
+
+## Remarks
+
+DEFAULT (flip to [Ctx.WIDGET\_HTML\_COMPRESSED\_LIMIT](./gramstax.ctx.widget_html_compressed_limit.md) while testing if the stricter target rejects widgets Telegram would accept): Node zlib output can differ from Telegram's server-side compression by tens of bytes, so the runtime assert errors above this target, not above the 4096-byte hard limit.
+

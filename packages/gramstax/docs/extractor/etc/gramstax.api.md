@@ -81,6 +81,8 @@ export class Ctx extends Context {
     static assertPoll(poll: IPollBlock): void;
     // @internal
     static _assertRenderRoute(method: string, params: object, richAxis: boolean): void;
+    // @internal
+    static _assertRenderWidgetRoute(params: object): void;
     static assertVenue(venue: {
         title: unknown;
         address: unknown;
@@ -92,6 +94,7 @@ export class Ctx extends Context {
         latitude: number;
         longitude: number;
     };
+    static assertWidget(widget: IWidgetBlock): void;
     bottomKeyboard(callback: (k: IBottomKb, l: string[]) => IBottomKb, params?: IBottomKbParams | null): IBottomKb;
     bottomKeyboardT(layout: IKbCols, AGBaseId?: string | null, data?: Record<string, unknown> | null): IBottomKb;
     // (undocumented)
@@ -463,6 +466,8 @@ export class Ctx extends Context {
     renderVideoNote(params?: IRenderMediaKindParams<`video_note`>): Promise<true | Message | IBroadcastEditResult | IBroadcastSendResult | Message[] | undefined>;
     renderVoice(params?: IRenderMediaKindParams<`voice`>): Promise<true | Message | IBroadcastEditResult | IBroadcastSendResult | Message[] | undefined>;
     renderWebAppAnswer(params: IRenderWebAppAnswerParams): Promise<grammy_types.SentWebAppMessage>;
+    renderWidget(params?: IRenderWidgetParams): Promise<Awaited<ReturnType<Ctx[`replyWithWidget`]>> | Awaited<ReturnType<Ctx[`reply`]>> | true | undefined | IBroadcastSendResult | IBroadcastEditResult>;
+    renderWidgetAnswer(params?: IRenderWidgetAnswerParams): Promise<true>;
     replyFallbackText(): Promise<Message | undefined>;
     replyWithHtmlStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[1], otherRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[2], baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[3], signal?: Parameters<StreamContextExtension[`replyWithHtmlStream`]>[4]): Promise<unknown>;
     replyWithMarkdownStream(stream: Iterable<string> | AsyncIterable<string>, otherRichMessageDraft?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[1], otherRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[2], baseInputRichMessage?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[3], signal?: Parameters<StreamContextExtension[`replyWithMarkdownStream`]>[4]): Promise<unknown>;
@@ -788,6 +793,17 @@ export class Ctx extends Context {
     // @virtual
     static template?: string;
     templateManager: TemplateManager;
+    static readonly WIDGET_CAPTION_LIMIT = 1024;
+    static readonly WIDGET_DATA_LIMIT = 1024;
+    // (undocumented)
+    static readonly WIDGET_HEIGHT_MAX = 600;
+    static readonly WIDGET_HEIGHT_MIN = 50;
+    static readonly WIDGET_HTML_COMPRESSED_LIMIT = 4096;
+    static readonly WIDGET_HTML_COMPRESSED_SAFE_LIMIT = 4000;
+    static readonly WIDGET_HTML_RAW_LIMIT = 32768;
+    // (undocumented)
+    static readonly WIDGET_WIDTH_MAX = 600;
+    static readonly WIDGET_WIDTH_MIN = 200;
 }
 
 // Warning: (ae-forgotten-export) The symbol "ITemplateFilter" needs to be exported by the entry point index.d.ts
@@ -928,7 +944,7 @@ export type GAnswerNoteResult = {
 };
 
 // @public
-export type GBlockKind = `message` | `media` | `poll` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`;
+export type GBlockKind = `message` | `media` | `poll` | `widget` | `widgetAnswer` | `venue` | `dice` | `keyboard` | `callbackAnswer` | `preCheckoutError` | `shippingError` | `inlineButton` | `answerNote` | `webAppAnswer` | `gift` | `invoice` | `paidMedia` | `description`;
 
 // @public
 export type GCallbackAnswerResult = {
@@ -2835,6 +2851,17 @@ export type GWebAppAnswerResult = {
 };
 
 // @public
+export type GWidgetAnswerResult = {
+    kind: `widgetAnswer`;
+    text: string;
+};
+
+// @public
+export type GWidgetResult = {
+    kind: `widget`;
+} & IWidgetBlock;
+
+// @public
 export type IAnswerNoteBlock = {
     text: string;
 };
@@ -2947,9 +2974,11 @@ export type ICallbackAnswerBlock = {
 export type ICompiledTemplate = {
     media: ReturnType<typeof TemplateEngine.compileBlockGMedia>;
     poll: ReturnType<typeof TemplateEngine.compileBlockGPoll>;
+    widget: ReturnType<typeof TemplateEngine.compileBlockGWidget>;
     venue: ReturnType<typeof TemplateEngine.compileBlockGVenue>;
     dice: ReturnType<typeof TemplateEngine.compileBlockGDice>;
     callbackAnswer: ReturnType<typeof TemplateEngine.compileBlockGCallbackAnswer>;
+    widgetAnswer: ReturnType<typeof TemplateEngine.compileBlockGWidgetAnswer>;
     precheckoutError: ReturnType<typeof TemplateEngine.compileBlockGPrecheckoutError>;
     shippingError: ReturnType<typeof TemplateEngine.compileBlockGShippingError>;
     inlineButton: ReturnType<typeof TemplateEngine.compileBlockGInlineButton>;
@@ -3650,6 +3679,9 @@ export type IOptVenue = Parameters<Ctx[`replyWithVenue`]>[4];
 export type IOptWebAppAnswer = Parameters<Context[`api`][`answerWebAppQuery`]>[2];
 
 // @public
+export type IOptWidget = Parameters<Ctx[`replyWithWidget`]>[1];
+
+// @public
 export type IPageData<T extends Array<string | undefined> = string[]> = IPageDataBase & {
     callbackQueryData<P extends Ctx = Ctx>(...args: T): IKbCallbackData<ICtorOf<P>, T>;
 };
@@ -3842,6 +3874,15 @@ export type IRenderWebAppAnswerParams = {
 };
 
 // @public
+export type IRenderWidgetAnswerParams = {
+    data?: IData | null;
+    AGBaseId?: string | null;
+};
+
+// @public
+export type IRenderWidgetParams = IContent & (IRouteWidgetReply | IRouteWidgetEdit | IRouteWidgetUpdateData | IRouteWidgetBroadcastSend | IRouteWidgetBroadcastRevise);
+
+// @public
 export type IReplyAction = Parameters<Context[`replyWithChatAction`]>[0];
 
 // @public
@@ -3981,6 +4022,41 @@ export type IRouteReply = INeverFields<`editOptions` | `fallbackOptions` | `fall
 };
 
 // @public
+export type IRouteWidgetBroadcastRevise = INeverFields<`mode` | `rich` | `richOptions` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `keyboard` | `is_shared`> & {
+    broadcast: {
+        targets: IBroadcastEditTarget[];
+        reviseOptions?: Omit<IBroadcastEditOpts, `fallback`> | null;
+    };
+};
+
+// @public
+export type IRouteWidgetBroadcastSend = INeverFields<`mode` | `rich` | `richOptions` | `chunkSize` | `fallback` | `editOptions` | `fallbackOptions`> & {
+    broadcast: IBroadcastSendParams;
+    keyboard?: IInBoKb | null;
+    options?: IOptWidget | null;
+    is_shared?: boolean | null;
+};
+
+// @public
+export type IRouteWidgetEdit = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `is_shared`> & {
+    mode: `edit`;
+    keyboard?: IInlineKb | null;
+};
+
+// @public
+export type IRouteWidgetReply = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `editOptions` | `fallbackOptions`> & {
+    mode?: `reply`;
+    keyboard?: IInBoKb | null;
+    options?: IOptWidget | null;
+    is_shared?: boolean | null;
+};
+
+// @public
+export type IRouteWidgetUpdateData = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `keyboard` | `is_shared`> & {
+    mode: `update-data`;
+};
+
+// @public
 export type ISendErrorHook = (err: unknown, info: ISendErrorInfo) => void;
 
 // @public
@@ -4117,6 +4193,24 @@ export type IWebAppAnswerBlock = {
 
 // @public @deprecated
 export type IWebhookQueueConfig = IUpdateQueueConfig;
+
+// @public
+export type IWidgetAnswerBlock = {
+    text: string;
+};
+
+// @public
+export type IWidgetBlock = {
+    html: string;
+    caption: string;
+    allow_queries?: boolean;
+    is_shared?: boolean;
+    show_caption_above_media?: boolean;
+    chat_data?: string;
+    public_data?: string;
+    width?: number | string;
+    height?: number | string;
+};
 
 // @public
 export class LabelGKeyboard {
@@ -4496,6 +4590,16 @@ export class TemplateEngine {
             [ALang: string]: (data?: ITemplateData) => string;
         };
     };
+    static compileBlockGWidget(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITemplateData) => IWidgetBlock;
+        };
+    };
+    static compileBlockGWidgetAnswer(template: string, baseBlocks?: ReturnType<typeof TemplateEngine._processGBaseBlocks>): {
+        [AGBaseId: string]: {
+            [ALang: string]: (data?: ITemplateData) => string;
+        };
+    };
     static _compileFilterChain(access: string, expr: string, warned: Set<string>): string;
     static _compileMediaSrc(rawSrc: string, stringFn: (data?: ITemplateData) => string): (data?: ITemplateData) => string | InputFile | Buffer | Uint8Array;
     // Warning: (ae-forgotten-export) The symbol "ITemplateRenderer" needs to be exported by the entry point index.d.ts
@@ -4524,6 +4628,12 @@ export class TemplateEngine {
     static MAX_MEDIA_GROUP_ITEMS: number;
     static MAX_PAID_MEDIA_ITEMS: number;
     static MAX_PAID_MEDIA_STARS: number;
+    static MAX_WIDGET_ANSWER_BYTES: number;
+    static MAX_WIDGET_CAPTION_CHARS: number;
+    static MAX_WIDGET_DATA_BYTES: number;
+    static MAX_WIDGET_HTML_COMPRESSED_BYTES: number;
+    static MAX_WIDGET_HTML_COMPRESSED_SAFE_BYTES: number;
+    static MAX_WIDGET_HTML_RAW_BYTES: number;
     static _PAGE_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>>;
     static _PAGE_REQUIRED_ATTRS: Record<string, string[] | {
         oneOf: string[][];
@@ -4605,6 +4715,12 @@ export class TemplateEngine {
     static _processGWebAppAnswerBlocks(template: string): {
         [lang: string]: string;
     };
+    static _processGWidgetAnswerBlocks(template: string): {
+        [lang: string]: string;
+    };
+    static _processGWidgetBlocks(template: string): {
+        [lang: string]: IWidgetBlock;
+    };
     static _processMediaGroupItems(groupContent: string): Array<{
         type: `photo` | `video` | `audio` | `document`;
         src: string;
@@ -4619,6 +4735,8 @@ export class TemplateEngine {
     static _rewriteScopeIdentifiers(expr: string): string;
     static _splitKeyboardLabels(content: string): string[];
     static _splitMediaSrcList(src: string): string[];
+    // @internal
+    static _stripGWidgetBody(template: string): string;
     static _TELEGRAM_ALLOWED_ATTRS: Record<string, readonly string[]>;
     static _TELEGRAM_ATTR_VALUE_VALIDATORS: Record<string, Record<string, (value: string) => string | null>>;
     static _TELEGRAM_REQUIRED_ATTRS: Record<string, string[] | {
@@ -4629,7 +4747,7 @@ export class TemplateEngine {
         type: string;
         value: string;
     }>;
-    static _validateAnswerTextContent(template: string, tag: string, maxLength?: number | null): Array<{
+    static _validateAnswerTextContent(template: string, tag: string, maxLength?: number | null, maxBytes?: number | null): Array<{
         line: number;
         message: string;
     }>;
@@ -4855,6 +4973,20 @@ export class TemplateEngine {
             message: string;
         }>;
     };
+    static validateBlockGWidgetAnswerAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
+    static validateBlockGWidgetAttributes(template: string): {
+        valid: boolean;
+        errors: Array<{
+            line: number;
+            message: string;
+        }>;
+    };
     static _validateDiceItems(template: string): Array<{
         line: number;
         message: string;
@@ -4973,6 +5105,10 @@ export class TemplateEngine {
         line: number;
         message: string;
     }>;
+    static _validateWidgetItems(template: string): Array<{
+        line: number;
+        message: string;
+    }>;
 }
 
 // @public
@@ -5008,6 +5144,8 @@ export class TemplateManager {
     getGShippingError(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GShippingErrorResult;
     getGVenue(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GVenueResult;
     getGWebAppAnswer(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GWebAppAnswerResult;
+    getGWidget(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GWidgetResult;
+    getGWidgetAnswer(key: string, AGBaseId?: string, ALang?: string, data?: Record<string, unknown>): GWidgetAnswerResult;
     handleFileAdd(filepath: string): void;
     handleFileChange(filepath: string): void;
     handleFileDelete(filepath: string): void;
@@ -5091,10 +5229,10 @@ export type WebhookQueue<T = unknown> = UpdateQueue<T>;
 
 // Warnings were encountered during analysis:
 //
-// dist/src/index.d.ts:7671:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
-// dist/src/index.d.ts:7762:5 - (ae-forgotten-export) The symbol "IMediaEditOpt1" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:7775:5 - (ae-forgotten-export) The symbol "IMediaReplyOpt" needs to be exported by the entry point index.d.ts
-// dist/src/index.d.ts:23503:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
+// dist/src/index.d.ts:8266:5 - (ae-incompatible-release-tags) The symbol "callbackQueryData" is marked as @public, but its signature references "ICtorOf" which is marked as @internal
+// dist/src/index.d.ts:8357:5 - (ae-forgotten-export) The symbol "IMediaEditOpt1" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:8370:5 - (ae-forgotten-export) The symbol "IMediaReplyOpt" needs to be exported by the entry point index.d.ts
+// dist/src/index.d.ts:24653:5 - (ae-incompatible-release-tags) The symbol "log" is marked as @public, but its signature references "IMockTelegramLog" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 

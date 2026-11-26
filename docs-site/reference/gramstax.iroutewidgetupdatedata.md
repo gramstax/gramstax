@@ -1,0 +1,23 @@
+---
+title: "IRouteWidgetUpdateData"
+---
+
+[Home](./index.md) &gt; [gramstax](./gramstax.md) &gt; [IRouteWidgetUpdateData](./gramstax.iroutewidgetupdatedata.md)
+
+## IRouteWidgetUpdateData type
+
+Widget route atom: data-only update of the held widget.
+
+**Signature:**
+
+```typescript
+type IRouteWidgetUpdateData = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `keyboard` | `is_shared`> & {
+    mode: `update-data`;
+};
+```
+**References:** [INeverFields](./gramstax.ineverfields.md)
+
+## Remarks
+
+The hot path for widget taps: exactly ONE API call, so it is atomic where `edit` is not. A regular widget updates its per-message `chat_data` via `editMessageWidgetData`; a shared widget updates its `public_data` via `editSharedWidgetData` (every message showing the widget). No caption, no keyboard, no options — and it does NOT answer the widget query: the handler must still call `ctx.answerWidgetQuery` within 15 seconds. Shared-ness is auto-detected from the update, so this route takes no `is_shared` field.
+

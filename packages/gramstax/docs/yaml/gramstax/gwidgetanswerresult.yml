@@ -1,0 +1,15 @@
+### YamlMime:TSTypeAlias
+name: GWidgetAnswerResult
+uid: gramstax!GWidgetAnswerResult:type
+package: gramstax!
+fullName: GWidgetAnswerResult
+summary: Result of `TemplateManager.getGWidgetAnswer` for a `<g-widget-answer>` block.
+remarks: '`text` is the rendered answer data; the getter throws when the block is missing (widget answers always need data).'
+example: []
+isPreview: false
+isDeprecated: false
+syntax: |-
+  type GWidgetAnswerResult = {
+      kind: `widgetAnswer`;
+      text: string;
+  };

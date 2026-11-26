@@ -1,0 +1,24 @@
+### YamlMime:TSTypeAlias
+name: IRouteWidgetReply
+uid: gramstax!IRouteWidgetReply:type
+package: gramstax!
+fullName: IRouteWidgetReply
+summary: 'Widget route atom: forced single-widget send.'
+remarks: >-
+  `mode` is optional and defaults to `reply` — there is no `auto` mode for widgets (see
+  [IRenderWidgetParams](xref:gramstax!IRenderWidgetParams:type)<!-- -->): a tap inside the widget wants `update-data`
+  while a keyboard button under it wants `edit`<!-- -->, so no single runtime guess is honest. Every route atom declares
+  the full UNIVERSAL key set (`mode`<!-- -->, `keyboard`<!-- -->, `rich`<!-- -->, `richOptions`<!-- -->, `broadcast`<!--
+  -->, `chunkSize`<!-- -->, `fallback`<!-- -->, `options`<!-- -->, `editOptions`<!-- -->, `fallbackOptions`<!-- -->)
+  with `never` where the route never reads the field, so the render-params symmetry suite keeps holding.
+example: []
+isPreview: false
+isDeprecated: false
+syntax: >-
+  type IRouteWidgetReply = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `editOptions`
+  | `fallbackOptions`> & {
+      mode?: `reply`;
+      keyboard?: IInBoKb | null;
+      options?: IOptWidget | null;
+      is_shared?: boolean | null;
+  };

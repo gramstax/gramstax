@@ -39,6 +39,8 @@ typeAliases:
   - gramstax!GShippingErrorResult:type
   - gramstax!GVenueResult:type
   - gramstax!GWebAppAnswerResult:type
+  - gramstax!GWidgetAnswerResult:type
+  - gramstax!GWidgetResult:type
   - gramstax!IAnswerNoteBlock:type
   - gramstax!IAppManifest:type
   - gramstax!IBottomKb:type
@@ -155,6 +157,7 @@ typeAliases:
   - gramstax!IOptShipping:type
   - gramstax!IOptVenue:type
   - gramstax!IOptWebAppAnswer:type
+  - gramstax!IOptWidget:type
   - gramstax!IPageData:type
   - gramstax!IPageDataBase:type
   - gramstax!IPageManifestEntry:type
@@ -183,6 +186,8 @@ typeAliases:
   - gramstax!IRenderTextParams:type
   - gramstax!IRenderVenueParams:type
   - gramstax!IRenderWebAppAnswerParams:type
+  - gramstax!IRenderWidgetAnswerParams:type
+  - gramstax!IRenderWidgetParams:type
   - gramstax!IReplyAction:type
   - gramstax!IRouteAuto:type
   - gramstax!IRouteBroadcastSend:type
@@ -197,6 +202,11 @@ typeAliases:
   - gramstax!IRouteMediaBroadcastSend:type
   - gramstax!IRouteMediaReply:type
   - gramstax!IRouteReply:type
+  - gramstax!IRouteWidgetBroadcastRevise:type
+  - gramstax!IRouteWidgetBroadcastSend:type
+  - gramstax!IRouteWidgetEdit:type
+  - gramstax!IRouteWidgetReply:type
+  - gramstax!IRouteWidgetUpdateData:type
   - gramstax!ISendErrorHook:type
   - gramstax!ISendErrorInfo:type
   - gramstax!IServerlessRef:type
@@ -217,6 +227,8 @@ typeAliases:
   - gramstax!IVenueBlock:type
   - gramstax!IWebAppAnswerBlock:type
   - gramstax!IWebhookQueueConfig:type
+  - gramstax!IWidgetAnswerBlock:type
+  - gramstax!IWidgetBlock:type
   - gramstax!WebhookQueue:type
 interfaces:
   - gramstax!IBottomKbWithCtx:interface
