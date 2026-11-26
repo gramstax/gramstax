@@ -166,138 +166,65 @@ That structure is what produces the differences below:
 
 ### 1. Prerequisites
 
-| Runtime | Support |
-| --- | --- |
-| **Bun** | **Required.** The `gramstax` CLI (`gramstax start`, `gramstax build`, and other commands), project boot, `~/*` path aliases, the webhook/status server (`Bun.serve`), and `gramstax build --bundle` all run on Bun. Generated projects use Bun for their scripts and tests. |
-
-`gramstax start --watch` is the dev loop; `gramstax start` is the production boot.
-
-- [Bun](https://bun.sh)
+- [Bun](https://bun.sh) — required. Generated projects run on Bun.
 - `typescript 7.0.2` (peer dependency)
-- A bot token from [@BotFather](https://t.me/BotFather)
+- A bot token from [@BotFather](https://t.me/BotFather) — needed to run the bot, not to scaffold it.
 
-### 2. Install and scaffold
-
-```bash
-bun add gramstax
-```
-
-Scaffold a whole project instead of wiring it by hand (the scaffolding CLI is
-the sibling package `create-gramstax`):
+### 2. Scaffold
 
 ```bash
 bunx create-gramstax@latest my-bot
 cd my-bot
-bun install
 ```
 
-The positional is a bare name, not a path. Non-interactive mode needs the flags
-it would otherwise prompt for:
+`my-bot` is a bare name, not a path. The scaffolder copies the template, prunes the features you skip, and runs one install. It creates no git repository.
+
+Non-interactive mode needs the flags it would otherwise prompt for:
 
 ```bash
 bunx create-gramstax@latest my-bot --pm bun --skip-install
 ```
 
-Each optional feature has a matching negation (`--no-lmdb`, `--no-worker-thread`,
-`--no-biome`). Generated projects are Bun-only: their `dev`, `start`, `test`,
-and `test:e2e` scripts all invoke Bun, and there is no runtime option to
-select.
+Each optional feature has a matching negation (`--no-lmdb`, `--no-worker-thread`, `--no-biome`).
 
-### 3. Declare a page
+### 3. Set the token and run
 
-A page is a class. The markup is a static template; the keyboard is built from
-the page's own blocks. This is
-[`example/2-helloworld/src/pages/start.ts`](https://github.com/gramstax/gramstax/blob/main/example/2-helloworld/src/pages/start.ts),
-verbatim:
+```bash
+# edit .env: set BOT_TOKEN
+bun run dev
+```
+
+The generated `.env` already exists with `BOT_TOKEN`, `BOT_DEPLOY`, and the session-store keys. `bun run dev` is `gramstax start --watch`. Open Telegram, find your bot, send `/start`.
+
+### 4. Your first page
+
+A page is a class under `src/pages`; the file path *is* the route. The generated `src/pages/start.ts` is a full welcome page — every page has the same shape:
 
 ```ts
 import {PageBase} from "~/base/page"
 
 export class StartPage extends PageBase {
-  static data = this.buildData()
-
   async handleCommandText() {
-    await this.gdefault.show()
-  }
-
-  async handleCallbackQueryData() {
-    await this.gdefault.show()
-  }
-
-  helper = {}
-  gdefault = {
-    show: async () => {
-      await this.renderText({keyboard: this.inlineKeyboardT([this]), data: {time: new Date().toString()}})
-    },
-    process: () => {}
+    await this.renderText({data: {time: Math.random()}})
   }
 
   static template = `
     <g-base>
-      <g-keyboard type="inline">Refresh</g-keyboard>
-      <g-keyboard type="inline" lang="id">Segarkan</g-keyboard>
-      <g-message>
-        Hello World!
-        Time now: {{time}}
-      </g-message>
-      <g-message lang="id">
-        Halo Dunia!
-        Waktu: {{time}}
-      </g-message>
+      <g-message>Hello World! Time now: {{time}}</g-message>
+      <g-message lang="id">Halo Dunia! Waktu: {{time}}</g-message>
     </g-base>
   `
 }
 ```
 
-Because both languages live in the same block set, the bot renders Indonesian for
-an Indonesian Telegram client and English for everyone else, without a branch in
-the handler.
-
-### 4. Configure and run
-
-`gramstax.config.ts` at the project root, default export, annotated. This is
-[`example/2-helloworld/gramstax.config.ts`](https://github.com/gramstax/gramstax/blob/main/example/2-helloworld/gramstax.config.ts),
-trimmed to the fields that matter:
-
-```ts
-import type {GramstaxConfig} from "gramstax"
-
-const config: GramstaxConfig = {
-  token: process.env.BOT_TOKEN,
-  deploy: process.env.BOT_DEPLOY ?? `polling`,
-  cacheSession: {
-    store: process.env.CACHE_SESSION_STORE ?? `memory`,
-    ttlMs: 4 * 60 * 60 * 1000,
-    namespace: `s`
-  },
-  log: true,
-  optionsDeploy: {polling: {maxRetries: undefined, queue: undefined}}
-}
-
-export default config
-```
-
-```bash
-gramstax start          # boot
-gramstax start --watch  # boot + restart on src change
-```
-
-`.env`, `.env.local`, `.env.<NODE_ENV>`, and `.env.<NODE_ENV>.local` in the
-project root are loaded automatically before `gramstax.config.ts` is imported;
-shell values win. The published binary has a Bun shebang, so no `bun --bun`
-prefix is needed.
+Both languages live in the same block set, so the bot renders Indonesian for an Indonesian Telegram client and English for everyone else, without a branch in the handler. `gramstax.config.ts` is already generated; the token and deploy mode come from `.env`.
 
 ### 5. Next steps
 
-- Write more pages under `src/pages`: routing is filesystem discovery, there is
-  no registry to update.
-- Add a shared keyboard block in `src/blocks/g-keyboard.ts` once two or more
-  pages need it.
-- Add the global error / not-found pages via `hookErrorPage` and
-  `hookNotFoundPage` on `src/core/bot.ts`.
-- Add `e2e/setup.ts` and drive the bot through `bot.e2e` with `deploy: "test"`.
-- Run [`gramstax build`](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/gramstax-build.md)
-  before any `serverless` deploy.
+- Add pages under `src/pages`: routing is filesystem discovery, there is no registry to update.
+- Share a keyboard once two pages need it: `src/blocks/g-keyboard.ts`.
+- Add the global error / not-found pages via `hookErrorPage` and `hookNotFoundPage` on `src/core/bot.ts`.
+- Run [`gramstax build`](https://github.com/gramstax/gramstax/blob/main/docs-site/guides/gramstax-build.md) before any `serverless` deploy.
 
 ## 📖 Usage
 
