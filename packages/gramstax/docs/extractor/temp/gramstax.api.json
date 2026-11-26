@@ -15153,25 +15153,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": " | ("
-                },
-                {
-                  "kind": "Reference",
-                  "text": "grammy_types.Update.Edited",
-                  "canonicalReference": "@grammyjs/types!Update.Edited:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": " & "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "Message.CaptionableMessage",
-                  "canonicalReference": "@grammyjs/types!Message.CaptionableMessage:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ") | "
+                  "text": " | "
                 },
                 {
                   "kind": "Reference",
@@ -15189,7 +15171,25 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "[]>"
+                  "text": "[] | ("
+                },
+                {
+                  "kind": "Reference",
+                  "text": "grammy_types.Update.Edited",
+                  "canonicalReference": "@grammyjs/types!Update.Edited:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " & "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Message.CaptionableMessage",
+                  "canonicalReference": "@grammyjs/types!Message.CaptionableMessage:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ")>"
                 },
                 {
                   "kind": "Content",
@@ -47307,7 +47307,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateEngine._TELEGRAM_ALLOWED_ATTRS:member",
-              "docComment": "/**\n * Per-tag allowlist of attribute names for Telegram Rich HTML tags.\n *\n * @remarks\n *\n * Single source of truth for the unknown-attribute validation pass ({@link TemplateEngine._validateTelegramTagUnknownAttributes}). Built from the official Telegram Bot API 10.3 rich HTML style examples (core.telegram.org/bots/api#rich-html-style) unioned with legacy parse_mode HTML attributes still tolerated (blockquote expandable, cite attributes, li checkbox/checked). Tags with an empty array allow NO attributes — any attribute on them is an error.\n *\n * `{{placeholder}}` is only valid as an attribute VALUE, never as a name. Generic HTML attributes (style, id, data-*) are not supported by the spec and are NOT whitelisted.\n *\n * @example\n * ```typescript\n * TemplateEngine._TELEGRAM_ALLOWED_ATTRS[\"table\"] // => [\"bordered\", \"striped\", \"is_compact\"]\n * TemplateEngine._TELEGRAM_ALLOWED_ATTRS[\"b\"]     // => [] (no attributes)\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Per-tag allowlist of attribute names for Telegram Rich HTML tags.\n *\n * @remarks\n *\n * Single source of truth for the unknown-attribute validation pass ({@link TemplateEngine._validateTelegramTagUnknownAttributes}). Built from the official Telegram Bot API 10.5 rich HTML style examples (core.telegram.org/bots/api#rich-html-style) unioned with legacy parse_mode HTML attributes still tolerated (blockquote expandable, cite attributes, li checkbox/checked). Tags with an empty array allow NO attributes — any attribute on them is an error.\n *\n * `{{placeholder}}` is only valid as an attribute VALUE, never as a name. Generic HTML attributes (style, id, data-*) are not supported by the spec and are NOT whitelisted.\n *\n * @example\n * ```typescript\n * TemplateEngine._TELEGRAM_ALLOWED_ATTRS[\"table\"] // => [\"bordered\", \"striped\", \"is_compact\"]\n * TemplateEngine._TELEGRAM_ALLOWED_ATTRS[\"b\"]     // => [] (no attributes)\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -47342,7 +47342,7 @@
             {
               "kind": "Property",
               "canonicalReference": "gramstax!TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS:member",
-              "docComment": "/**\n * Attribute value validators for Telegram Rich HTML tags.\n *\n * @remarks\n *\n * Per-tag, per-attribute map of validators. Each validator receives the raw attribute value (after quote-stripping) and returns either `null` (valid) or a descriptive error string. The value validation runs after the required-attribute check, so missing attributes are reported separately by {@link TemplateEngine._TELEGRAM_REQUIRED_ATTRS}.\n *\n * Value rules follow the Telegram Bot API 10.3 Rich Message Formatting Options spec (see `BOT_API_VERSION`). `{{placeholder}}` values and boolean attributes (no `=value`) are skipped by the caller.\n *\n * @example\n * ```typescript\n * TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS[\"tg-time\"].unix(\"1647531900\") // => null\n * TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS[\"tg-time\"].unix(\"abc\")       // => \"unix must be a positive integer (got \\\"abc\\\")\"\n * ```\n *\n * @public\n */\n",
+              "docComment": "/**\n * Attribute value validators for Telegram Rich HTML tags.\n *\n * @remarks\n *\n * Per-tag, per-attribute map of validators. Each validator receives the raw attribute value (after quote-stripping) and returns either `null` (valid) or a descriptive error string. The value validation runs after the required-attribute check, so missing attributes are reported separately by {@link TemplateEngine._TELEGRAM_REQUIRED_ATTRS}.\n *\n * Value rules follow the Telegram Bot API 10.5 Rich Message Formatting Options spec (see `BOT_API_VERSION`). `{{placeholder}}` values and boolean attributes (no `=value`) are skipped by the caller.\n *\n * @example\n * ```typescript\n * TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS[\"tg-time\"].unix(\"1647531900\") // => null\n * TemplateEngine._TELEGRAM_ATTR_VALUE_VALIDATORS[\"tg-time\"].unix(\"abc\")       // => \"unix must be a positive integer (got \\\"abc\\\")\"\n * ```\n *\n * @public\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",

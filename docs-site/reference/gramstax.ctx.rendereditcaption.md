@@ -13,7 +13,7 @@ Template block: `<g-message>` (read via `getGMessage`).
 **Signature:**
 
 ```typescript
-renderEditCaption(params: IRenderEditCaptionParams): Promise<true | Message | (grammy_types.Update.Edited & Message.CaptionableMessage) | IBroadcastSendResult | Message[]>;
+renderEditCaption(params: IRenderEditCaptionParams): Promise<true | Message | IBroadcastSendResult | Message[] | (grammy_types.Update.Edited & Message.CaptionableMessage)>;
 ```
 
 ## Parameters
@@ -54,7 +54,7 @@ Edit params: `keyboard` optional inline keyboard markup (or null to omit); `data
 
 **Returns:**
 
-Promise&lt;true \| Message \| (grammy\_types.Update.Edited &amp; Message.CaptionableMessage) \| [IBroadcastSendResult](./gramstax.ibroadcastsendresult.md) \| Message\[\]&gt;
+Promise&lt;true \| Message \| [IBroadcastSendResult](./gramstax.ibroadcastsendresult.md) \| Message\[\] \| (grammy\_types.Update.Edited &amp; Message.CaptionableMessage)&gt;
 
 The edited message object.
 

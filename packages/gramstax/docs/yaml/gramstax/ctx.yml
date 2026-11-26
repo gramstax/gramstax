@@ -7083,8 +7083,8 @@ methods:
     isDeprecated: false
     syntax:
       content: >-
-        renderEditCaption(params: IRenderEditCaptionParams): Promise<true | Message | (grammy_types.Update.Edited &
-        Message.CaptionableMessage) | IBroadcastSendResult | Message[]>;
+        renderEditCaption(params: IRenderEditCaptionParams): Promise<true | Message | IBroadcastSendResult | Message[] |
+        (grammy_types.Update.Edited & Message.CaptionableMessage)>;
       parameters:
         - id: params
           description: >-
@@ -7096,10 +7096,10 @@ methods:
           type: <xref uid="gramstax!IRenderEditCaptionParams:type" />
       return:
         type: >-
-          Promise&lt;true | <xref uid="@grammyjs/types!Message:interface" /> | (<xref
+          Promise&lt;true | <xref uid="@grammyjs/types!Message:interface" /> | <xref
+          uid="gramstax!IBroadcastSendResult:type" /> | <xref uid="@grammyjs/types!Message:interface" />[] | (<xref
           uid="@grammyjs/types!Update.Edited:interface" /> & <xref
-          uid="@grammyjs/types!Message.CaptionableMessage:interface" />) | <xref
-          uid="gramstax!IBroadcastSendResult:type" /> | <xref uid="@grammyjs/types!Message:interface" />[]&gt;
+          uid="@grammyjs/types!Message.CaptionableMessage:interface" />)&gt;
         description: The edited message object.
   - name: renderEditKeyboard(params)
     uid: gramstax!Ctx#renderEditKeyboard:member(1)
