@@ -133,6 +133,34 @@ describe(`widget-render`, () => {
     expect(args[2]).toMatchObject({width: 200, caption: `Overridden`})
   })
 
+  it(`sends a shared widget when params.is_shared overrides a template without is_shared`, async () => {
+    const api = makeApi()
+    await makeCtx(api, regularWidget).renderWidget({is_shared: true})
+    const args = (api.sendWidget.mock.calls as any)[0]
+    expect(args[2]).toMatchObject({is_shared: true})
+  })
+
+  it(`sends a regular widget when params.is_shared: false overrides a template with is_shared`, async () => {
+    const api = makeApi()
+    await makeCtx(api, sharedWidget).renderWidget({is_shared: false})
+    const args = (api.sendWidget.mock.calls as any)[0]
+    expect(args[2].is_shared).toBe(false)
+  })
+
+  it(`lets options.is_shared win last over the params.is_shared override`, async () => {
+    const api = makeApi()
+    await makeCtx(api, regularWidget).renderWidget({is_shared: true, options: {is_shared: false} as never})
+    const args = (api.sendWidget.mock.calls as any)[0]
+    expect(args[2].is_shared).toBe(false)
+  })
+
+  it(`keeps the template is_shared when no param is passed`, async () => {
+    const api = makeApi()
+    await makeCtx(api, sharedWidget).renderWidget()
+    const args = (api.sendWidget.mock.calls as any)[0]
+    expect(args[2]).toMatchObject({is_shared: true})
+  })
+
   it(`throws before any api call when the HTML overflows raw`, async () => {
     const api = makeApi()
     await expect(makeCtx(api, {...regularWidget, html: `x`.repeat(32769)}).renderWidget()).rejects.toThrow(/32768/)
@@ -393,6 +421,15 @@ describe(`widget-broadcast`, () => {
     expect((api.sendWidget.mock.calls as any)[1][2]).toMatchObject({caption: `Pesanan <b>#1042</b>`})
   })
 
+  it(`applies params.is_shared to every recipient on broadcast-send`, async () => {
+    const api = makeApi()
+    const result = await makeCtx(api, regularWidget).renderWidget({broadcast: {ids: [11, 12], languageCode: [`en`, `en`]}, is_shared: true})
+    expect(result).toEqual({successCount: 2, failedCount: 0, totalCount: 2, skippedCount: 0, retryable: []})
+    expect(api.sendWidget).toHaveBeenCalledTimes(2)
+    expect((api.sendWidget.mock.calls as any)[0][2]).toMatchObject({is_shared: true})
+    expect((api.sendWidget.mock.calls as any)[1][2]).toMatchObject({is_shared: true})
+  })
+
   it(`counts a per-recipient fallback-text failure and sends that recipient the caption`, async () => {
     const api = makeApi({
       sendWidget: mock(async (id: number) => {
@@ -454,6 +491,18 @@ describe(`widget-route-guard`, () => {
     expect(() => Ctx._assertRenderWidgetRoute({mode: `edit`, options: {width: 200}})).toThrow(/mode: "edit" \+ options/)
   })
 
+  it(`rejects mode edit combined with is_shared`, () => {
+    expect(() => Ctx._assertRenderWidgetRoute({mode: `edit`, is_shared: true})).toThrow(/mode: "edit" \+ is_shared/)
+  })
+
+  it(`rejects mode update-data combined with is_shared`, () => {
+    expect(() => Ctx._assertRenderWidgetRoute({mode: `update-data`, is_shared: true})).toThrow(/mode: "update-data" \+ is_shared/)
+  })
+
+  it(`rejects broadcast.targets combined with is_shared`, () => {
+    expect(() => Ctx._assertRenderWidgetRoute({broadcast: {targets: []}, is_shared: true})).toThrow(/broadcast\.targets \+ is_shared/)
+  })
+
   it(`rejects mode update-data combined with keyboard`, () => {
     expect(() => Ctx._assertRenderWidgetRoute({mode: `update-data`, keyboard: {inline_keyboard: []}})).toThrow(/mode: "update-data" \+ keyboard/)
   })
@@ -461,9 +510,11 @@ describe(`widget-route-guard`, () => {
   it(`accepts the legal combinations`, () => {
     expect(() => Ctx._assertRenderWidgetRoute({})).not.toThrow()
     expect(() => Ctx._assertRenderWidgetRoute({mode: `reply`, keyboard: {inline_keyboard: []}})).not.toThrow()
+    expect(() => Ctx._assertRenderWidgetRoute({mode: `reply`, is_shared: true})).not.toThrow()
     expect(() => Ctx._assertRenderWidgetRoute({mode: `edit`, keyboard: {inline_keyboard: []}})).not.toThrow()
     expect(() => Ctx._assertRenderWidgetRoute({mode: `update-data`})).not.toThrow()
     expect(() => Ctx._assertRenderWidgetRoute({broadcast: {ids: [1]}})).not.toThrow()
+    expect(() => Ctx._assertRenderWidgetRoute({broadcast: {ids: [1]}, is_shared: true})).not.toThrow()
     expect(() => Ctx._assertRenderWidgetRoute({broadcast: {targets: []}})).not.toThrow()
   })
 })

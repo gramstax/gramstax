@@ -2547,6 +2547,7 @@ export class Ctx extends Context {
       if (typeof broadcast === `object` && broadcast !== null && `targets` in broadcast) {
         note(`mode`)
         note(`options`, true)
+        note(`is_shared`, true)
         noteUniversal()
         if (dropped.length > 0) {
           throw new Error(
@@ -2575,6 +2576,7 @@ export class Ctx extends Context {
     }
     if (mode === `edit`) {
       note(`options`, true)
+      note(`is_shared`, true)
       noteUniversal()
       if (dropped.length > 0) {
         throw new Error(
@@ -2586,6 +2588,7 @@ export class Ctx extends Context {
     if (mode === `update-data`) {
       note(`options`, true)
       note(`keyboard`, true)
+      note(`is_shared`, true)
       noteUniversal()
       if (dropped.length > 0) {
         throw new Error(
@@ -4479,10 +4482,13 @@ export class Ctx extends Context {
    *   ?? msg.widget.id` (the widget_id path grammY resolves).
    *
    * `is_shared` is a send-time declaration only: it is passed to
-   * `replyWithWidget` when a new widget is created, and the
-   * broadcast-revise route still reads it from the template (stored targets
-   * carry no update to detect from). The `edit` and `update-data` routes
-   * ignore it and detect shared-ness from the context instead.
+   * `replyWithWidget` when a new widget is created — the `is_shared` render
+   * param (reply and broadcast-send routes) overrides the template block's
+   * value, and the `options` bag is still spread last, so `options.is_shared`
+   * wins over the param. The broadcast-revise route still reads it from the
+   * template (stored targets carry no update to detect from). The `edit`
+   * and `update-data` routes ignore it and detect shared-ness from the
+   * context instead.
    *
    * Fail-fast validation (`Ctx.assertWidget`) runs BEFORE any API call on the
    * COMPILED strings — programmer errors always throw, never fall back.
@@ -4493,7 +4499,7 @@ export class Ctx extends Context {
    * style, while testing if needed): the caption is designed to stand alone
    * as the widget's replacement on clients without widget support.
    *
-   * @param params - Optional params object (defaults to `{}`): `mode` one of `reply` (default), `edit`, `update-data`; `keyboard` optional keyboard markup (or null to omit) — inline-only on the `edit` route, `editMessageReplyMarkup` rejects a bottom keyboard; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block widget (or null to use default); `options` optional extra `sendWidget` fields, spread last over the template fields (or null to omit); `broadcast` optional fan-out — `{ids, languageCode, ...}` sends to many recipients, `{targets, reviseOptions}` data-updates stored widget messages (non-shared widgets only).
+   * @param params - Optional params object (defaults to `{}`): `mode` one of `reply` (default), `edit`, `update-data`; `keyboard` optional keyboard markup (or null to omit) — inline-only on the `edit` route, `editMessageReplyMarkup` rejects a bottom keyboard; `data` optional template interpolation data (or null to omit); `AGBaseId` optional template base ID position for block widget (or null to use default); `options` optional extra `sendWidget` fields, spread last over the template fields (or null to omit); `is_shared` optional first-class override of the template block's `is_shared` on the send routes (reply and broadcast-send; or null to keep the template value); `broadcast` optional fan-out — `{ids, languageCode, ...}` sends to many recipients, `{targets, reviseOptions}` data-updates stored widget messages (non-shared widgets only).
    * @returns The sent widget message, `true` for an edit / data-update, `undefined` when the send fell back to the caption text, or the broadcast counts.
    *
    * @example
@@ -4520,7 +4526,7 @@ export class Ctx extends Context {
       if (`targets` in broadcast) {
         return await this._broadcastReviseWidget({targets: broadcast.targets, reviseOptions: broadcast.reviseOptions, data: params.data, AGBaseId: params.AGBaseId})
       }
-      return await this._broadcastSendWidget({...broadcast, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options})
+      return await this._broadcastSendWidget({...broadcast, keyboard: params.keyboard, data: params.data, AGBaseId: params.AGBaseId, options: params.options, is_shared: params.is_shared})
     }
     const mode = params.mode ?? `reply`
     const w = this.templateManager.getGWidget(this.data.name, params.AGBaseId ?? undefined, this.from?.language_code, params.data ?? undefined)
@@ -4533,7 +4539,7 @@ export class Ctx extends Context {
           chat_data: w.chat_data ?? undefined,
           public_data: w.public_data ?? undefined,
           allow_queries: w.allow_queries ?? undefined,
-          is_shared: w.is_shared ?? undefined,
+          is_shared: params.is_shared ?? w.is_shared ?? undefined,
           show_caption_above_media: w.show_caption_above_media ?? undefined,
           width: w.width !== undefined ? Number(w.width) : undefined,
           height: w.height !== undefined ? Number(w.height) : undefined,
@@ -4624,7 +4630,7 @@ export class Ctx extends Context {
    * if needed): a widget sent to a group chat fails per recipient and is
    * counted, not pre-rejected.
    *
-   * @param params - Broadcast-send params plus the host `renderWidget` fields: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block widget (or null to use default); `options` optional extra `sendWidget` fields (or null to omit); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
+   * @param params - Broadcast-send params plus the host `renderWidget` fields: `ids` recipient user IDs (required); `languageCode` parallel language codes, one per recipient (required); `keyboard` optional keyboard markup (or null to omit); `data` optional template interpolation data (or null to omit); `AGBaseId` optional template g-base ID position for block widget (or null to use default); `options` optional extra `sendWidget` fields (or null to omit); `is_shared` optional first-class override of the template block's `is_shared`, applied to every recipient (or null to keep the template value); `throwError` if true, throws errors instead of swallowing them (or null to use false); `chunkSize` optional custom chunk size for pacing sleeps (or null for free-limit pacing only); `chunkDelayMs` optional delay in ms after each `chunkSize` chunk (or null for `500`); `excludeIds` optional user IDs to skip, counted as skipped (or null to send to all); `onProgress` optional checkpoint callback `(done, total)` fired after every pacing chunk and once at completion (or null to skip); `startFrom` optional absolute recipient index to resume from; indexes below count as skipped and are never resent (or null to start at `0`); `concurrency` optional parallel send workers; `1` keeps the sequential loop, floored at `1`, capped at `10`, non-finite becomes `1` (or null for `1`).
    * @returns Counts plus `retryable[]` for a re-drive pass.
    *
    * @internal
@@ -4635,9 +4641,10 @@ export class Ctx extends Context {
       data?: IData | null
       AGBaseId?: string | null
       options?: Parameters<Ctx[`replyWithWidget`]>[1] | null
+      is_shared?: boolean | null
     }
   ): Promise<IBroadcastSendResult> {
-    const {ids, languageCode, keyboard, data, AGBaseId, options, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
+    const {ids, languageCode, keyboard, data, AGBaseId, options, is_shared, throwError = false, chunkSize = null, chunkDelayMs = null, excludeIds = null, onProgress, startFrom, concurrency} = params
     const res: IBroadcastSendResult = {successCount: 0, failedCount: 0, totalCount: 0, skippedCount: 0, retryable: []}
     res.totalCount = ids.length
     const limitFree = 30
@@ -4670,7 +4677,7 @@ export class Ctx extends Context {
           chat_data: widget.chat_data ?? undefined,
           public_data: widget.public_data ?? undefined,
           allow_queries: widget.allow_queries ?? undefined,
-          is_shared: widget.is_shared ?? undefined,
+          is_shared: is_shared ?? widget.is_shared ?? undefined,
           show_caption_above_media: widget.show_caption_above_media ?? undefined,
           width: widget.width !== undefined ? Number(widget.width) : undefined,
           height: widget.height !== undefined ? Number(widget.height) : undefined,

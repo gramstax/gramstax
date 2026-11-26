@@ -2123,6 +2123,18 @@ export type IRouteWidgetReply = INeverFields<`rich` | `richOptions` | `broadcast
    * @defaultValue `null` (no extra options)
    */
   options?: IOptWidget | null
+  /**
+   * First-class override of the template block's `is_shared` — whether the
+   * new widget is shared.
+   *
+   * @remarks
+   * The param wins over the `<g-widget is_shared>` attribute; omitting it
+   * keeps the template value. The `options` bag is still spread last over
+   * the template fields, so `options.is_shared` wins over this field.
+   *
+   * @defaultValue `null` (template value)
+   */
+  is_shared?: boolean | null
 }
 
 /**
@@ -2139,11 +2151,12 @@ export type IRouteWidgetReply = INeverFields<`rich` | `richOptions` | `broadcast
  *
  * On a shared widget the state edit goes to `editSharedWidgetData`
  * (public data, every message showing the widget), while the caption and
- * keyboard edits still target only the context-held message.
+ * keyboard edits still target only the context-held message. Shared-ness is
+ * auto-detected from the context, so this route takes no `is_shared` field.
  *
  * @public
  */
-export type IRouteWidgetEdit = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions`> & {
+export type IRouteWidgetEdit = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `is_shared`> & {
   /**
    * Forces an in-place re-apply of the template onto the held widget message.
    */
@@ -2167,10 +2180,12 @@ export type IRouteWidgetEdit = INeverFields<`rich` | `richOptions` | `broadcast`
  * `editSharedWidgetData` (every message showing the widget). No caption, no
  * keyboard, no options — and it does NOT answer the widget query: the
  * handler must still call `ctx.answerWidgetQuery` within 15 seconds.
+ * Shared-ness is auto-detected from the update, so this route takes no
+ * `is_shared` field.
  *
  * @public
  */
-export type IRouteWidgetUpdateData = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `keyboard`> & {
+export type IRouteWidgetUpdateData = INeverFields<`rich` | `richOptions` | `broadcast` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `keyboard` | `is_shared`> & {
   /**
    * Updates only the widget data on the held widget message.
    */
@@ -2210,6 +2225,18 @@ export type IRouteWidgetBroadcastSend = INeverFields<`mode` | `rich` | `richOpti
    * @defaultValue `null` (no extra options)
    */
   options?: IOptWidget | null
+  /**
+   * First-class override of the template block's `is_shared` — whether the
+   * new widget is shared — applied to every recipient.
+   *
+   * @remarks
+   * The param wins over the `<g-widget is_shared>` attribute; omitting it
+   * keeps the template value. The `options` bag is still spread last over
+   * the template fields, so `options.is_shared` wins over this field.
+   *
+   * @defaultValue `null` (template value)
+   */
+  is_shared?: boolean | null
 }
 
 /**
@@ -2225,11 +2252,11 @@ export type IRouteWidgetBroadcastSend = INeverFields<`mode` | `rich` | `richOpti
  * omitted from the type. Shared widgets are rejected fail-fast: one
  * `editSharedWidgetData` call updates every message showing the widget, so
  * a fan-out over stored messages is the wrong tool — use
- * `mode: "update-data"` once instead.
+ * `mode: "update-data"` once instead. This route takes no `is_shared` field.
  *
  * @public
  */
-export type IRouteWidgetBroadcastRevise = INeverFields<`mode` | `rich` | `richOptions` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `keyboard`> & {
+export type IRouteWidgetBroadcastRevise = INeverFields<`mode` | `rich` | `richOptions` | `chunkSize` | `fallback` | `options` | `editOptions` | `fallbackOptions` | `keyboard` | `is_shared`> & {
   /**
    * Broadcast-revise fan-out: stored `{chatId, messageId}` rows to update,
    * in stable order (checkpoint index = array index).
@@ -2276,6 +2303,11 @@ export type IRouteWidgetBroadcastRevise = INeverFields<`mode` | `rich` | `richOp
  * the only mode meaningful for shared widgets. Neither edit mode answers the
  * widget query — the handler must still call `ctx.answerWidgetQuery` within
  * 15 seconds.
+ *
+ * `is_shared` is a send-route-only param (`reply` and broadcast-send): it
+ * overrides the template block's `is_shared` at send time, while the edit
+ * routes auto-detect shared-ness from the context and take no `is_shared`
+ * field.
  *
  * Send failures follow `Ctx.classifySendError`, except the fallback content
  * is the widget caption (sent as text with `parse_mode: "HTML"`) instead of
