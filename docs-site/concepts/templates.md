@@ -15,7 +15,7 @@ call**, so it can be compiled, validated, translated and reused by tests.
 
 ## Blocks
 
-Page blocks are prefixed `g-`. There are 30: 21 content blocks that map to a
+Page blocks are prefixed `g-`. There are 34: 25 content blocks that map to a
 Telegram capability, 7 logic blocks and 2 utility blocks. The table below is a
 selection.
 
@@ -26,20 +26,20 @@ selection.
 | `g-media` | A photo, video, animation, audio, document, voice, video note, sticker, location or contact |
 | `g-media-group` | Up to ten media items |
 | `g-poll` | A poll, with `g-question` and `g-option` children |
+| `g-widget` | An HTML widget, with `g-widget-caption` and `g-widget-body` children |
 | `g-invoice` | An invoice, with `g-price` children |
 | `g-callback-answer` | The answer to a callback query |
 | `g-answer-note` | The guest-mode answer marker |
 | `g-web-app-answer` | The web-app query answer marker |
+| `g-widget-answer` | The answer to a widget query |
 | `g-ifelse` / `g-switch` / `g-case` | Conditionals |
 | `g-import` | Pull in another template file |
 | `g-script` | Inline execution, **rejected by ahead-of-time compilation**, see below |
 
-Every content block sits inside a `<g-base>`. The validator treats 19 blocks as
+Every content block sits inside a `<g-base>`. The validator treats 28 blocks as
 containers and rejects a self-closing form for them, from `<g-base>` down to
-`<g-div>`, including `<g-web-app-answer>`. Nine blocks are exempt from that check
-entirely (`g-price`, `g-venue`, `g-dice`, `g-callback-answer`,
-`g-precheckout-error`, `g-shipping-error`, `g-inline-button`, `g-answer-note`,
-`g-gift`), so either form is accepted for those. `<g-space>` and `<g-import>` are
+`<g-div>`, including `<g-web-app-answer>`. Four blocks are exempt from that check
+entirely (`g-price`, `g-venue`, `g-dice`, `g-inline-button`), so either form is accepted for those. `<g-space>` and `<g-import>` are
 the two utility blocks and are written self-closing.
 
 That is a summary. The full reference, with every block's attributes and its
