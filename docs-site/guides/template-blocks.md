@@ -1,6 +1,6 @@
 ---
 title: Template Blocks
-description: The 30 PAGE blocks, grouped by what they do, with the attributes, nesting rules and structural checks each one is subject to.
+description: The 34 PAGE blocks, grouped by what they do, with the attributes, nesting rules and structural checks each one is subject to.
 icon: blocks
 ---
 
@@ -9,7 +9,7 @@ icon: blocks
 A page's `static template` is the only place its markup lives. Inside it, a
 `<g-*>` block is the unit a `render*()` call reads: you do not name a tag when
 you call `renderText`, you name a `<g-base>` and let the block decide what gets
-sent. There are **30** PAGE blocks and the vocabulary is closed, enforced by
+sent. There are **34** PAGE blocks and the vocabulary is closed, enforced by
 `TemplateEngine.ALLOWED_BLOCKS_PAGE`. Anything that is not in that set and not
 one of the Telegram tags is rejected at compile time.
 
@@ -17,17 +17,17 @@ For the keyboard builders (`LabelGKeyboard`, `BlockGKeyboard`) and per-block
 languages, see [Templates](/concepts/templates). For how a key on the render
 params reaches these blocks, see [the render contract](/concepts/render-contract).
 
-## The 30 blocks
+## The 34 blocks
 
 | Group | Blocks | Count |
 | --- | --- | --- |
 | Structure and sharing | `g-base`, `g-import/`, `g-space/` | 3 |
 | Logic | `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div` | 7 |
-| Content | `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-price`, `g-paid-media`, `g-venue`, `g-dice`, `g-description`, `g-gift` | 14 |
+| Content | `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-price`, `g-paid-media`, `g-venue`, `g-dice`, `g-description`, `g-gift`, `g-widget`, `g-widget-caption`, `g-widget-body`, `g-widget-answer` | 18 |
 | Answers | `g-callback-answer`, `g-precheckout-error`, `g-shipping-error`, `g-inline-button`, `g-answer-note`, `g-web-app-answer` | 6 |
-| | **Total** | **30** |
+| | **Total** | **34** |
 
-The source splits them 21 content / 7 logic / 2 utility. The grouping above is
+The source splits them 25 content / 7 logic / 2 utility. The grouping above is
 by role in a render call, which is how you actually reach for them.
 
 ## Structure and sharing
@@ -174,6 +174,11 @@ emitted-module shape and the limits of the build path; it is not restated here.
 <g-dice emoji="🎲" />
 <g-description>Shown in the /command list</g-description>
 <g-gift>Gift text</g-gift>
+
+<g-widget allow_queries chat_data='{"count": {{{count}}}}' width="400" height="200">
+  <g-widget-caption>Tap the button inside the widget</g-widget-caption>
+  <g-widget-body><div id="count">0</div><button id="tap" type="button">+1</button></g-widget-body>
+</g-widget>
 ```
 
 Structural rules beyond the attribute names, all enforced at compile time:
@@ -189,6 +194,8 @@ Structural rules beyond the attribute names, all enforced at compile time:
 | `g-invoice` | `title`, `description`, `payload` and `currency` are required; `provider_token` is **forbidden** in a template; at least one `g-price` with a non-empty `label` and a positive `amount`; static `title` 1 to 32 characters, `description` 1 to 255, `payload` 1 to 128 bytes | `_validateInvoiceItems` |
 | `g-paid-media` | `stars` required and within 1 to `MAX_PAID_MEDIA_STARS`; 1 to `MAX_PAID_MEDIA_ITEMS` `g-media` children, each `photo` or `video` with a non-empty `src` | `_validatePaidMediaItems` |
 | `g-callback-answer` | plain text, no HTML, at most 200 characters | `_validateAnswerTextContent` |
+| `g-widget` | exactly one `g-widget-caption` and exactly one `g-widget-body`; body 1–32768 UTF-8 bytes; HTML at most 4000 bytes after zlib level-9 compression (Bot API hard limit 4096); caption 1–1024 characters after entity parsing; `chat_data` / `public_data` at most 1024 UTF-8 bytes each; no stray content outside the caption and body | `_validateWidgetItems` |
+| `g-widget-answer` | plain text, no HTML, at most 1024 bytes | `_validateAnswerTextContent` |
 
 `MAX_MEDIA_GROUP_ITEMS` is 10, matching the `sendMediaGroup` limit, and
 excess items are truncated at compile time as well as rejected at validation.
@@ -218,6 +225,7 @@ with the rest of the page's markup.
 | `g-inline-button` | `renderInlineAnswer` | `answerInlineQuery` |
 | `g-answer-note` | `renderGuestAnswer` | validation only |
 | `g-web-app-answer` | `renderWebAppAnswer` | validation only |
+| `g-widget-answer` | `renderWidgetAnswer` | `answerWidgetQuery` |
 
 ```html
 <g-callback-answer>Saved</g-callback-answer>
@@ -226,11 +234,14 @@ with the rest of the page's markup.
 <g-shipping-error>We cannot ship there</g-shipping-error>
 <g-answer-note>Note appended to the inline result</g-answer-note>
 <g-web-app-answer>Web app note</g-web-app-answer>
+<g-widget-answer>Counted!</g-widget-answer>
 ```
 
 `g-callback-answer`, `g-precheckout-error`, `g-shipping-error`,
 `g-answer-note` and `g-web-app-answer` take `lang` only and must contain plain
 text with no HTML; `g-callback-answer` is capped at 200 characters.
+`g-widget-answer` takes `lang` only, must contain plain text with no HTML, and
+is capped at 1024 bytes.
 `g-inline-button` takes `lang`, `text` and `start-parameter`; `text` is
 required and non-empty, and a static `start-parameter` must match the deep-link
 format `[A-Za-z0-9_-]` at most 64 characters. A `{{}}` value skips that check
@@ -246,7 +257,7 @@ and nothing re-checks it afterwards: the compiled value goes straight to
 
 ## Attribute reference
 
-Twenty-eight of the 30 blocks have an attribute allowlist, checked by the
+Thirty of the 34 blocks have an attribute allowlist, checked by the
 matching `validateBlockG*Attributes` method. An attribute outside the list is an
 error naming the block, not a field quietly ignored.
 
@@ -267,12 +278,16 @@ error naming the block, not a field quietly ignored.
 | `g-dice` | `lang`, `emoji` |
 | `g-description` | `lang`, `scope` |
 | `g-gift` | `lang` |
+| `g-widget` | `lang`, `allow_queries`, `is_shared`, `show_caption_above_media`, `chat_data`, `public_data`, `width`, `height` |
+| `g-widget-caption` | none checked (no per-block attribute validator) |
+| `g-widget-body` | none checked (no per-block attribute validator) |
 | `g-callback-answer` | `lang` |
 | `g-precheckout-error` | `lang` |
 | `g-shipping-error` | `lang` |
 | `g-inline-button` | `lang`, `text`, `start-parameter` |
 | `g-answer-note` | `lang` |
 | `g-web-app-answer` | `lang` |
+| `g-widget-answer` | `lang` |
 | `g-script` | none |
 | `g-ifelse` | none |
 | `g-switch` | `value` |
@@ -285,7 +300,7 @@ error naming the block, not a field quietly ignored.
 
 ### Value formats
 
-`_PAGE_ATTR_VALUE_VALIDATORS` has **9** block entries covering the 19
+`_PAGE_ATTR_VALUE_VALIDATORS` has **10** block entries covering the 21
 attributes below. Each validator returns `null` for a valid value or a message
 naming the attribute, the block and what it got.
 
@@ -308,6 +323,8 @@ naming the attribute, the block and what it got.
 | `g-venue` | `latitude` | number in [-90, 90]; dynamic spans skip the static check |
 | `g-venue` | `longitude` | number in [-180, 180]; dynamic spans skip the static check |
 | `g-dice` | `emoji` | one of 🎲 🎯 🏀 ⚽ 🎳 🎰; dynamic spans skip the static check |
+| `g-widget` | `width` | integer 200–600; `{{}}` values skip the static check (runtime-enforced) |
+| `g-widget` | `height` | integer 50–600; `{{}}` values skip the static check (runtime-enforced) |
 
 `TemplateEngine._PAGE_REQUIRED_ATTRS` is **empty**: no PAGE block has a
 strictly required attribute. It exists so a future context-dependent
@@ -326,9 +343,10 @@ appear only inside one of the parents listed for it.
 | Block | May appear inside |
 | --- | --- |
 | `g-base` | the outermost level |
-| `g-message`, `g-keyboard`, `g-media-group`, `g-poll`, `g-invoice`, `g-paid-media`, `g-venue`, `g-dice`, `g-description` | `g-base` |
+| `g-message`, `g-keyboard`, `g-media-group`, `g-poll`, `g-invoice`, `g-paid-media`, `g-venue`, `g-dice`, `g-description`, `g-widget`, `g-widget-answer` | `g-base` |
 | `g-media` | `g-base`, `g-media-group`, `g-paid-media` |
 | `g-question`, `g-option` | `g-poll` |
+| `g-widget-caption`, `g-widget-body` | `g-widget` |
 | `g-price` | `g-invoice` |
 | `g-switch` | `g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-question`, `g-option`, `g-description` |
 | `g-case`, `g-default` | `g-switch` |
@@ -365,7 +383,7 @@ suggests:
 
 | Rule | Tags |
 | --- | --- |
-| Must not self-close | 19 PAGE blocks: `g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-invoice`, `g-paid-media`, `g-description`, `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`, `g-web-app-answer` |
+| Must not self-close | 28 PAGE blocks: `g-base`, `g-message`, `g-keyboard`, `g-media`, `g-media-group`, `g-poll`, `g-question`, `g-option`, `g-widget`, `g-widget-caption`, `g-widget-body`, `g-widget-answer`, `g-invoice`, `g-paid-media`, `g-description`, `g-callback-answer`, `g-precheckout-error`, `g-shipping-error`, `g-answer-note`, `g-gift`, `g-script`, `g-ifelse`, `g-switch`, `g-case`, `g-default`, `g-map`, `g-div`, `g-web-app-answer` |
 | Must self-close | the five reachable void tags: `br`, `hr`, `img`, `input`, `tg-map` |
 
 The self-closing set also lists `space` and `import`, but the check compares the
@@ -373,10 +391,9 @@ captured tag name, which for those is `g-space` and `g-import`, so that branch
 never fires for them. Write them self-closing anyway: it is the convention every
 example uses, and both spellings compile the same way.
 
-Nine PAGE blocks appear in neither set, so either spelling is accepted and the
+Four PAGE blocks appear in neither set, so either spelling is accepted and the
 block is written however it reads best: `g-price`, `g-venue`, `g-dice`,
-`g-gift`, `g-callback-answer`, `g-precheckout-error`, `g-shipping-error`,
-`g-inline-button`, `g-answer-note`. Every content Telegram tag is likewise
+`g-inline-button`. Every content Telegram tag is likewise
 unchecked, so `<b>x</b>` and `<b/>` both pass.
 
 ## The compile pipeline
@@ -406,8 +423,8 @@ and for a `.html` file under `src/pages`:
   </Step>
 
   <Step title="Compile each block family">
-    Sixteen `compileBlockG*` statics, one per `ICompiledTemplate` field:
-    `media`, `poll`, `venue`, `dice`, `callbackAnswer`, `precheckoutError`,
+    Eighteen `compileBlockG*` statics, one per `ICompiledTemplate` field:
+    `media`, `poll`, `widget`, `widgetAnswer`, `venue`, `dice`, `callbackAnswer`, `precheckoutError`,
     `shippingError`, `inlineButton`, `answerNote`, `webAppAnswer`, `gift`,
     `invoice`, `paidMedia`, `message`, `keyboard`, `description`.
   </Step>
