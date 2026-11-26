@@ -4949,6 +4949,13 @@ export class TemplateEngine {
       "g-venue": new Set([`g-base`]),
       "g-dice": new Set([`g-base`]),
       "g-description": new Set([`g-base`]),
+      "g-callback-answer": new Set([`g-base`]),
+      "g-precheckout-error": new Set([`g-base`]),
+      "g-shipping-error": new Set([`g-base`]),
+      "g-inline-button": new Set([`g-base`]),
+      "g-answer-note": new Set([`g-base`]),
+      "g-web-app-answer": new Set([`g-base`]),
+      "g-gift": new Set([`g-base`]),
       "g-switch": new Set([`g-message`, `g-keyboard`, `g-media`, `g-poll`, `g-question`, `g-option`, `g-description`]),
       "g-case": new Set([`g-switch`]),
       "g-default": new Set([`g-switch`]),
@@ -5102,12 +5109,13 @@ export class TemplateEngine {
    *   `<g-media>...</g-media>`, `<g-poll>...</g-poll>`, `<g-question>...</g-question>`,
    *   `<g-option>...</g-option>`, `<g-widget>...</g-widget>`, `<g-widget-caption>...</g-widget-caption>`, `<g-invoice>...</g-invoice>`, `<g-paid-media>...</g-paid-media>`, `<g-description>...</g-description>`, `<g-script>...</g-script>`,
    *   `<g-switch>...</g-switch>`, `<g-case>...</g-case>`, `<g-default>...</g-default>`,
-   *   `<g-map>...</g-map>`, `<g-div>...</g-div>`, `<g-web-app-answer>...</g-web-app-answer>`
+   *   `<g-map>...</g-map>`, `<g-div>...</g-div>`, `<g-web-app-answer>...</g-web-app-answer>`,
+   *   `<g-callback-answer>...</g-callback-answer>`, `<g-precheckout-error>...</g-precheckout-error>`, `<g-shipping-error>...</g-shipping-error>`, `<g-answer-note>...</g-answer-note>`, `<g-gift>...</g-gift>`
    *
-   * Nine page blocks appear in neither set and accept either form: `<g-price>`,
-   * `<g-venue>`, `<g-dice>`, `<g-gift>`, `<g-callback-answer>`,
-   * `<g-precheckout-error>`, `<g-shipping-error>`, `<g-inline-button>`,
-   * `<g-answer-note>`.
+   * Four page blocks appear in neither set and accept either form: `<g-price>`,
+   * `<g-venue>`, `<g-dice>`, `<g-inline-button>`. Their extractors accept
+   * both spellings identically (attribute-only blocks / line items that
+   * carry no children), so neither spelling is rejected here.
    *
    * Telegram HTML formatting tags with content (e.g. `<b>`, `<p>`, `<table>`) passthrough
    * and are not format-checked — both `<b>text</b>` and `<b/>` are accepted.
@@ -5142,6 +5150,11 @@ export class TemplateEngine {
       `g-invoice`,
       `g-paid-media`,
       `g-description`,
+      `g-callback-answer`,
+      `g-precheckout-error`,
+      `g-shipping-error`,
+      `g-answer-note`,
+      `g-gift`,
       `g-script`,
       `g-ifelse`,
       `g-switch`,

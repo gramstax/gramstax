@@ -42,6 +42,17 @@ describe(`gift-block-validate`, () => {
     expect(result.valid).toBe(false)
     expect(result.errors.length).toBeGreaterThan(0)
   })
+
+  it(`rejects a self-closing gift block`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-base><g-gift/></g-base>`)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((error) => error.message.includes(`must not be self-closing`))).toBe(true)
+  })
+
+  it(`rejects a gift block outside its base`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-gift>Hadiah</g-gift>`)
+    expect(result.valid).toBe(false)
+  })
 })
 
 describe(`gift-manager`, () => {

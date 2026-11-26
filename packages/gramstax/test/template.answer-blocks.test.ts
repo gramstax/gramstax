@@ -161,6 +161,39 @@ describe(`answer-blocks-validate`, () => {
     const result = TemplateEngine.validateTemplate(`<g-widget-answer>ok</g-widget-answer>`)
     expect(result.valid).toBe(false)
   })
+
+  it(`rejects a self-closing callback-answer block`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-base><g-callback-answer/></g-base>`)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((error) => error.message.includes(`must not be self-closing`))).toBe(true)
+  })
+
+  it(`rejects a callback-answer block outside its base`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-callback-answer>OK</g-callback-answer>`)
+    expect(result.valid).toBe(false)
+  })
+
+  it(`rejects a self-closing precheckout-error block`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-base><g-precheckout-error/></g-base>`)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((error) => error.message.includes(`must not be self-closing`))).toBe(true)
+  })
+
+  it(`rejects a precheckout-error block outside its base`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-precheckout-error>E</g-precheckout-error>`)
+    expect(result.valid).toBe(false)
+  })
+
+  it(`rejects a self-closing shipping-error block`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-base><g-shipping-error/></g-base>`)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((error) => error.message.includes(`must not be self-closing`))).toBe(true)
+  })
+
+  it(`rejects a shipping-error block outside its base`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-shipping-error>S</g-shipping-error>`)
+    expect(result.valid).toBe(false)
+  })
 })
 
 const inlineButtonTemplate = `<g-base id="inline">
@@ -239,6 +272,28 @@ describe(`answer-blocks-struct-validate`, () => {
     const result = TemplateEngine.validateBlockGAnswerNoteAttributes(`<g-base><g-answer-note>N <b>x</b></g-answer-note></g-base>`)
     expect(result.valid).toBe(false)
   })
+
+  it(`rejects a self-closing answer-note block`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-base><g-answer-note/></g-base>`)
+    expect(result.valid).toBe(false)
+    expect(result.errors.some((error) => error.message.includes(`must not be self-closing`))).toBe(true)
+  })
+
+  it(`rejects an answer-note block outside its base`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-answer-note>Note</g-answer-note>`)
+    expect(result.valid).toBe(false)
+  })
+
+  it(`rejects an inline-button block outside its base`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-inline-button text="Lihat"/>`)
+    expect(result.valid).toBe(false)
+  })
+
+  it(`accepts the pair form of inline-button inside a base`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-base><g-inline-button text="Lihat"></g-inline-button></g-base>`)
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
+  })
 })
 
 const webAppAnswerTemplate = `<g-base id="webapp">
@@ -256,6 +311,11 @@ describe(`web-app-answer-validation`, () => {
     const result = TemplateEngine.validateTemplate(`<g-base><g-web-app-answer/></g-base>`)
     expect(result.valid).toBe(false)
     expect(result.errors.some((error) => error.message.includes(`must not be self-closing`))).toBe(true)
+  })
+
+  it(`rejects a web-app answer block outside its base`, () => {
+    const result = TemplateEngine.validateTemplate(`<g-web-app-answer>Note</g-web-app-answer>`)
+    expect(result.valid).toBe(false)
   })
 
   it(`rejects unknown attributes on the web-app answer block`, () => {
