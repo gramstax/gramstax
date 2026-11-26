@@ -48,7 +48,7 @@
         "gramstax": "workspace:*",
       },
       "devDependencies": {
-        "grammy": "1.46.0",
+        "grammy": "1.48.0",
       },
     },
     "example/3-helloworld-js": {
@@ -128,7 +128,7 @@
         "chokidar": "^4.0.3",
         "commander": "^14.0.2",
         "dotenv": "^16.4.7",
-        "grammy": "^1.46.0",
+        "grammy": "^1.48.0",
         "keyv": "^5.5.4",
         "logging-pretty": "^3.0.0",
       },
@@ -516,7 +516,7 @@
 
     "@grammyjs/transformer-throttler": ["@grammyjs/transformer-throttler@1.2.1", "", { "dependencies": { "bottleneck": "^2.0.0" }, "peerDependencies": { "grammy": "^1.0.0" } }, "sha512-CpWB0F3rJdUiKsq7826QhQsxbZi4wqfz1ccKX+fr+AOC+o8K7ZvS+wqX0suSu1QCsyUq2MDpNiKhyL2ZOJUS4w=="],
 
-    "@grammyjs/types": ["@grammyjs/types@5.0.0", "", {}, "sha512-iq1Qrq1iPKkB8yAa0qSuIURMZOCuqTY5pWy5gHpCeL1oQ+GPadGhw/cDTVE8waJwuCzacUzuIjRv1sESvk7u7A=="],
+    "@grammyjs/types": ["@grammyjs/types@5.2.0", "", {}, "sha512-URnzUV3rBEkEtsHz/+/na8uDJS45eD0vXGM73Ucps2nKpdVfhT4+EyYV8lDftazVRoWN2mT2hjMzMEbSPURBhA=="],
 
     "@gramstax/lmdb": ["@gramstax/lmdb@workspace:packages/lmdb"],
 
@@ -1002,7 +1002,7 @@
 
     "graceful-fs": ["graceful-fs@4.2.11", "", {}, "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="],
 
-    "grammy": ["grammy@1.46.0", "", { "dependencies": { "@grammyjs/types": "5.0.0", "abort-controller": "^3.0.0", "debug": "^4.4.3", "node-fetch": "^2.7.0" } }, "sha512-/8Qw+iisrUdOMk+p2mjEHouMm/BBdBEN1DHh16wiTpRUZkxDG3PxexdjCvR+wvK3LWPdrEvnQbdrwpU954sPhg=="],
+    "grammy": ["grammy@1.48.0", "", { "dependencies": { "@grammyjs/types": "5.2.0", "abort-controller": "^3.0.0", "debug": "^4.4.3", "node-fetch": "^2.7.0" } }, "sha512-/QMphprJxroslpNCFR3SFQwOobjf6uCAmz+OzK94FAVvhQxG/NmKqnkLVhnKkcZ6hruwAFKka6+34Zzg5CjAiQ=="],
 
     "gramstax": ["gramstax@workspace:packages/gramstax"],
 

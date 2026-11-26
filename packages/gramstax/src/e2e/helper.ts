@@ -151,7 +151,7 @@ export class E2eHelper {
    */
   _internalResponse(method: string): unknown {
     if (method === `getMe`) {
-      return {ok: true, result: {id: 123456789, is_bot: true, first_name: `GramstaxMock`, username: `gramstax_mock_bot`}}
+      return {ok: true, result: {id: 123456789, is_bot: true, first_name: `GramstaxMock`, username: `gramstax_mock_bot`, can_join_groups: true, can_read_all_group_messages: false, supports_guest_queries: false, supports_inline_queries: false}}
     }
     if (method === `getWebhookInfo`) {
       return {ok: true, result: {url: ``}}

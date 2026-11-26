@@ -131,7 +131,7 @@ passes if the entry defines one, and throws if it does not.
 
 Everything the Bot API accepts passes through too: 54 tags in five groups,
 including `tg-emoji`, `tg-map`, `tg-math`, `tg-time`, `tg-slideshow` and
-`tg-collage`. Validation runs against Bot API **10.3**, in three layers:
+`tg-collage`. Validation runs against Bot API **10.5**, in three layers:
 
 1. **Required attributes**: `<tg-emoji>` needs `emoji-id`, `<tg-map>` needs
    `lat`, `long` and `zoom`.

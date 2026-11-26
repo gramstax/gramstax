@@ -8,7 +8,7 @@ icon: code-xml
 
 Inside a `<g-message>`, everything that is not a `<g-*>` block is Telegram
 markup, and it goes straight to the message `html` field. There are **54**
-allowed tags, validated against Telegram Bot API **10.3**
+allowed tags, validated against Telegram Bot API **10.5**
 (`TemplateEngine.BOT_API_VERSION`). The vocabulary is closed: an unrecognised
 tag is a compile error, not a silently shipped string.
 

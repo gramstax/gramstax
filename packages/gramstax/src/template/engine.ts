@@ -137,7 +137,7 @@ export class TemplateEngine {
    * Updated with each gramstax release to reflect the latest supported
    * Telegram Bot API version.
    */
-  static BOT_API_VERSION = `10.3`
+  static BOT_API_VERSION = `10.5`
   /**
    * Bot API dice emoji values accepted by `<g-dice emoji>`.
    *
@@ -403,7 +403,7 @@ export class TemplateEngine {
    * the required-attribute check, so missing attributes are reported
    * separately by {@link TemplateEngine._TELEGRAM_REQUIRED_ATTRS}.
    *
-   * Value rules follow the Telegram Bot API 10.3 Rich Message Formatting
+   * Value rules follow the Telegram Bot API 10.5 Rich Message Formatting
    * Options spec (see `BOT_API_VERSION`). `{{placeholder}}` values and
    * boolean attributes (no `=value`) are skipped by the caller.
    *
@@ -430,7 +430,7 @@ export class TemplateEngine {
         const n = Number(v)
         return !Number.isNaN(n) && n >= -180 && n <= 180 ? null : `long must be a number between -180 and 180 (got "${v}")`
       },
-      // Bot API 10.3 rich map zoom range (13-20)
+      // Bot API 10.5 rich map zoom range (13-20)
       zoom: (v) => (/^\d+$/.test(v) && Number(v) >= 13 && Number(v) <= 20 ? null : `zoom must be an integer between 13 and 20 (got "${v}")`)
     },
     "tg-emoji": {
@@ -453,7 +453,7 @@ export class TemplateEngine {
       src: (v) => (/^(https?:\/\/|tg:\/\/audio\?id=\d+|tg:\/\/document\?id=\d+)/i.test(v) ? null : `src must be an http(s) URL or a tg://audio/document reference (got "${v}")`)
     },
     input: {
-      // Bot API 10.3 rich messages: only <input type="checkbox"> is supported (checklists)
+      // Bot API 10.5 rich messages: only <input type="checkbox"> is supported (checklists)
       type: (v) => (v === `checkbox` ? null : `type must be "checkbox" (got "${v}")`),
       checked: () => null
     },
@@ -508,7 +508,7 @@ export class TemplateEngine {
    * @remarks
    * Single source of truth for the unknown-attribute validation pass
    * ({@link TemplateEngine._validateTelegramTagUnknownAttributes}). Built from
-   * the official Telegram Bot API 10.3 rich HTML style examples
+   * the official Telegram Bot API 10.5 rich HTML style examples
    * (core.telegram.org/bots/api#rich-html-style) unioned with legacy
    * parse_mode HTML attributes still tolerated (blockquote expandable,
    * cite attributes, li checkbox/checked). Tags with an empty array allow

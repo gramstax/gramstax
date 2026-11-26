@@ -3,7 +3,7 @@ import {TemplateEngine} from "~/template/engine"
 
 /**
  * Exhaustive matrix: every official attribute of every rich tag exercised with
- * valid and invalid values (Bot API 10.3). Add rows when the spec changes —
+ * valid and invalid values (Bot API 10.5). Add rows when the spec changes —
  * the test loop runs the whole table. Void tags are rendered self-closing;
  * content tags get a closing tag. {{placeholder}} values are excluded here
  * (they are covered by a dedicated test in template.engine.test.ts).

@@ -359,7 +359,11 @@ export class MockTelegramServer {
           id: 123456789,
           is_bot: true,
           first_name: `Mock`,
-          username: `mock_gramstax_bot`
+          username: `mock_gramstax_bot`,
+          can_join_groups: true,
+          can_read_all_group_messages: false,
+          supports_guest_queries: false,
+          supports_inline_queries: false
         }
       }
     }

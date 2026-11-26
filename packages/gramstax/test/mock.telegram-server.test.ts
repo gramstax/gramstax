@@ -40,7 +40,11 @@ describe(`MockTelegramServer`, () => {
         ok: true,
         result: expect.objectContaining({
           is_bot: true,
-          username: `mock_gramstax_bot`
+          username: `mock_gramstax_bot`,
+          can_join_groups: true,
+          can_read_all_group_messages: false,
+          supports_guest_queries: false,
+          supports_inline_queries: false
         })
       })
     )

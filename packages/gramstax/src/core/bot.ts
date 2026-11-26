@@ -22,7 +22,7 @@ import {stream} from "@grammyjs/stream"
 import {apiThrottler} from "@grammyjs/transformer-throttler"
 import KeyvRedis from "@keyv/redis"
 import {API_CONSTANTS, Bot, type BotConfig, type BotError, type Context, type Middleware, webhookCallback} from "grammy"
-import type {BotCommandScope, LanguageCode, Update, UserFromGetMe} from "grammy/types"
+import type {BotCommandScope, BotFullInfo, LanguageCode, Update} from "grammy/types"
 import {CacheExternal} from "~/cache/external"
 import {SessionLock} from "~/core/session-lock"
 import {type LoggingHelper, log} from "~/helpers/log"
@@ -159,6 +159,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     [`message_reaction`, `reaction`],
     [`inline_query`, `inlinequery`],
     [`chosen_inline_result`, `choseninlineresult`],
+    [`widget_query`, `widgetquery`],
+    [`shared_widget_query`, `sharedwidgetquery`],
     [`pre_checkout_query`, `precheckoutquery`],
     [`shipping_query`, `shippingquery`],
     [`chat_join_request`, `chatjoinrequest`],
@@ -677,6 +679,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
     this.bot.on(`message_reaction`, (ctx) => this._onHandle(ctx, `reaction`, false))
     this.bot.on(`inline_query`, (ctx) => this._onHandle(ctx, `inlinequery`, false))
     this.bot.on(`chosen_inline_result`, (ctx) => this._onHandle(ctx, `choseninlineresult`, false))
+    this.bot.on(`widget_query`, (ctx) => this._onHandle(ctx, `widgetquery`, false))
+    this.bot.on(`shared_widget_query`, (ctx) => this._onHandle(ctx, `sharedwidgetquery`, false))
     this.bot.on(`pre_checkout_query`, (ctx) => this._onHandle(ctx, `precheckoutquery`, false))
     this.bot.on(`shipping_query`, (ctx) => this._onHandle(ctx, `shippingquery`, false))
     this.bot.on(`chat_join_request`, (ctx) => this._onHandle(ctx, `chatjoinrequest`, false))
@@ -1857,7 +1861,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
    *
    * @internal
    */
-  async _onStart(botInfo: UserFromGetMe, method: `polling` | `webhook` | `serverless`, data: string | null) {
+  async _onStart(botInfo: BotFullInfo, method: `polling` | `webhook` | `serverless`, data: string | null) {
     await this.executeSyncBlocksDescription(this.pages)
 
     const {username} = botInfo
@@ -1878,7 +1882,7 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       return
     }
     const opts: Record<string, unknown> = {
-      onStart: (botInfo: UserFromGetMe) => this._onStart(botInfo, `polling`, null)
+      onStart: (botInfo: BotFullInfo) => this._onStart(botInfo, `polling`, null)
     }
     // Request all update types to receive channel posts, inline queries,
     // reactions, poll updates, join requests, etc.
@@ -2635,6 +2639,8 @@ export class Gramstax<ICtx extends Ctx = Ctx> {
       `handleFreeReaction`,
       `handleFreeInlineQuery`,
       `handleFreeChosenInlineResult`,
+      `handleFreeWidgetQuery`,
+      `handleFreeSharedWidgetQuery`,
       `handleFreePreCheckoutQuery`,
       `handleFreeShippingQuery`,
       `handleFreeChatJoinRequest`,

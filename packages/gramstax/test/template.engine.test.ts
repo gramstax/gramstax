@@ -2273,6 +2273,15 @@ describe(`TemplateEngine`, () => {
       expect(bad.valid).toBe(false)
     })
 
+    it(`<blockquote expandable> accepts arbitrary nested blocks (Bot API 10.5)`, () => {
+      // Bot API 10.5 replaced the text field of RichBlockExpandableBlockQuotation
+      // with blocks: an expandable quotation may now contain arbitrary blocks.
+      const result = TemplateEngine.validateTemplate(
+        `<g-base><g-message><blockquote expandable><p>lead</p><ul><li>one</li><li>two</li></ul><table><tr><td>cell</td></tr></table></blockquote></g-message></g-base>`
+      )
+      expect(result.valid).toBe(true)
+    })
+
     it(`<aside cite> validates`, () => {
       const ok = TemplateEngine.validateTelegramAttributeValuesBlock(`<aside cite="https://example.com">q</aside>`)
       expect(ok.valid).toBe(true)

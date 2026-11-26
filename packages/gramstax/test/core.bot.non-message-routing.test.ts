@@ -34,6 +34,8 @@ let pinMessageCalled = false
 let forumTopicCreatedCalled = false
 let proximityAlertCalled = false
 let newChatTitleCalled = false
+let widgetQueryCalled = false
+let sharedWidgetQueryCalled = false
 let customRouteCalled = false
 let sessionNicheCalled = false
 
@@ -50,6 +52,8 @@ beforeEach(() => {
   forumTopicCreatedCalled = false
   proximityAlertCalled = false
   newChatTitleCalled = false
+  widgetQueryCalled = false
+  sharedWidgetQueryCalled = false
   customRouteCalled = false
   sessionNicheCalled = false
 })
@@ -67,6 +71,24 @@ class InlinePage extends Ctx {
   static data = {name: `inlineHandler`} as any
 
   async handleFreeInlineQuery() {
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class WidgetPage extends Ctx {
+  static data = {name: `widgetHandler`} as any
+
+  async handleFreeWidgetQuery() {
+    widgetQueryCalled = true
+    ;(this as any).temp.isAnswer = true
+  }
+}
+
+class SharedWidgetPage extends Ctx {
+  static data = {name: `sharedWidgetHandler`} as any
+
+  async handleFreeSharedWidgetQuery() {
+    sharedWidgetQueryCalled = true
     ;(this as any).temp.isAnswer = true
   }
 }
@@ -498,6 +520,34 @@ function buildInlineQuery(): Record<string, unknown> {
   }
 }
 
+function buildWidgetQuery(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    widget_query: {
+      id: `wq-1`,
+      from: {id: 123456789, is_bot: false, first_name: `Widget User`},
+      chat: {id: 123456789, type: `private`},
+      message_id: 1,
+      chat_instance: `ci-1`,
+      type: {type: `data`, data: `ping`},
+      data: `ping`
+    }
+  }
+}
+
+function buildSharedWidgetQuery(): Record<string, unknown> {
+  return {
+    update_id: Math.floor(Math.random() * 1000000),
+    shared_widget_query: {
+      id: `swq-1`,
+      from: {id: 123456789, is_bot: false, first_name: `Widget User`},
+      type: {type: `data`, data: `ping`},
+      data: `ping`,
+      widget_id: `w-1`
+    }
+  }
+}
+
 // ── tests ──────────────────────────────────────────────────────────
 
 describe(`Gramstax non-message free routing`, () => {
@@ -516,6 +566,38 @@ describe(`Gramstax non-message free routing`, () => {
     expect(dyn).toBeDefined()
     expect(dyn.length).toBe(1)
     expect(dyn[0]!.name).toBe(`inlineHandler`)
+  })
+
+  it(`should register handleFreeWidgetQuery in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `widgetHandler`, page: WidgetPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).widgetquery
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+    expect(dyn[0]!.name).toBe(`widgetHandler`)
+    expect(dyn[0]!.routeName).toBe(`handleFreeWidgetQuery`)
+  })
+
+  it(`should register handleFreeSharedWidgetQuery in routeDynamicSpesific`, () => {
+    const bot = createBot([{name: `sharedWidgetHandler`, page: SharedWidgetPage}])
+    const dyn = (bot.pages.routeDynamicSpesific as any).sharedwidgetquery
+    expect(dyn).toBeDefined()
+    expect(dyn.length).toBe(1)
+    expect(dyn[0]!.name).toBe(`sharedWidgetHandler`)
+    expect(dyn[0]!.routeName).toBe(`handleFreeSharedWidgetQuery`)
+  })
+
+  it(`should dispatch handleFreeWidgetQuery on widget_query`, async () => {
+    const bot = createBot([{name: `widgetHandler`, page: WidgetPage}])
+    const update = buildWidgetQuery()
+    await bot.bot.handleUpdate(update as any)
+    expect(widgetQueryCalled).toBe(true)
+  })
+
+  it(`should dispatch handleFreeSharedWidgetQuery on shared_widget_query`, async () => {
+    const bot = createBot([{name: `sharedWidgetHandler`, page: SharedWidgetPage}])
+    const update = buildSharedWidgetQuery()
+    await bot.bot.handleUpdate(update as any)
+    expect(sharedWidgetQueryCalled).toBe(true)
   })
 
   it(`should register handleFreePoll in routeDynamicSpesific`, () => {
@@ -542,6 +624,18 @@ describe(`Gramstax non-message free routing`, () => {
   it(`should have handleFreeInlineQuery registered in listRouteDynamicSpesific`, () => {
     const bot = createBot([{name: `inlineHandler`, page: InlinePage}])
     const hasRoute = (bot.pages.listRouteDynamicSpesific as readonly string[]).includes(`handleFreeInlineQuery`)
+    expect(hasRoute).toBe(true)
+  })
+
+  it(`should have handleFreeWidgetQuery registered in listRouteDynamicSpesific`, () => {
+    const bot = createBot([{name: `widgetHandler`, page: WidgetPage}])
+    const hasRoute = (bot.pages.listRouteDynamicSpesific as readonly string[]).includes(`handleFreeWidgetQuery`)
+    expect(hasRoute).toBe(true)
+  })
+
+  it(`should have handleFreeSharedWidgetQuery registered in listRouteDynamicSpesific`, () => {
+    const bot = createBot([{name: `sharedWidgetHandler`, page: SharedWidgetPage}])
+    const hasRoute = (bot.pages.listRouteDynamicSpesific as readonly string[]).includes(`handleFreeSharedWidgetQuery`)
     expect(hasRoute).toBe(true)
   })
 

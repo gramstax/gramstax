@@ -103,7 +103,7 @@ That structure is what produces the differences below:
   answers (`g-callback-answer`, `g-inline-button`, `g-precheckout-error`,
   `g-shipping-error`, `g-answer-note`, `g-web-app-answer`) and utilities
   (`g-import`, `g-space`).
-- 🌐 **54 Telegram HTML tags** validated to Bot API 10.3: 9 legacy tags plus 45
+- 🌐 **54 Telegram HTML tags** validated to Bot API 10.5: 9 legacy tags plus 45
   Rich HTML tags, with per-tag attribute allow-lists.
 - 🧮 **Compile-time filter pipes**: `{{name|upper}}`, `{{price|number:2}}`,
   `{{createdAt|date:YYYY-MM-DD}}`, `{{count|plural:item:items}}`,
